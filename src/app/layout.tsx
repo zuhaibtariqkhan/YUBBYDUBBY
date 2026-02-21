@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Oswald, Montserrat } from "next/font/google";
 import CustomCursor from "@/components/ui/CustomCursor";
+import SplashScreen from "@/components/ui/SplashScreen";
 import "./globals.css";
 
 const oswald = Oswald({
@@ -28,6 +29,7 @@ export default function RootLayout({
       <body
         className={`${oswald.variable} ${montserrat.variable} antialiased bg-black text-white font-sans`}
       >
+        <SplashScreen />
         <CustomCursor />
         {children}
       </body>
