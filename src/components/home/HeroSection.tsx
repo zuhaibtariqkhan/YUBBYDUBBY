@@ -39,9 +39,9 @@ export default function HeroSection() {
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.5, delay: 0.4 }}
-                    className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto px-6 sm:px-0"
+                    className="flex justify-center sm:justify-start gap-4 w-full sm:w-auto px-6 sm:px-0 mt-2"
                 >
-                    <button className="w-full sm:w-auto bg-brand-green text-brand-black font-bold uppercase tracking-widest px-8 sm:px-10 py-3 sm:py-4 rounded-[var(--radius-btn)] hover:bg-white hover:shadow-[0_0_30px_rgba(177,243,16,0.5)] transition-all duration-300">
+                    <button className="bg-brand-green text-brand-black font-bold uppercase tracking-widest px-8 sm:px-10 py-3 sm:py-4 rounded-[var(--radius-btn)] hover:bg-white hover:shadow-[0_0_30px_rgba(177,243,16,0.5)] transition-all duration-300">
                         Shop Categories
                     </button>
                 </motion.div>
