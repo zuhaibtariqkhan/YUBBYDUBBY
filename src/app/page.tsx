@@ -5,6 +5,7 @@ import CategoryGrid from "@/components/home/CategoryGrid";
 import BestSellers from "@/components/home/BestSellers";
 import ReviewsCarousel from "@/components/home/ReviewsCarousel";
 import { LimitedDrop, EditorialMessage, TrustStrip, Footer } from "@/components/home/HomeSections";
+import SocialGrid from "@/components/home/SocialGrid";
 
 export default function Home() {
   return (
@@ -18,6 +19,7 @@ export default function Home() {
       <EditorialMessage />
       <ReviewsCarousel />
       <TrustStrip />
+      <SocialGrid />
       <Footer />
     </main>
   );
