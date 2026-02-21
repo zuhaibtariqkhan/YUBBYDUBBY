@@ -42,7 +42,7 @@ export default function HeroSection() {
                     transition={{ duration: 0.5, delay: 0.4 }}
                     className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto px-6 sm:px-0"
                 >
-                    <button className="relative overflow-hidden w-full sm:w-auto text-brand-black font-bold uppercase tracking-widest px-8 sm:px-10 py-3 sm:py-4 rounded-[var(--radius-btn)] hover:shadow-[0_0_30px_rgba(177,243,16,0.5)] hover:scale-105 transition-all duration-300 group">
+                    <button className="relative overflow-hidden w-full sm:w-auto text-brand-black font-bold uppercase tracking-widest px-8 sm:px-10 py-3 sm:py-4 rounded-[var(--radius-btn)] hover:shadow-[0_0_30px_rgba(177,243,16,0.5)] transition-all duration-300 group">
                         <Aurora colorStops={["#7cff67", "#ffffff", "#29ff54"]} blend={0.6} amplitude={1.2} speed={1.2} />
                         <span className="relative z-10 group-hover:text-black transition-colors">Shop Categories</span>
                     </button>
