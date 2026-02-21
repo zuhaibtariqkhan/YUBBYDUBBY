@@ -89,6 +89,17 @@ export function Footer() {
 
                 {/* Brand / Newsletter */}
                 <div className="md:col-span-2 text-center md:text-left flex flex-col items-center md:items-start">
+                    <div className="mb-4 md:mb-6 rounded-md overflow-hidden bg-brand-black flex items-center justify-center">
+                        <video
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            className="h-16 w-auto object-contain"
+                        >
+                            <source src="/animated logo.mp4" type="video/mp4" />
+                        </video>
+                    </div>
                     <h3 className="font-heading text-3xl md:text-4xl font-bold tracking-widest uppercase mb-4 md:mb-6">Yubby Dubby</h3>
                     <p className="text-gray-400 max-w-sm mb-6 md:mb-8 text-sm md:text-base">
                         Join the collective. Gain early access to limited drops and exclusive studio content.
