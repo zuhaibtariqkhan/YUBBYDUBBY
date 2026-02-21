@@ -2,11 +2,11 @@
 
 export default function Marquee() {
     const items = [
-        "YUBBY DUBBY STUDIO",
-        "PREMIUM STREETWEAR",
-        "LIMITED EDITION DROPS",
-        "WORLDWIDE SHIPPING",
+        "YUBBY DUBBY",
+        "HIGH END QUALITY FABRICS",
         "REDEFINE YOUR STYLE",
+        "TRENDING DESIGNS",
+        "WORLDWIDE SHIPPING",
     ];
 
     // Duplicate items for seamless infinite loop
