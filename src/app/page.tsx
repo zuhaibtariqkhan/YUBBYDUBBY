@@ -18,6 +18,7 @@ export default function Home() {
       <LimitedDrop />
       <EditorialMessage />
       <ReviewsCarousel />
+      <Marquee />
       <TrustStrip />
       <SocialGrid />
       <Footer />
