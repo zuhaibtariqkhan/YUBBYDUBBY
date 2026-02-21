@@ -1,3 +1,4 @@
 *.mp4 filter=lfs diff=lfs merge=lfs -text
 public/animated[[:space:]]logo.mp4 filter=lfs diff=lfs merge=lfs -text
 public/logooo.mp4 filter=lfs diff=lfs merge=lfs -text
+public/ANIMATED[[:space:]]LOGOO.mp4 filter=lfs diff=lfs merge=lfs -text

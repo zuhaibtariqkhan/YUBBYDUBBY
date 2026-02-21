@@ -97,7 +97,7 @@ export function Footer() {
                             playsInline
                             className="h-16 w-auto object-contain"
                         >
-                            <source src="/animated logo.mp4" type="video/mp4" />
+                            <source src="/ANIMATED LOGOO.mp4" type="video/mp4" />
                         </video>
                     </div>
                     <h3 className="font-heading text-3xl md:text-4xl font-bold tracking-widest uppercase mb-4 md:mb-6">Yubby Dubby</h3>
