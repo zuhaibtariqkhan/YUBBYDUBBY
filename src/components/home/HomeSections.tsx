@@ -10,7 +10,7 @@ export function LimitedDrop() {
     return (
         <section className="bg-brand-white text-brand-black py-20 px-6 mt-10">
             <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12">
-                <div className="md:w-1/2">
+                <div className="md:w-1/2 text-center md:text-left flex flex-col items-center md:items-start">
                     <span className="text-brand-green font-bold tracking-widest uppercase text-sm mb-4 block">Print On Demand</span>
                     <h2 className="font-heading text-5xl md:text-7xl font-black uppercase tracking-tighter leading-[0.9]">
                         Create Your<br />Own
@@ -88,12 +88,12 @@ export function Footer() {
             <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 border-b border-white/10 pb-10 md:pb-16">
 
                 {/* Brand / Newsletter */}
-                <div className="md:col-span-2">
+                <div className="md:col-span-2 text-center md:text-left flex flex-col items-center md:items-start">
                     <h3 className="font-heading text-3xl md:text-4xl font-bold tracking-widest uppercase mb-4 md:mb-6">Yubby Dubby</h3>
                     <p className="text-gray-400 max-w-sm mb-6 md:mb-8 text-sm md:text-base">
                         Join the collective. Gain early access to limited drops and exclusive studio content.
                     </p>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 w-full max-w-md mx-auto md:mx-0 text-left">
                         <input
                             type="email"
                             placeholder="ENTER EMAIL"

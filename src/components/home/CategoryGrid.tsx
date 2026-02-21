@@ -16,8 +16,8 @@ export default function CategoryGrid() {
     return (
         <section className="bg-brand-white text-brand-black py-24 px-6 md:px-12 lg:px-24">
             <div className="max-w-7xl mx-auto">
-                <div className="flex justify-between items-end mb-12">
-                    <div>
+                <div className="flex flex-col md:flex-row justify-between items-center md:items-end mb-12 text-center md:text-left">
+                    <div className="flex flex-col items-center md:items-start mb-6 md:mb-0">
                         <span className="text-brand-green font-bold tracking-widest uppercase text-sm mb-2 block">Collections</span>
                         <h2 className="font-heading text-5xl md:text-6xl font-black uppercase tracking-tighter">Shop By Category</h2>
                     </div>
