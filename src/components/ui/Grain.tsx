@@ -3,7 +3,7 @@
 export default function Grain() {
     // using SVG filter for noise - animated in CSS
     return (
-        <div className="pointer-events-none fixed inset-0 z-[9999] overflow-hidden opacity-[0.03] mix-blend-overlay">
+        <div className="pointer-events-none fixed inset-0 z-[9999] overflow-hidden opacity-[0.03] mix-blend-overlay hidden md:block">
             <div
                 className="absolute -inset-[200%] w-[400%] h-[400%] animate-grain"
                 style={{

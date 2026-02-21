@@ -126,7 +126,7 @@ export default function CustomCursor() {
             {/* Inner dot */}
             <div
                 ref={dotRef}
-                className="fixed top-0 left-0 z-[9999] pointer-events-none mix-blend-difference hidden sm:block"
+                className="fixed top-0 left-0 z-[9999] pointer-events-none mix-blend-difference"
                 style={{
                     width: 8,
                     height: 8,
@@ -139,7 +139,7 @@ export default function CustomCursor() {
             {/* Outer ring */}
             <div
                 ref={ringRef}
-                className="fixed top-0 left-0 z-[9998] pointer-events-none hidden sm:block"
+                className="fixed top-0 left-0 z-[9998] pointer-events-none"
                 style={{
                     opacity: isVisible ? 1 : 0,
                     transition: "width 0.25s ease-out, height 0.25s ease-out, border-radius 0.25s ease-out, border-color 0.3s ease, background-color 0.3s ease, opacity 0.3s ease",
