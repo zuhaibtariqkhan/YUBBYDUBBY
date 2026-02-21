@@ -1,26 +1,35 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --font-sans: var(--font-montserrat);
+  --font-heading: var(--font-oswald);
+
+  --color-brand-black: #000000;
+  --color-brand-white: #FFFFFF;
+  --color-brand-green: #B1F310;
+
+  --radius-btn: 999px;
+  --radius-card: 20px;
+  --radius-img: 18px;
+  --radius-dropdown: 16px;
+
+  /* Custom Glassmorphism Colors */
+  --color-glass: rgba(255, 255, 255, 0.05);
+  --color-glass-hover: rgba(255, 255, 255, 0.1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  body {
+    background-color: var(--color-brand-black);
+    color: var(--color-brand-white);
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* Glassmorphism utility classes */
+  .glass-card {
+    @apply bg-glass border border-white/10 backdrop-blur-md rounded-[var(--radius-card)];
+  }
+
+  .glass-nav {
+    @apply bg-brand-black/80 border-b border-white/10 backdrop-blur-lg;
+  }
 }
