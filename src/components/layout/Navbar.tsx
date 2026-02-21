@@ -20,13 +20,13 @@ export default function Navbar() {
                 </div>
 
                 {/* Center Logo */}
-                <div className="absolute left-1/2 -translate-x-1/2 flex items-center h-full max-h-24 pt-2 md:pt-4">
+                <div className="absolute left-1/2 -translate-x-1/2 flex items-center h-full max-h-24 pt-1 md:pt-4">
                     <Link href="/" className="relative h-[85px] w-[250px] sm:h-[100px] sm:w-[320px] md:h-36 md:w-[480px] flex items-center justify-center">
                         <Image
                             src="/LOGOO.png"
                             alt="Yubby Dubby Logo"
                             fill
-                            className="object-contain scale-[1.1]"
+                            className="object-contain scale-[1.05]"
                             priority
                         />
                     </Link>
