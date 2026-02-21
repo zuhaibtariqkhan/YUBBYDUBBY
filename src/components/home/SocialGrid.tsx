@@ -3,8 +3,9 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { Instagram } from "lucide-react";
+import { useEffect, useState } from "react";
 
-const instagramPosts = [
+const fallbackPosts = [
     { id: 1, image: "/prod-hoodie.png", link: "https://instagram.com/yubby.dubby" },
     { id: 2, image: "/prod-cargo.png", link: "https://instagram.com/yubby.dubby" },
     { id: 3, image: "/prod-tee.png", link: "https://instagram.com/yubby.dubby" },
@@ -16,6 +17,29 @@ const instagramPosts = [
 ];
 
 export default function SocialGrid() {
+    const [posts, setPosts] = useState(fallbackPosts);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchInstagram() {
+            try {
+                const res = await fetch("/api/instagram");
+                if (res.ok) {
+                    const liveData = await res.json();
+                    if (liveData && liveData.length > 0) {
+                        setPosts(liveData.slice(0, 8)); // display up to 8 posts max
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching live Instagram grid:", error);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchInstagram();
+    }, []);
+
     return (
         <section className="py-20 bg-brand-black border-t border-white/10">
             <div className="max-w-7xl mx-auto px-6 mb-12 text-center md:text-left flex flex-col md:flex-row justify-between items-center md:items-end gap-6">
@@ -39,8 +63,8 @@ export default function SocialGrid() {
             </div>
 
             {/* Responsive Grid: 2 cols on mobile, 4 on tablet/desktop */}
-            <div className="w-full grid grid-cols-2 md:grid-cols-4 gap-1 sm:gap-2">
-                {instagramPosts.map((post, index) => (
+            <div className={`w-full grid grid-cols-2 md:grid-cols-4 gap-1 sm:gap-2 transition-opacity duration-1000 ${loading ? "opacity-50" : "opacity-100"}`}>
+                {posts.map((post, index) => (
                     <motion.a
                         key={post.id}
                         href={post.link}
