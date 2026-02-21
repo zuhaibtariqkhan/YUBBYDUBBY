@@ -95,9 +95,9 @@ export function Footer() {
                             loop
                             muted
                             playsInline
-                            className="h-16 w-auto object-contain"
+                            className="h-24 md:h-32 w-auto object-contain"
                         >
-                            <source src="/ANIMATED LOGOO.mp4" type="video/mp4" />
+                            <source src="/logooo.mp4" type="video/mp4" />
                         </video>
                     </div>
                     <h3 className="font-heading text-3xl md:text-4xl font-bold tracking-widest uppercase mb-4 md:mb-6">Yubby Dubby</h3>
