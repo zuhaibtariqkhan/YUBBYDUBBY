@@ -24,6 +24,16 @@
     color: var(--color-brand-white);
   }
 
+  /* Hide default cursor on desktop */
+  @media (hover: hover) and (pointer: fine) {
+
+    *,
+    *::before,
+    *::after {
+      cursor: none !important;
+    }
+  }
+
   /* Glassmorphism utility classes */
   .glass-card {
     @apply bg-glass border border-white/10 backdrop-blur-md rounded-[var(--radius-card)];
