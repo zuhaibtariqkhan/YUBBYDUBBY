@@ -21,7 +21,7 @@ export default function Navbar() {
 
                 {/* Center Logo */}
                 <div className="absolute left-1/2 -translate-x-1/2 flex items-center h-full max-h-24 pt-2 md:pt-4">
-                    <Link href="/" className="relative h-[50px] w-[160px] sm:h-16 sm:w-[240px] md:h-28 md:w-[450px] flex items-center justify-center">
+                    <Link href="/" className="relative h-[80px] w-[220px] sm:h-24 sm:w-[280px] md:h-28 md:w-[450px] flex items-center justify-center">
                         <Image
                             src="/LOGOO.png"
                             alt="Yubby Dubby Logo"
