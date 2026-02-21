@@ -106,9 +106,9 @@ export function Footer() {
                 </div>
 
                 {/* Links */}
-                <div>
+                <div className="text-center md:text-left">
                     <h4 className="font-bold uppercase tracking-widest mb-4 md:mb-6 text-sm text-brand-green">Shop</h4>
-                    <ul className="space-y-4 text-gray-400 text-sm uppercase tracking-wider">
+                    <ul className="space-y-4 text-gray-400 text-sm uppercase tracking-wider flex flex-col items-center md:items-start">
                         <li><a href="#" className="hover:text-white transition-colors">Men</a></li>
                         <li><a href="#" className="hover:text-white transition-colors">Women</a></li>
                         <li><a href="#" className="hover:text-white transition-colors">Kids</a></li>
@@ -118,15 +118,15 @@ export function Footer() {
                 </div>
 
                 {/* Contact */}
-                <div className="mt-4 md:mt-0">
+                <div className="mt-4 md:mt-0 text-center md:text-left">
                     <h4 className="font-bold uppercase tracking-widest mb-4 md:mb-6 text-sm text-brand-green">Contact</h4>
-                    <ul className="space-y-4 text-gray-400 text-sm tracking-wider">
+                    <ul className="space-y-4 text-gray-400 text-sm tracking-wider flex flex-col items-center md:items-start">
                         <li className="uppercase leading-relaxed">
                             Yubby Dubby Pvt. Ltd.<br />
                             5th Floor, Tower B, ITPL<br />
                             Bengaluru, Karnataka 560066, India
                         </li>
-                        <li className="flex items-center gap-6 mt-6">
+                        <li className="flex items-center justify-center md:justify-start gap-6 mt-6">
                             <a href="mailto:ask@yubbydubby.com" className="hover:text-white transition-colors flex items-center gap-2">
                                 <Mail size={18} />
                                 <span className="lowercase">ask@yubbydubby.com</span>
