@@ -16,23 +16,29 @@ export default function BestSellers() {
     return (
         <section className="bg-brand-black text-brand-white py-24 px-6 md:px-12 lg:px-24 border-t border-white/10">
             <div className="max-w-7xl mx-auto">
-                <div className="flex flex-col md:flex-row justify-between items-center md:items-end mb-16 text-center md:text-left">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-100px" }}
+                    transition={{ duration: 0.6 }}
+                    className="flex flex-col md:flex-row justify-between items-center md:items-end mb-16 text-center md:text-left"
+                >
                     <div className="flex flex-col items-center md:items-start">
                         <h2 className="font-heading text-5xl md:text-6xl font-black uppercase tracking-tighter">Best Sellers</h2>
                         <p className="text-gray-400 mt-4 max-w-md font-sans">
                             Curated selection of our highest performing aesthetic structures.
                         </p>
                     </div>
-                </div>
+                </motion.div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                     {topProducts.map((product, i) => (
                         <motion.div
                             key={product.id}
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: i * 0.1, duration: 0.5 }}
+                            viewport={{ once: true, margin: "-50px" }}
+                            transition={{ delay: i * 0.1, duration: 0.6, ease: "easeOut" }}
                             className="glass-card p-4 group cursor-pointer"
                         >
                             <div className="relative aspect-[3/4] bg-white/5 rounded-[var(--radius-img)] overflow-hidden mb-6 flex items-center justify-center">
