@@ -21,14 +21,16 @@ export default function Navbar() {
 
                 {/* Center Logo */}
                 <div className="absolute left-1/2 -translate-x-1/2 flex items-center h-full max-h-24 pt-2 md:pt-4">
-                    <Link href="/" className="relative h-[80px] w-[220px] sm:h-24 sm:w-[280px] md:h-28 md:w-[450px] flex items-center justify-center">
-                        <Image
-                            src="/LOGOO.png"
-                            alt="Yubby Dubby Logo"
-                            fill
-                            className="object-contain scale-[1.2]"
-                            priority
-                        />
+                    <Link href="/" className="relative h-[50px] w-[140px] sm:h-16 sm:w-[180px] md:h-20 md:w-[250px] flex items-center justify-center">
+                        <video
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            className="object-contain w-full h-full"
+                        >
+                            <source src="/logooo.mp4" type="video/mp4" />
+                        </video>
                     </Link>
                 </div>
 
