@@ -13,7 +13,7 @@ export default function HeroSection() {
                 playsInline
                 className="absolute inset-0 w-full h-full object-cover object-center z-0 opacity-30 saturate-50"
             >
-                <source src="/HEROBANNER.mp4" type="video/mp4" />
+                <source src="/Video Project 4.mp4" type="video/mp4" />
             </video>
 
             <div className="relative z-10 text-center max-w-5xl px-4 sm:px-6 flex flex-col items-center mt-12 sm:mt-0">

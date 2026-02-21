@@ -84,13 +84,13 @@ export function TrustStrip() {
 
 export function Footer() {
     return (
-        <footer className="bg-brand-black text-brand-white pt-24 pb-12 px-6">
-            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 border-b border-white/10 pb-16">
+        <footer className="bg-brand-black text-brand-white pt-16 md:pt-24 pb-8 md:pb-12 px-6">
+            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 border-b border-white/10 pb-10 md:pb-16">
 
                 {/* Brand / Newsletter */}
                 <div className="md:col-span-2">
-                    <h3 className="font-heading text-4xl font-bold tracking-widest uppercase mb-6">Yubby Dubby</h3>
-                    <p className="text-gray-400 max-w-sm mb-8">
+                    <h3 className="font-heading text-3xl md:text-4xl font-bold tracking-widest uppercase mb-4 md:mb-6">Yubby Dubby</h3>
+                    <p className="text-gray-400 max-w-sm mb-6 md:mb-8 text-sm md:text-base">
                         Join the collective. Gain early access to limited drops and exclusive studio content.
                     </p>
                     <div className="flex gap-2">
@@ -107,7 +107,7 @@ export function Footer() {
 
                 {/* Links */}
                 <div>
-                    <h4 className="font-bold uppercase tracking-widest mb-6 text-sm text-brand-green">Shop</h4>
+                    <h4 className="font-bold uppercase tracking-widest mb-4 md:mb-6 text-sm text-brand-green">Shop</h4>
                     <ul className="space-y-4 text-gray-400 text-sm uppercase tracking-wider">
                         <li><a href="#" className="hover:text-white transition-colors">Men</a></li>
                         <li><a href="#" className="hover:text-white transition-colors">Women</a></li>
@@ -118,8 +118,8 @@ export function Footer() {
                 </div>
 
                 {/* Contact */}
-                <div>
-                    <h4 className="font-bold uppercase tracking-widest mb-6 text-sm text-brand-green">Contact</h4>
+                <div className="mt-4 md:mt-0">
+                    <h4 className="font-bold uppercase tracking-widest mb-4 md:mb-6 text-sm text-brand-green">Contact</h4>
                     <ul className="space-y-4 text-gray-400 text-sm tracking-wider">
                         <li className="uppercase leading-relaxed">
                             Yubby Dubby Pvt. Ltd.<br />
@@ -140,7 +140,7 @@ export function Footer() {
 
             </div>
 
-            <div className="max-w-7xl mx-auto mt-12 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500 tracking-widest uppercase">
+            <div className="max-w-7xl mx-auto mt-8 md:mt-12 flex flex-col md:flex-row justify-between items-center text-center md:text-left text-xs text-gray-500 tracking-widest uppercase gap-6 md:gap-0">
                 <motion.p
                     initial={{ opacity: 0, y: 10 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -168,8 +168,8 @@ export function Footer() {
                     </motion.span>
                     {" |"}
                 </motion.p>
-                <div className="flex flex-col md:flex-row items-center gap-6 mt-6 md:mt-0">
-                    <div className="flex gap-6 mb-4 md:mb-0 pb-4 md:pb-0 border-b md:border-b-0 md:border-r border-white/10 md:pr-6">
+                <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 mt-6 md:mt-0">
+                    <div className="flex gap-4 md:gap-6 mb-4 md:mb-0 pb-4 md:pb-0 border-b md:border-b-0 md:border-r border-white/10 md:pr-6">
                         <a href="#" className="hover:text-brand-white transition-colors">Privacy</a>
                         <a href="#" className="hover:text-brand-white transition-colors">Terms</a>
                     </div>
