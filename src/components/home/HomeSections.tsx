@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import Aurora from "../ui/Aurora";
 import { Truck, ShieldCheck, Lock, ArrowRight, Instagram, Mail } from "lucide-react";
 import { FaCcVisa, FaCcMastercard, FaGooglePay, FaApplePay } from "react-icons/fa";
@@ -24,8 +25,13 @@ export function LimitedDrop() {
                         <span className="relative z-10 group-hover:text-brand-white transition-colors">Create Now</span>
                     </button>
                 </div>
-                <div className="md:w-1/2 relative min-h-[400px] w-full bg-gray-200 rounded-[var(--radius-card)] overflow-hidden flex items-center justify-center">
-                    <span className="text-gray-400 font-bold uppercase tracking-widest">Capsule Image</span>
+                <div className="md:w-1/2 relative min-h-[400px] w-full rounded-[var(--radius-card)] overflow-hidden flex items-center justify-center">
+                    <Image
+                        src="/create-your-own.png"
+                        alt="Create Your Own Design"
+                        fill
+                        className="object-cover"
+                    />
                 </div>
             </div>
         </section>

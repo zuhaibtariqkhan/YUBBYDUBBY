@@ -1,15 +1,16 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import Link from "next/link";
 import { Star } from "lucide-react";
 
 // Mock Data for now
 const topProducts = [
-    { id: "p1", name: "0-GRAVITY HOODIE", price: 120, image: "/mock", tag: "NEW" },
-    { id: "p2", name: "VOID CARGO PANTS", price: 145, image: "/mock", tag: "" },
-    { id: "p3", name: "NEBULA OVERSIZED TEE", price: 65, image: "/mock", tag: "BEST SELLER" },
-    { id: "p4", name: "STRUCTURAL JACKET", price: 210, image: "/mock", tag: "LIMITED" },
+    { id: "p1", name: "0-GRAVITY HOODIE", price: 120, image: "/prod-hoodie.png", tag: "NEW" },
+    { id: "p2", name: "VOID CARGO PANTS", price: 145, image: "/prod-cargo.png", tag: "" },
+    { id: "p3", name: "NEBULA OVERSIZED TEE", price: 65, image: "/prod-tee.png", tag: "BEST SELLER" },
+    { id: "p4", name: "STRUCTURAL JACKET", price: 210, image: "/prod-jacket.png", tag: "LIMITED" },
 ];
 
 export default function BestSellers() {
@@ -42,10 +43,13 @@ export default function BestSellers() {
                             className="glass-card p-4 group cursor-pointer"
                         >
                             <div className="relative aspect-[3/4] bg-white/5 rounded-[var(--radius-img)] overflow-hidden mb-6 flex items-center justify-center">
-                                {/* Product Image Placeholder Background */}
-                                <div className="absolute inset-0 bg-white/5 flex items-center justify-center group-hover:scale-110 transition-transform duration-700 ease-out">
-                                    <span className="text-white/20 font-bold uppercase tracking-widest text-sm">Product Img</span>
-                                </div>
+                                {/* Product Image */}
+                                <Image
+                                    src={product.image}
+                                    alt={product.name}
+                                    fill
+                                    className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                                />
 
                                 {product.tag && (
                                     <span className="absolute top-4 left-4 bg-brand-green text-brand-black text-xs font-bold px-3 py-1 uppercase tracking-widest">

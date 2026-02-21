@@ -5,11 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 
 const categories = [
-    { id: 1, name: "Men's Fashion", image: "/placeholder-cat1.jpg", href: "/men", size: "large" },
-    { id: 2, name: "Women's Fashion", image: "/placeholder-cat2.jpg", href: "/women", size: "small" },
-    { id: 3, name: "Kid's Fashion", image: "/placeholder-cat3.jpg", href: "/kids", size: "small" },
-    { id: 4, name: "Home & Living", image: "/placeholder-cat4.jpg", href: "/home-living", size: "medium" },
-    { id: 5, name: "Accessories", image: "/placeholder-cat5.jpg", href: "/accessories", size: "medium" },
+    { id: 1, name: "Men's Fashion", image: "/cat-mens.png", href: "/men", size: "large" },
+    { id: 2, name: "Women's Fashion", image: "/cat-womens.png", href: "/women", size: "small" },
+    { id: 3, name: "Kid's Fashion", image: "/cat-kids.png", href: "/kids", size: "small" },
+    { id: 4, name: "Home & Living", image: "/cat-home.png", href: "/home-living", size: "medium" },
+    { id: 5, name: "Accessories", image: "/cat-accessories.png", href: "/accessories", size: "medium" },
 ];
 
 export default function CategoryGrid() {
@@ -48,10 +48,12 @@ export default function CategoryGrid() {
                                 href={cat.href}
                                 className="absolute inset-0 w-full h-full"
                             >
-                                {/* Image Placeholder (replace with actual next/image when assets are ready) */}
-                                <div className="absolute inset-0 bg-gray-200 group-hover:scale-105 transition-transform duration-700 ease-out flex items-center justify-center">
-                                    <span className="text-gray-400 font-bold">Image: {cat.name}</span>
-                                </div>
+                                <Image
+                                    src={cat.image}
+                                    alt={cat.name}
+                                    fill
+                                    className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                                />
 
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
 
