@@ -251,24 +251,26 @@ export function Footer() {
 
             </div>
 
-            <div className="max-w-7xl mx-auto mt-8 md:mt-12 flex flex-col md:flex-row justify-between items-center text-center md:text-left text-xs text-gray-500 tracking-widest uppercase gap-6 md:gap-0">
+            <div className="max-w-7xl mx-auto mt-8 md:mt-12 flex flex-col md:flex-row justify-between items-center text-center md:text-left text-[10px] sm:text-xs text-gray-500 tracking-widest uppercase gap-6 md:gap-0">
                 <motion.p
                     initial={{ opacity: 0, y: 10 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
                 >
-                    © 2022-{new Date().getFullYear()} YUBBY DUBBY. {" "}
-                    <motion.span
-                        initial={{ opacity: 0 }}
-                        whileInView={{ opacity: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.3, duration: 0.8 }}
-                    >
-                        ALL RIGHTS RESERVED
-                    </motion.span>
+                    <span className="block md:inline whitespace-nowrap">
+                        © 2022-{new Date().getFullYear()} YUBBY DUBBY. {" "}
+                        <motion.span
+                            initial={{ opacity: 0 }}
+                            whileInView={{ opacity: 1 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: 0.3, duration: 0.8 }}
+                            className="inline"
+                        >
+                            ALL RIGHTS RESERVED
+                        </motion.span>
+                    </span>
                     <span className="hidden md:inline">{" | "}</span>
-                    <br className="md:hidden" />
                     <motion.span
                         initial={{ opacity: 0 }}
                         whileInView={{ opacity: 1 }}
