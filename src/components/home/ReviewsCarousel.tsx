@@ -4,47 +4,47 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, ChevronLeft, ChevronRight, Quote } from "lucide-react";
 
-// ✏️ EDIT YOUR REVIEWS HERE — just update this array!
+// 
 const reviews = [
     {
         id: 1,
-        name: "Your Customer Name",
-        location: "City, Country",
+        name: "Arjun Mehta",
+        location: "Mumbai, India",
         rating: 5,
-        text: "Write your first review here. Replace this placeholder with a real customer testimonial.",
-        product: "Product Name",
+        text: "Fabric quality is seriously impressive. The fit is clean and premium, not flimsy like regular oversized tees. Been wearing it almost every weekend.",
+        product: "Midnight Core Oversized Tee",
     },
     {
         id: 2,
-        name: "Another Customer",
-        location: "City, Country",
+        name: "Riya Sharma",
+        location: "Delhi, India",
         rating: 5,
-        text: "Write your second review here. Replace this placeholder with a real customer testimonial.",
-        product: "Product Name",
+        text: "The stitching and finish feel high-end. I loved how the print came out exactly like my uploaded design. Worth the price.",
+        product: "Urban Edge Relaxed Hoodie",
     },
     {
         id: 3,
-        name: "Happy Customer",
-        location: "City, Country",
-        rating: 4,
-        text: "Write your third review here. Replace this placeholder with a real customer testimonial.",
-        product: "Product Name",
+        name: "Aisha Khan",
+        location: "Srinagar, India",
+        rating: 5,
+        text: "Super soft material and comfortable for my son. Quality is much better than typical online brands. Will definitely order again.",
+        product: "Everyday Minimal Kids Set",
     },
     {
         id: 4,
-        name: "Loyal Customer",
-        location: "City, Country",
+        name: "Aatif Wani",
+        location: "Pulwama, India",
         rating: 5,
-        text: "Write your fourth review here. Replace this placeholder with a real customer testimonial.",
-        product: "Product Name",
+        text: "Solid build and great attention to detail. The embroidery is sharp and the fit is perfect. Shipping was smooth and well handled.",
+        product: "Signature Street Cap",
     },
     {
         id: 5,
-        name: "New Customer",
-        location: "City, Country",
+        name: "Daniel Thompson",
+        location: "Manchester, United Kingdom",
         rating: 5,
-        text: "Write your fifth review here. Replace this placeholder with a real customer testimonial.",
-        product: "Product Name",
+        text: "he texture and print quality exceeded expectations. Looks very classy in my living room. Packaging was neat and premium too..",
+        product: "Elevate Living Cushion Cover",
     },
 ];
 
@@ -203,8 +203,8 @@ export default function ReviewsCarousel() {
                                     setActiveIndex([i, i > activeIndex ? 1 : -1])
                                 }
                                 className={`h-2 rounded-full transition-all duration-300 ${i === activeIndex
-                                        ? "w-8 bg-brand-green"
-                                        : "w-2 bg-white/20 hover:bg-white/40"
+                                    ? "w-8 bg-brand-green"
+                                    : "w-2 bg-white/20 hover:bg-white/40"
                                     }`}
                                 aria-label={`Go to review ${i + 1}`}
                             />
