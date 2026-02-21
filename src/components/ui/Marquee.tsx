@@ -2,13 +2,15 @@
 
 export default function Marquee() {
     const items = [
-        "0-GRAVITY COLLECTION DROPPING SOON",
-        "YUBBY DUBBY STUDIO",
+        "YUBBY DUBBY",
+        "HIGH END QUALITY FABRICS",
+        "REDEFINE YOUR STYLE",
+        "TRENDING DESIGNS",
         "WORLDWIDE SHIPPING",
     ];
 
     // Duplicate items for seamless infinite loop
-    const repeated = [...items, ...items, ...items, ...items, ...items, ...items];
+    const repeated = [...items, ...items, ...items, ...items];
 
     return (
         <section className="relative bg-brand-green text-brand-black py-4 overflow-hidden select-none">
