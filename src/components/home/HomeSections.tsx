@@ -153,11 +153,11 @@ export function EditorialMessage() {
 
             <motion.div
                 style={{ y: textY }}
-                className="relative z-20 max-w-4xl mx-auto px-4 md:px-8"
+                className="relative z-20 max-w-4xl mx-auto px-4 md:px-8 text-center md:text-left"
             >
                 <TextReveal
                     text="&quot;We do not follow trends. We dictate the aesthetic of tomorrow's urban landscape.&quot;"
-                    className="font-heading text-3xl md:text-5xl lg:text-6xl uppercase tracking-widest leading-relaxed drop-shadow-lg"
+                    className="font-heading text-3xl md:text-5xl lg:text-6xl uppercase tracking-widest leading-relaxed drop-shadow-lg justify-center md:justify-start"
                 />
                 <p className="mt-8 md:mt-12 text-brand-green font-bold tracking-widest uppercase text-sm md:text-base drop-shadow-md">
                     - YUBBY DUBBY STUDIO
