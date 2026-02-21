@@ -3,6 +3,7 @@ import HeroSection from "@/components/home/HeroSection";
 import Marquee from "@/components/ui/Marquee";
 import CategoryGrid from "@/components/home/CategoryGrid";
 import BestSellers from "@/components/home/BestSellers";
+import ReviewsCarousel from "@/components/home/ReviewsCarousel";
 import { LimitedDrop, EditorialMessage, TrustStrip, Footer } from "@/components/home/HomeSections";
 
 export default function Home() {
@@ -15,6 +16,7 @@ export default function Home() {
       <BestSellers />
       <LimitedDrop />
       <EditorialMessage />
+      <ReviewsCarousel />
       <TrustStrip />
       <Footer />
     </main>

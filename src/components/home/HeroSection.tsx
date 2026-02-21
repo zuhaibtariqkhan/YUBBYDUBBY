@@ -1,22 +1,47 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 
 export default function HeroSection() {
-    return (
-        <section className="relative h-[100dvh] w-full flex items-center justify-center overflow-hidden bg-brand-black">
-            {/* Background Video */}
-            <video
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="absolute inset-0 w-full h-full object-cover object-center z-0 opacity-15 saturate-100"
-            >
-                <source src="/hero-video.mp4" type="video/mp4" />
-            </video>
+    const sectionRef = useRef<HTMLElement>(null);
+    const { scrollYProgress } = useScroll({
+        target: sectionRef,
+        offset: ["start start", "end start"],
+    });
 
-            <div className="relative z-10 text-center max-w-5xl px-4 sm:px-6 flex flex-col items-center mt-12 sm:mt-0">
+    // Parallax: video moves slower, text moves faster
+    const videoY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+    const videoScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
+    const textY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+    const textOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
+
+    return (
+        <section
+            ref={sectionRef}
+            className="relative h-[100dvh] w-full flex items-center justify-center overflow-hidden bg-brand-black"
+        >
+            {/* Background Video with parallax */}
+            <motion.div
+                style={{ y: videoY, scale: videoScale }}
+                className="absolute inset-0 z-0"
+            >
+                <video
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="absolute inset-0 w-full h-full object-cover object-center opacity-15 saturate-100"
+                >
+                    <source src="/hero-video.mp4" type="video/mp4" />
+                </video>
+            </motion.div>
+
+            {/* Text content with parallax */}
+            <motion.div
+                style={{ y: textY, opacity: textOpacity }}
+                className="relative z-10 text-center max-w-5xl px-4 sm:px-6 flex flex-col items-center mt-12 sm:mt-0"
+            >
                 <motion.h1
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -45,7 +70,7 @@ export default function HeroSection() {
                         Shop Categories
                     </button>
                 </motion.div>
-            </div>
+            </motion.div>
 
             {/* Decorative lines */}
             <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent z-10" />

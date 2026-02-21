@@ -1,0 +1,217 @@
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Star, ChevronLeft, ChevronRight, Quote } from "lucide-react";
+
+// ✏️ EDIT YOUR REVIEWS HERE — just update this array!
+const reviews = [
+    {
+        id: 1,
+        name: "Your Customer Name",
+        location: "City, Country",
+        rating: 5,
+        text: "Write your first review here. Replace this placeholder with a real customer testimonial.",
+        product: "Product Name",
+    },
+    {
+        id: 2,
+        name: "Another Customer",
+        location: "City, Country",
+        rating: 5,
+        text: "Write your second review here. Replace this placeholder with a real customer testimonial.",
+        product: "Product Name",
+    },
+    {
+        id: 3,
+        name: "Happy Customer",
+        location: "City, Country",
+        rating: 4,
+        text: "Write your third review here. Replace this placeholder with a real customer testimonial.",
+        product: "Product Name",
+    },
+    {
+        id: 4,
+        name: "Loyal Customer",
+        location: "City, Country",
+        rating: 5,
+        text: "Write your fourth review here. Replace this placeholder with a real customer testimonial.",
+        product: "Product Name",
+    },
+    {
+        id: 5,
+        name: "New Customer",
+        location: "City, Country",
+        rating: 5,
+        text: "Write your fifth review here. Replace this placeholder with a real customer testimonial.",
+        product: "Product Name",
+    },
+];
+
+const slideVariants = {
+    enter: (direction: number) => ({
+        x: direction > 0 ? 300 : -300,
+        opacity: 0,
+        scale: 0.9,
+    }),
+    center: {
+        x: 0,
+        opacity: 1,
+        scale: 1,
+    },
+    exit: (direction: number) => ({
+        x: direction > 0 ? -300 : 300,
+        opacity: 0,
+        scale: 0.9,
+    }),
+};
+
+export default function ReviewsCarousel() {
+    const [[activeIndex, direction], setActiveIndex] = useState([0, 0]);
+    const [isPaused, setIsPaused] = useState(false);
+
+    const paginate = useCallback(
+        (newDirection: number) => {
+            setActiveIndex(([prev]) => {
+                const next = (prev + newDirection + reviews.length) % reviews.length;
+                return [next, newDirection];
+            });
+        },
+        []
+    );
+
+    // Auto-play
+    useEffect(() => {
+        if (isPaused) return;
+        const interval = setInterval(() => paginate(1), 5000);
+        return () => clearInterval(interval);
+    }, [isPaused, paginate]);
+
+    const review = reviews[activeIndex];
+
+    return (
+        <section className="bg-brand-black text-brand-white py-20 md:py-28 px-6 border-t border-white/10 overflow-hidden">
+            <div className="max-w-5xl mx-auto">
+                {/* Header */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6 }}
+                    className="text-center mb-14"
+                >
+                    <span className="text-brand-green font-bold tracking-widest uppercase text-sm mb-3 block">
+                        Testimonials
+                    </span>
+                    <h2 className="font-heading text-4xl md:text-6xl font-black uppercase tracking-tighter">
+                        What People Say
+                    </h2>
+                </motion.div>
+
+                {/* Carousel */}
+                <div
+                    className="relative"
+                    onMouseEnter={() => setIsPaused(true)}
+                    onMouseLeave={() => setIsPaused(false)}
+                >
+                    {/* Navigation arrows */}
+                    <button
+                        onClick={() => paginate(-1)}
+                        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 md:-translate-x-12 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full border border-white/20 flex items-center justify-center hover:border-brand-green hover:text-brand-green transition-colors"
+                        aria-label="Previous review"
+                    >
+                        <ChevronLeft size={20} />
+                    </button>
+                    <button
+                        onClick={() => paginate(1)}
+                        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 md:translate-x-12 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full border border-white/20 flex items-center justify-center hover:border-brand-green hover:text-brand-green transition-colors"
+                        aria-label="Next review"
+                    >
+                        <ChevronRight size={20} />
+                    </button>
+
+                    {/* Review card */}
+                    <div className="relative min-h-[280px] md:min-h-[240px] flex items-center justify-center px-8 md:px-16">
+                        <AnimatePresence custom={direction} mode="wait">
+                            <motion.div
+                                key={review.id}
+                                custom={direction}
+                                variants={slideVariants}
+                                initial="enter"
+                                animate="center"
+                                exit="exit"
+                                transition={{
+                                    duration: 0.4,
+                                    ease: "easeInOut",
+                                }}
+                                className="w-full text-center"
+                            >
+                                {/* Quote icon */}
+                                <Quote
+                                    size={36}
+                                    className="text-brand-green/30 mx-auto mb-6"
+                                    fill="rgba(177,243,16,0.1)"
+                                />
+
+                                {/* Stars */}
+                                <div className="flex items-center justify-center gap-1 mb-5">
+                                    {[...Array(5)].map((_, i) => (
+                                        <Star
+                                            key={i}
+                                            size={18}
+                                            className={
+                                                i < review.rating
+                                                    ? "fill-brand-green text-brand-green"
+                                                    : "text-white/20"
+                                            }
+                                        />
+                                    ))}
+                                </div>
+
+                                {/* Review text */}
+                                <p className="text-lg md:text-xl text-gray-200 leading-relaxed max-w-3xl mx-auto font-sans mb-8 italic">
+                                    &ldquo;{review.text}&rdquo;
+                                </p>
+
+                                {/* Customer info */}
+                                <div>
+                                    <p className="font-bold uppercase tracking-widest text-sm">
+                                        {review.name}
+                                    </p>
+                                    <p className="text-gray-500 text-xs uppercase tracking-widest mt-1">
+                                        {review.location}
+                                        {review.product && (
+                                            <>
+                                                {" · "}
+                                                <span className="text-brand-green/70">
+                                                    {review.product}
+                                                </span>
+                                            </>
+                                        )}
+                                    </p>
+                                </div>
+                            </motion.div>
+                        </AnimatePresence>
+                    </div>
+
+                    {/* Dots */}
+                    <div className="flex items-center justify-center gap-2 mt-8">
+                        {reviews.map((_, i) => (
+                            <button
+                                key={i}
+                                onClick={() =>
+                                    setActiveIndex([i, i > activeIndex ? 1 : -1])
+                                }
+                                className={`h-2 rounded-full transition-all duration-300 ${i === activeIndex
+                                        ? "w-8 bg-brand-green"
+                                        : "w-2 bg-white/20 hover:bg-white/40"
+                                    }`}
+                                aria-label={`Go to review ${i + 1}`}
+                            />
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}

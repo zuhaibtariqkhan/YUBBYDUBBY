@@ -1,12 +1,91 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import Aurora from "../ui/Aurora";
-import { Truck, ShieldCheck, Lock, ArrowRight, Instagram, Mail } from "lucide-react";
+import { Truck, ShieldCheck, Lock, ArrowRight, Instagram, Mail, Check, Loader2 } from "lucide-react";
 import { FaCcVisa, FaCcMastercard, FaGooglePay, FaApplePay } from "react-icons/fa";
 import { SiPaytm, SiPhonepe } from "react-icons/si";
 import { MdOutlinePayment } from "react-icons/md";
+
+function NewsletterSubscribe() {
+    const [email, setEmail] = useState("");
+    const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle");
+
+    const handleSubmit = () => {
+        if (!email || status !== "idle") return;
+        setStatus("submitting");
+        // Simulate API call
+        setTimeout(() => {
+            setStatus("success");
+            setTimeout(() => {
+                setStatus("idle");
+                setEmail("");
+            }, 3000);
+        }, 1500);
+    };
+
+    return (
+        <div className="flex gap-2 w-full max-w-md mx-auto md:mx-0 text-left">
+            <div className="relative flex-grow">
+                <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+                    placeholder="ENTER EMAIL"
+                    disabled={status !== "idle"}
+                    className="w-full bg-transparent border border-white/20 px-6 py-4 outline-none focus:border-brand-green transition-all duration-300 uppercase text-sm tracking-widest disabled:opacity-50"
+                />
+                {status === "success" && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="absolute inset-0 flex items-center justify-center bg-brand-green/10 border border-brand-green/40"
+                    >
+                        <motion.span
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="text-brand-green text-sm uppercase tracking-widest font-bold flex items-center gap-2"
+                        >
+                            <Check size={16} /> Subscribed!
+                        </motion.span>
+                    </motion.div>
+                )}
+            </div>
+            <motion.button
+                onClick={handleSubmit}
+                disabled={status !== "idle" || !email}
+                whileHover={status === "idle" ? { scale: 1.05, boxShadow: "0 0 20px rgba(177,243,16,0.4)" } : {}}
+                whileTap={status === "idle" ? { scale: 0.95 } : {}}
+                className={`relative px-6 flex items-center justify-center overflow-hidden transition-all duration-500 disabled:opacity-60 ${status === "success"
+                    ? "bg-brand-green text-brand-black"
+                    : "bg-brand-white text-brand-black hover:bg-brand-green"
+                    }`}
+            >
+                {status === "idle" && <ArrowRight size={20} />}
+                {status === "submitting" && (
+                    <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    >
+                        <Loader2 size={20} />
+                    </motion.div>
+                )}
+                {status === "success" && (
+                    <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                    >
+                        <Check size={20} />
+                    </motion.div>
+                )}
+            </motion.button>
+        </div>
+    );
+}
 
 export function LimitedDrop() {
     return (
@@ -39,29 +118,49 @@ export function LimitedDrop() {
 }
 
 export function EditorialMessage() {
+    const sectionRef = useRef<HTMLElement>(null);
+    const { scrollYProgress } = useScroll({
+        target: sectionRef,
+        offset: ["start end", "end start"],
+    });
+
+    const videoY = useTransform(scrollYProgress, [0, 1], ["-15%", "15%"]);
+    const textY = useTransform(scrollYProgress, [0, 1], ["20%", "-20%"]);
+
     return (
-        <section className="relative text-brand-white py-40 px-6 flex items-center justify-center text-center overflow-hidden min-h-[60vh]">
-            <video
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="absolute inset-0 w-full h-full object-cover z-0"
+        <section
+            ref={sectionRef}
+            className="relative text-brand-white py-40 px-6 flex items-center justify-center text-center overflow-hidden min-h-[60vh]"
+        >
+            <motion.div
+                style={{ y: videoY }}
+                className="absolute inset-[-15%] z-0"
             >
-                <source src="/UPDATED YUBBYDUBBYSTUDIO.mp4" type="video/mp4" />
-                Your browser does not support the video tag.
-            </video>
+                <video
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover"
+                >
+                    <source src="/UPDATED YUBBYDUBBYSTUDIO.mp4" type="video/mp4" />
+                    Your browser does not support the video tag.
+                </video>
+            </motion.div>
 
             <div className="absolute inset-0 bg-black/60 z-10"></div>
 
-            <div className="relative z-20 max-w-4xl mx-auto px-4 md:px-8">
+            <motion.div
+                style={{ y: textY }}
+                className="relative z-20 max-w-4xl mx-auto px-4 md:px-8"
+            >
                 <h2 className="font-heading text-3xl md:text-5xl lg:text-6xl uppercase tracking-widest leading-relaxed drop-shadow-lg">
                     "We do not follow trends. We dictate the aesthetic of tomorrow's urban landscape."
                 </h2>
                 <p className="mt-8 md:mt-12 text-brand-green font-bold tracking-widest uppercase text-sm md:text-base drop-shadow-md">
                     - YUBBY DUBBY STUDIO
                 </p>
-            </div>
+            </motion.div>
         </section>
     );
 }
@@ -112,16 +211,7 @@ export function Footer() {
                     <p className="text-gray-400 max-w-sm mb-6 md:mb-8 text-sm md:text-base">
                         Join the collective. Gain early access to limited drops and exclusive studio content.
                     </p>
-                    <div className="flex gap-2 w-full max-w-md mx-auto md:mx-0 text-left">
-                        <input
-                            type="email"
-                            placeholder="ENTER EMAIL"
-                            className="bg-transparent border border-white/20 px-6 py-4 outline-none focus:border-brand-green transition-colors flex-grow uppercase text-sm tracking-widest"
-                        />
-                        <button className="bg-brand-white text-brand-black px-6 hover:bg-brand-green transition-colors flex items-center justify-center">
-                            <ArrowRight size={20} />
-                        </button>
-                    </div>
+                    <NewsletterSubscribe />
                 </div>
 
                 {/* Links */}

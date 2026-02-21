@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Oswald, Montserrat } from "next/font/google";
 import CustomCursor from "@/components/ui/CustomCursor";
 import SplashScreen from "@/components/ui/SplashScreen";
+import BackToTop from "@/components/ui/BackToTop";
 import "./globals.css";
 
 const oswald = Oswald({
@@ -31,6 +32,7 @@ export default function RootLayout({
       >
         <SplashScreen />
         <CustomCursor />
+        <BackToTop />
         {children}
       </body>
     </html>
