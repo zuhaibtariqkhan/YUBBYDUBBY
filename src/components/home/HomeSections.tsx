@@ -156,17 +156,18 @@ export function Footer() {
                     >
                         ALL RIGHTS RESERVED
                     </motion.span>
-                    {" | "}
+                    <span className="hidden md:inline">{" | "}</span>
+                    <br className="md:hidden" />
                     <motion.span
                         initial={{ opacity: 0 }}
                         whileInView={{ opacity: 1 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.6, duration: 0.8 }}
-                        className="text-brand-green font-bold"
+                        className="text-brand-green font-bold block md:inline mt-2 md:mt-0"
                     >
                         DEVELOPED BY ZTK
                     </motion.span>
-                    {" |"}
+                    <span className="hidden md:inline">{" |"}</span>
                 </motion.p>
                 <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 mt-6 md:mt-0">
                     <div className="flex gap-4 md:gap-6 mb-4 md:mb-0 pb-4 md:pb-0 border-b md:border-b-0 md:border-r border-white/10 md:pr-6">
