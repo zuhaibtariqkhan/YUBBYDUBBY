@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useState, useRef } from "react";
 import Image from "next/image";
 import Aurora from "../ui/Aurora";
+import TextReveal from "../ui/TextReveal";
 import { Truck, ShieldCheck, Lock, ArrowRight, Instagram, Mail, Check, Loader2 } from "lucide-react";
 import { FaCcVisa, FaCcMastercard, FaGooglePay, FaApplePay } from "react-icons/fa";
 import { SiPaytm, SiPhonepe } from "react-icons/si";
@@ -154,9 +155,10 @@ export function EditorialMessage() {
                 style={{ y: textY }}
                 className="relative z-20 max-w-4xl mx-auto px-4 md:px-8"
             >
-                <h2 className="font-heading text-3xl md:text-5xl lg:text-6xl uppercase tracking-widest leading-relaxed drop-shadow-lg">
-                    "We do not follow trends. We dictate the aesthetic of tomorrow's urban landscape."
-                </h2>
+                <TextReveal
+                    text="&quot;We do not follow trends. We dictate the aesthetic of tomorrow's urban landscape.&quot;"
+                    className="font-heading text-3xl md:text-5xl lg:text-6xl uppercase tracking-widest leading-relaxed drop-shadow-lg"
+                />
                 <p className="mt-8 md:mt-12 text-brand-green font-bold tracking-widest uppercase text-sm md:text-base drop-shadow-md">
                     - YUBBY DUBBY STUDIO
                 </p>

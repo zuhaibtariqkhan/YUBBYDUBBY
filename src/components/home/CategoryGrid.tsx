@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import TextReveal from "../ui/TextReveal";
 
 const categories = [
     { id: 1, name: "Men's Fashion", image: "/cat-mens.png", href: "/men", size: "large" },
@@ -25,7 +26,10 @@ export default function CategoryGrid() {
                 >
                     <div className="flex flex-col items-center md:items-start mb-6 md:mb-0">
                         <span className="text-brand-green font-bold tracking-widest uppercase text-sm mb-2 block">Collections</span>
-                        <h2 className="font-heading text-5xl md:text-6xl font-black uppercase tracking-tighter">Shop By Category</h2>
+                        <TextReveal
+                            text="Shop By Category"
+                            className="font-heading text-5xl md:text-6xl font-black uppercase tracking-tighter"
+                        />
                     </div>
                     <Link href="/collections" className="hidden md:inline-flex items-center gap-2 font-bold uppercase tracking-widest text-sm hover:text-brand-green transition-colors">
                         View All

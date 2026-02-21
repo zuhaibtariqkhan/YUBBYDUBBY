@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
+import TextReveal from "../ui/TextReveal";
 
 export default function HeroSection() {
     const sectionRef = useRef<HTMLElement>(null);
@@ -42,14 +43,19 @@ export default function HeroSection() {
                 style={{ y: textY, opacity: textOpacity }}
                 className="relative z-10 text-center max-w-5xl px-4 sm:px-6 flex flex-col items-center mt-12 sm:mt-0"
             >
-                <motion.h1
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                    className="font-heading text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-bold uppercase tracking-tighter leading-[0.9] mb-4 sm:mb-6"
-                >
-                    Elevating The <span className="text-brand-green italic drop-shadow-lg">Everyday</span>
-                </motion.h1>
+                <div className="mb-4 sm:mb-6 flex flex-col items-center">
+                    <TextReveal
+                        text="Elevating The"
+                        type="chars"
+                        className="font-heading text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-bold uppercase tracking-tighter leading-[0.9]"
+                    />
+                    <TextReveal
+                        text="Everyday"
+                        type="chars"
+                        delay={0.4}
+                        className="text-brand-green italic drop-shadow-lg font-heading text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-bold uppercase tracking-tighter leading-[0.9]"
+                    />
+                </div>
 
                 <motion.p
                     initial={{ opacity: 0, y: 20 }}

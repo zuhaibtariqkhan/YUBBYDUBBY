@@ -50,9 +50,9 @@ const reviews = [
 
 const slideVariants = {
     enter: (direction: number) => ({
-        x: direction > 0 ? 300 : -300,
+        x: direction > 0 ? 200 : -200,
         opacity: 0,
-        scale: 0.9,
+        scale: 0.95,
     }),
     center: {
         x: 0,
@@ -60,9 +60,9 @@ const slideVariants = {
         scale: 1,
     },
     exit: (direction: number) => ({
-        x: direction > 0 ? -300 : 300,
+        x: direction > 0 ? -200 : 200,
         opacity: 0,
-        scale: 0.9,
+        scale: 0.95,
     }),
 };
 
@@ -90,7 +90,7 @@ export default function ReviewsCarousel() {
     const review = reviews[activeIndex];
 
     return (
-        <section className="bg-brand-black text-brand-white py-20 md:py-28 px-6 border-t border-white/10 overflow-hidden">
+        <section className="bg-brand-black text-brand-white py-12 sm:py-16 md:py-28 px-4 sm:px-6 border-t border-white/10 overflow-hidden">
             <div className="max-w-5xl mx-auto">
                 {/* Header */}
                 <motion.div
@@ -98,12 +98,12 @@ export default function ReviewsCarousel() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6 }}
-                    className="text-center mb-14"
+                    className="text-center mb-8 md:mb-16"
                 >
-                    <span className="text-brand-green font-bold tracking-widest uppercase text-sm mb-3 block">
+                    <span className="text-brand-green font-bold tracking-widest uppercase text-xs md:text-sm mb-2 md:mb-3 block">
                         Testimonials
                     </span>
-                    <h2 className="font-heading text-4xl md:text-6xl font-black uppercase tracking-tighter">
+                    <h2 className="font-heading text-3xl sm:text-4xl md:text-6xl font-black uppercase tracking-tighter">
                         What People Say
                     </h2>
                 </motion.div>
@@ -114,24 +114,24 @@ export default function ReviewsCarousel() {
                     onMouseEnter={() => setIsPaused(true)}
                     onMouseLeave={() => setIsPaused(false)}
                 >
-                    {/* Navigation arrows */}
+                    {/* Navigation arrows (hidden on mobile to reduce clutter) */}
                     <button
                         onClick={() => paginate(-1)}
-                        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 md:-translate-x-12 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full border border-white/20 flex items-center justify-center hover:border-brand-green hover:text-brand-green transition-colors"
+                        className="hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 md:-translate-x-12 rounded-full border border-white/15 items-center justify-center hover:border-brand-green transition-colors text-white/50 hover:text-brand-green"
                         aria-label="Previous review"
                     >
-                        <ChevronLeft size={20} />
+                        <ChevronLeft className="w-5 h-5" />
                     </button>
                     <button
                         onClick={() => paginate(1)}
-                        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 md:translate-x-12 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full border border-white/20 flex items-center justify-center hover:border-brand-green hover:text-brand-green transition-colors"
+                        className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 md:translate-x-12 rounded-full border border-white/15 items-center justify-center hover:border-brand-green transition-colors text-white/50 hover:text-brand-green"
                         aria-label="Next review"
                     >
-                        <ChevronRight size={20} />
+                        <ChevronRight className="w-5 h-5" />
                     </button>
 
                     {/* Review card */}
-                    <div className="relative min-h-[280px] md:min-h-[240px] flex items-center justify-center px-8 md:px-16">
+                    <div className="relative min-h-[220px] md:min-h-[240px] flex items-center justify-center px-4 sm:px-16 md:px-20">
                         <AnimatePresence custom={direction} mode="wait">
                             <motion.div
                                 key={review.id}
@@ -148,41 +148,38 @@ export default function ReviewsCarousel() {
                             >
                                 {/* Quote icon */}
                                 <Quote
-                                    size={36}
-                                    className="text-brand-green/30 mx-auto mb-6"
+                                    className="text-brand-green/30 mx-auto mb-4 md:mb-6 w-6 h-6 md:w-10 md:h-10"
                                     fill="rgba(177,243,16,0.1)"
                                 />
 
                                 {/* Stars */}
-                                <div className="flex items-center justify-center gap-1 mb-5">
+                                <div className="flex items-center justify-center gap-1 mb-4 md:mb-5">
                                     {[...Array(5)].map((_, i) => (
                                         <Star
                                             key={i}
-                                            size={18}
-                                            className={
-                                                i < review.rating
+                                            className={`w-3.5 h-3.5 md:w-[18px] md:h-[18px] ${i < review.rating
                                                     ? "fill-brand-green text-brand-green"
                                                     : "text-white/20"
-                                            }
+                                                }`}
                                         />
                                     ))}
                                 </div>
 
                                 {/* Review text */}
-                                <p className="text-lg md:text-xl text-gray-200 leading-relaxed max-w-3xl mx-auto font-sans mb-8 italic">
+                                <p className="text-base sm:text-lg md:text-xl text-gray-200 leading-relaxed max-w-3xl mx-auto font-sans mb-6 md:mb-8 italic px-2 sm:px-0">
                                     &ldquo;{review.text}&rdquo;
                                 </p>
 
                                 {/* Customer info */}
                                 <div>
-                                    <p className="font-bold uppercase tracking-widest text-sm">
+                                    <p className="font-bold uppercase tracking-widest text-xs md:text-sm text-white">
                                         {review.name}
                                     </p>
-                                    <p className="text-gray-500 text-xs uppercase tracking-widest mt-1">
+                                    <p className="text-gray-500 text-[10px] md:text-xs uppercase tracking-widest mt-1">
                                         {review.location}
                                         {review.product && (
                                             <>
-                                                {" · "}
+                                                <span className="mx-1.5 opacity-50">|</span>
                                                 <span className="text-brand-green/70">
                                                     {review.product}
                                                 </span>
@@ -195,16 +192,16 @@ export default function ReviewsCarousel() {
                     </div>
 
                     {/* Dots */}
-                    <div className="flex items-center justify-center gap-2 mt-8">
+                    <div className="flex items-center justify-center gap-2 mt-6 md:mt-8">
                         {reviews.map((_, i) => (
                             <button
                                 key={i}
                                 onClick={() =>
                                     setActiveIndex([i, i > activeIndex ? 1 : -1])
                                 }
-                                className={`h-2 rounded-full transition-all duration-300 ${i === activeIndex
-                                    ? "w-8 bg-brand-green"
-                                    : "w-2 bg-white/20 hover:bg-white/40"
+                                className={`h-1.5 md:h-2 rounded-full transition-all duration-300 ${i === activeIndex
+                                        ? "w-6 md:w-8 bg-brand-green"
+                                        : "w-1.5 md:w-2 bg-white/20 hover:bg-white/40"
                                     }`}
                                 aria-label={`Go to review ${i + 1}`}
                             />
