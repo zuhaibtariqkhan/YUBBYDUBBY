@@ -11,7 +11,7 @@ export default function HeroSection() {
                 loop
                 muted
                 playsInline
-                className="absolute inset-0 w-full h-full object-cover object-center z-0 opacity-30 saturate-50"
+                className="absolute inset-0 w-full h-full object-cover object-center z-0 opacity-50 saturate-100"
             >
                 <source src="/Video Project 4.mp4" type="video/mp4" />
             </video>
