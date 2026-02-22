@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import TextReveal from "../ui/TextReveal";
+import GlitchText from "../ui/GlitchText";
 
 const categories = [
     { id: 1, name: "Men's Fashion", image: "/cat-mens.png", href: "/men", size: "large" },
@@ -24,11 +25,12 @@ export default function CategoryGrid() {
                     transition={{ duration: 0.6 }}
                     className="flex flex-col items-center justify-center mb-12 text-center w-full"
                 >
-                    <div className="flex flex-col items-center mb-4 w-full">
+                    <div className="flex flex-col items-center mb-4 w-full overflow-visible">
                         <span className="text-brand-green font-bold tracking-widest uppercase text-sm mb-2 block">Collections</span>
-                        <TextReveal
+                        <GlitchText
                             text="Shop By Category"
-                            className="font-heading text-5xl md:text-6xl font-black uppercase tracking-tighter justify-center w-full"
+                            as="h2"
+                            className="font-heading text-5xl md:text-6xl font-black uppercase tracking-tighter text-center"
                         />
                     </div>
                     <Link href="/collections" className="hidden md:inline-flex items-center gap-2 font-bold uppercase tracking-widest text-sm hover:text-brand-green transition-colors">

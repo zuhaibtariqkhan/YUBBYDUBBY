@@ -5,6 +5,7 @@ import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from
 import Image from "next/image";
 import Link from "next/link";
 import { Star } from "lucide-react";
+import GlitchText from "../ui/GlitchText";
 import TextReveal from "../ui/TextReveal";
 
 // 3D Tilt Card Component
@@ -93,9 +94,10 @@ export default function BestSellers() {
                     transition={{ duration: 0.6 }}
                     className="flex flex-col md:flex-row justify-between items-center md:items-end mb-16 text-center md:text-left"
                 >
-                    <div className="flex flex-col items-center md:items-start">
-                        <TextReveal
+                    <div className="flex flex-col items-center md:items-start overflow-visible">
+                        <GlitchText
                             text="Best Sellers"
+                            as="h2"
                             className="font-heading text-5xl md:text-6xl font-black uppercase tracking-tighter"
                         />
                         <p className="text-gray-400 mt-4 max-w-md font-sans">
