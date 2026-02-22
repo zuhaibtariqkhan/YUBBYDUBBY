@@ -1,21 +1,31 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
-import { ShoppingCart, Search, Menu, User } from "lucide-react";
+import { useState } from "react";
+import { ShoppingCart, Search, Menu, User, X } from "lucide-react";
+
 
 export default function Navbar() {
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
     return (
         <nav className="fixed top-0 w-full z-50 glass-nav transition-all duration-300">
             <div className="max-w-7xl mx-auto px-4 md:px-6 h-20 flex items-center justify-between">
 
                 {/* Left Section */}
                 <div className="flex items-center">
-                    <button className="md:hidden hover:text-brand-green transition-colors mr-3 sm:mr-4">
+                    <button
+                        className="md:hidden hover:text-brand-green transition-colors mr-3 sm:mr-4"
+                        onClick={() => setIsMobileMenuOpen(true)}
+                    >
                         <Menu size={24} />
                     </button>
                     <div className="hidden md:flex items-center space-x-8">
                         <Link href="/men" className="text-sm font-semibold tracking-widest hover:text-brand-green transition-colors uppercase">Men</Link>
                         <Link href="/women" className="text-sm font-semibold tracking-widest hover:text-brand-green transition-colors uppercase">Women</Link>
                         <Link href="/accessories" className="text-sm font-semibold tracking-widest hover:text-brand-green transition-colors uppercase">Accessories</Link>
+                        <Link href="/about" className="text-sm font-semibold tracking-widest hover:text-brand-green transition-colors uppercase">About Us</Link>
                     </div>
                 </div>
 
@@ -48,6 +58,23 @@ export default function Navbar() {
                     </button>
                 </div>
             </div>
+            {/* Mobile Menu Overlay */}
+            {isMobileMenuOpen && (
+                <div className="fixed inset-0 z-[60] bg-brand-black/95 backdrop-blur-md flex flex-col items-center justify-center md:hidden">
+                    <button
+                        className="absolute top-6 right-6 text-white hover:text-brand-green transition-colors"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                        <X size={32} />
+                    </button>
+                    <div className="flex flex-col items-center space-y-8 text-2xl font-oswald tracking-widest uppercase">
+                        <Link href="/men" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-brand-green transition-colors">Men</Link>
+                        <Link href="/women" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-brand-green transition-colors">Women</Link>
+                        <Link href="/accessories" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-brand-green transition-colors">Accessories</Link>
+                        <Link href="/about" onClick={() => setIsMobileMenuOpen(false)} className="text-brand-green hover:text-white transition-colors">About Us</Link>
+                    </div>
+                </div>
+            )}
         </nav>
     );
 }
