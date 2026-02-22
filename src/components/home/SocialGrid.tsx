@@ -81,6 +81,7 @@ export default function SocialGrid() {
                             src={post.image}
                             alt={`Instagram post ${post.id}`}
                             fill
+                            sizes="(max-width: 768px) 50vw, 25vw"
                             className="object-cover transition-all duration-700 md:grayscale group-hover:grayscale-0 group-hover:scale-110"
                         />
 

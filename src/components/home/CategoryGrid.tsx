@@ -56,6 +56,7 @@ export default function CategoryGrid() {
                                     src={cat.image}
                                     alt={cat.name}
                                     fill
+                                    sizes={cat.size === 'large' ? '(max-width: 768px) 100vw, 50vw' : cat.size === 'medium' ? '(max-width: 768px) 100vw, 50vw' : '(max-width: 768px) 100vw, 25vw'}
                                     className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                                 />
 

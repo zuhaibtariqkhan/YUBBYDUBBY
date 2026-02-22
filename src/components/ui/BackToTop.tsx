@@ -1,14 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUp } from "lucide-react";
 
 export default function BackToTop() {
     const [show, setShow] = useState(false);
+    const lastCheck = useRef(0);
 
     useEffect(() => {
         const handleScroll = () => {
+            const now = Date.now();
+            if (now - lastCheck.current < 200) return;
+            lastCheck.current = now;
             setShow(window.scrollY > 400);
         };
 

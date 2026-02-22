@@ -19,7 +19,7 @@ export default function Aurora({
     return (
         <div className="absolute inset-0 overflow-hidden rounded-[inherit] pointer-events-none z-0">
             <motion.div
-                className="absolute inset-0 w-[200%] h-[200%] -top-[50%] -left-[50%]"
+                className="absolute inset-0 w-[150%] h-[150%] -top-[25%] -left-[25%]"
                 animate={{
                     rotate: [0, 360],
                     scale: [1, 1 + amplitude * 0.1, 1],

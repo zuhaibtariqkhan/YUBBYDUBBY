@@ -21,6 +21,8 @@ export default function CustomCursor() {
         let isHovering = false;
         let targetRect: DOMRect | null = null;
         let targetRadius = "50%";
+        let isIdle = false;
+        let idleTimer: ReturnType<typeof setTimeout> | null = null;
 
         const handleMouseMove = (e: MouseEvent) => {
             mouseX = e.clientX;
@@ -32,6 +34,15 @@ export default function CustomCursor() {
 
             // Dot follows instantly
             dot.style.transform = `translate(${mouseX - 4}px, ${mouseY - 4}px)`;
+
+            // Restart animation loop if idle
+            if (isIdle) {
+                isIdle = false;
+                animationId = requestAnimationFrame(animateRing);
+            }
+            // Reset idle timer
+            if (idleTimer) clearTimeout(idleTimer);
+            idleTimer = setTimeout(() => { isIdle = true; }, 150);
         };
 
         const handleMouseOver = (e: MouseEvent) => {
@@ -108,7 +119,7 @@ export default function CustomCursor() {
                 }
             }
 
-            animationId = requestAnimationFrame(animateRing);
+            if (!isIdle) animationId = requestAnimationFrame(animateRing);
         };
 
         document.addEventListener("mousemove", handleMouseMove);

@@ -124,8 +124,8 @@ export default function BestSellers() {
                     ))}
                 </div>
 
-                <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 min-h-[400px]">
-                    <AnimatePresence mode="popLayout">
+                <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 min-h-[400px]">
+                    <AnimatePresence mode="wait">
                         {filteredProducts.map((product) => (
                             <motion.div
                                 layout
@@ -143,6 +143,7 @@ export default function BestSellers() {
                                             src={product.image}
                                             alt={product.name}
                                             fill
+                                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                                             className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                                         />
 

@@ -110,6 +110,7 @@ export function LimitedDrop() {
                         src="/create-your-own.png"
                         alt="Create Your Own Design"
                         fill
+                        sizes="(max-width: 768px) 100vw, 50vw"
                         className="object-cover"
                     />
                 </div>
@@ -142,6 +143,7 @@ export function EditorialMessage() {
                     loop
                     muted
                     playsInline
+                    preload="none"
                     className="w-full h-full object-cover"
                 >
                     <source src="/UPDATED YUBBYDUBBYSTUDIO.mp4" type="video/mp4" />
@@ -204,6 +206,7 @@ export function Footer() {
                             loop
                             muted
                             playsInline
+                            preload="none"
                             className="h-24 md:h-32 w-auto object-contain"
                         >
                             <source src="/logooo.mp4" type="video/mp4" />
