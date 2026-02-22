@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { useState } from "react";
+import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { Star } from "lucide-react";
@@ -58,15 +59,26 @@ function TiltCard({ children }: { children: React.ReactNode }) {
     );
 }
 
-// Mock Data for now
+// Expanded Mock Data
 const topProducts = [
-    { id: "p1", name: "0-GRAVITY HOODIE", price: 120, image: "/prod-hoodie.png", tag: "NEW" },
-    { id: "p2", name: "VOID CARGO PANTS", price: 145, image: "/prod-cargo.png", tag: "" },
-    { id: "p3", name: "NEBULA OVERSIZED TEE", price: 65, image: "/prod-tee.png", tag: "BEST SELLER" },
-    { id: "p4", name: "STRUCTURAL JACKET", price: 210, image: "/prod-jacket.png", tag: "LIMITED" },
+    { id: "p1", name: "0-GRAVITY HOODIE", price: 120, image: "/prod-hoodie.png", tag: "NEW", category: "Mens" },
+    { id: "p2", name: "VOID CARGO PANTS", price: 145, image: "/prod-cargo.png", tag: "", category: "Mens" },
+    { id: "p3", name: "NEBULA OVERSIZED TEE", price: 65, image: "/prod-tee.png", tag: "BEST SELLER", category: "Womens" },
+    { id: "p4", name: "STRUCTURAL JACKET", price: 210, image: "/prod-jacket.png", tag: "LIMITED", category: "Mens" },
+    { id: "p5", name: "SYNTHETIC BEANIE", price: 35, image: "/prod-hoodie.png", tag: "", category: "Accessories" },
+    { id: "p6", name: "TECH-WEAR SKIRT", price: 95, image: "/prod-cargo.png", tag: "NEW", category: "Womens" },
+    { id: "p7", name: "HEAVY METAL CHAIN", price: 55, image: "/prod-tee.png", tag: "", category: "Accessories" },
+    { id: "p8", name: "CYBERPUNK VEST", price: 180, image: "/prod-jacket.png", tag: "LIMITED", category: "Mens" },
 ];
 
+const categories = ["All", "Mens", "Womens", "Accessories"];
+
 export default function BestSellers() {
+    const [activeCategory, setActiveCategory] = useState("All");
+
+    const filteredProducts = topProducts.filter(
+        (product) => activeCategory === "All" || product.category === activeCategory
+    );
     return (
         <section className="bg-brand-black text-brand-white py-24 px-6 md:px-12 lg:px-24 border-t border-white/10">
             <div className="max-w-7xl mx-auto">
@@ -88,57 +100,80 @@ export default function BestSellers() {
                     </div>
                 </motion.div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {topProducts.map((product, i) => (
-                        <motion.div
-                            key={product.id}
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, margin: "-50px" }}
-                            transition={{ delay: i * 0.1, duration: 0.6, ease: "easeOut" }}
-                            className="perspective-1000"
+                <div className="flex flex-wrap gap-4 mb-12 justify-center md:justify-start">
+                    {categories.map((cat) => (
+                        <button
+                            key={cat}
+                            onClick={() => setActiveCategory(cat)}
+                            className={`relative px-6 py-2 rounded-[var(--radius-btn)] font-bold uppercase tracking-widest text-sm transition-colors duration-300 ${activeCategory === cat ? "text-brand-black" : "text-gray-400 hover:text-white"
+                                }`}
                         >
-                            <TiltCard>
-                                <div className="relative aspect-[3/4] bg-white/5 rounded-[var(--radius-img)] overflow-hidden mb-6 flex items-center justify-center">
-                                    {/* Product Image */}
-                                    <Image
-                                        src={product.image}
-                                        alt={product.name}
-                                        fill
-                                        className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-                                    />
-
-                                    {product.tag && (
-                                        <span className="absolute top-4 left-4 bg-brand-green text-brand-black text-xs font-bold px-3 py-1 uppercase tracking-widest">
-                                            {product.tag}
-                                        </span>
-                                    )}
-
-                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                                        <button className="bg-brand-white text-brand-black font-bold uppercase tracking-widest px-6 py-3 rounded-[var(--radius-btn)] hover:bg-brand-green transition-colors transform translate-y-4 group-hover:translate-y-0 duration-300">
-                                            Quick Add
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="px-2">
-                                    <div className="flex items-center gap-1 mb-2">
-                                        {[...Array(5)].map((_, i) => (
-                                            <Star key={i} size={14} className="fill-brand-green text-brand-green" />
-                                        ))}
-                                        <span className="text-xs text-gray-400 ml-2">(124)</span>
-                                    </div>
-                                    <Link href={`/product/${product.id}`} className="block">
-                                        <h3 className="font-bold text-lg hover:text-brand-green transition-colors uppercase font-heading">{product.name}</h3>
-                                    </Link>
-                                    <div className="mt-2 text-brand-green font-bold tracking-widest">
-                                        ${product.price}.00
-                                    </div>
-                                </div>
-                            </TiltCard>
-                        </motion.div>
+                            {activeCategory === cat && (
+                                <motion.div
+                                    layoutId="activeFilter"
+                                    className="absolute inset-0 bg-brand-green rounded-[var(--radius-btn)]"
+                                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                                />
+                            )}
+                            <span className="relative z-10">{cat}</span>
+                        </button>
                     ))}
                 </div>
+
+                <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 min-h-[400px]">
+                    <AnimatePresence mode="popLayout">
+                        {filteredProducts.map((product) => (
+                            <motion.div
+                                layout
+                                key={product.id}
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.8 }}
+                                transition={{ duration: 0.4, ease: "easeOut" }}
+                                className="perspective-1000"
+                            >
+                                <TiltCard>
+                                    <div className="relative aspect-[3/4] bg-white/5 rounded-[var(--radius-img)] overflow-hidden mb-6 flex items-center justify-center">
+                                        {/* Product Image */}
+                                        <Image
+                                            src={product.image}
+                                            alt={product.name}
+                                            fill
+                                            className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                                        />
+
+                                        {product.tag && (
+                                            <span className="absolute top-4 left-4 bg-brand-green text-brand-black text-xs font-bold px-3 py-1 uppercase tracking-widest">
+                                                {product.tag}
+                                            </span>
+                                        )}
+
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                            <button className="bg-brand-white text-brand-black font-bold uppercase tracking-widest px-6 py-3 rounded-[var(--radius-btn)] hover:bg-brand-green transition-colors transform translate-y-4 group-hover:translate-y-0 duration-300">
+                                                Quick Add
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="px-2">
+                                        <div className="flex items-center gap-1 mb-2">
+                                            {[...Array(5)].map((_, i) => (
+                                                <Star key={i} size={14} className="fill-brand-green text-brand-green" />
+                                            ))}
+                                            <span className="text-xs text-gray-400 ml-2">(124)</span>
+                                        </div>
+                                        <Link href={`/product/${product.id}`} className="block">
+                                            <h3 className="font-bold text-lg hover:text-brand-green transition-colors uppercase font-heading">{product.name}</h3>
+                                        </Link>
+                                        <div className="mt-2 text-brand-green font-bold tracking-widest">
+                                            ${product.price}.00
+                                        </div>
+                                    </div>
+                                </TiltCard>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+                </motion.div>
             </div>
         </section>
     );
