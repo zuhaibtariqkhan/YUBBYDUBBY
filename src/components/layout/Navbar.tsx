@@ -11,9 +11,9 @@ export default function Navbar() {
 
     return (
         <nav className="fixed top-0 w-full z-50 glass-nav transition-all duration-300">
-            <div className="max-w-7xl mx-auto px-4 md:px-6 h-20 flex items-center justify-between">
+            <div className="max-w-7xl mx-auto px-4 md:px-6 h-20 flex items-center justify-between relative">
 
-                {/* Left Section */}
+                {/* Left Section Navigation Links */}
                 <div className="flex items-center">
                     <button
                         className="md:hidden hover:text-brand-green transition-colors mr-3 sm:mr-4"
@@ -21,22 +21,22 @@ export default function Navbar() {
                     >
                         <Menu size={24} />
                     </button>
-                    <div className="hidden md:flex items-center space-x-8">
-                        <Link href="/men" className="text-sm font-semibold tracking-widest hover:text-brand-green transition-colors uppercase">Men</Link>
-                        <Link href="/women" className="text-sm font-semibold tracking-widest hover:text-brand-green transition-colors uppercase">Women</Link>
-                        <Link href="/accessories" className="text-sm font-semibold tracking-widest hover:text-brand-green transition-colors uppercase">Accessories</Link>
-                        <Link href="/about" className="text-sm font-semibold tracking-widest hover:text-brand-green transition-colors uppercase">About Us</Link>
+                    <div className="hidden md:flex items-center space-x-6">
+                        <Link href="/shop" prefetch={false} className="text-xs font-semibold tracking-widest hover:text-brand-green transition-colors uppercase">Shop</Link>
+                        <Link href="/yubbydubby-x-adidas" prefetch={false} className="text-xs font-semibold tracking-widest hover:text-brand-green transition-colors uppercase">Yubby Dubby X Adidas</Link>
+                        <Link href="/create-your-own" prefetch={false} className="text-xs font-semibold tracking-widest hover:text-brand-green transition-colors uppercase">Create</Link>
+                        <Link href="/about" prefetch={false} className="text-xs font-semibold tracking-widest hover:text-brand-green transition-colors uppercase">About</Link>
                     </div>
                 </div>
 
                 {/* Center Logo */}
-                <div className="absolute left-1/2 -translate-x-1/2 flex items-center h-full max-h-24 pt-1 md:pt-1">
-                    <Link href="/" className="relative h-[85px] w-[250px] sm:h-[100px] sm:w-[320px] md:h-32 md:w-[420px] flex items-center justify-center">
+                <div className="absolute left-1/2 -translate-x-1/2 flex items-center h-full max-h-20 pt-1">
+                    <Link href="/" className="relative h-[80px] w-[200px] sm:h-[90px] sm:w-[250px] md:h-24 md:w-[320px] flex items-center justify-center">
                         <Image
                             src="/LOGOO.png"
                             alt="Yubby Dubby Logo"
                             fill
-                            className="object-contain scale-[1.05]"
+                            className="object-contain scale-100"
                             priority
                         />
                     </Link>
@@ -67,11 +67,11 @@ export default function Navbar() {
                     >
                         <X size={32} />
                     </button>
-                    <div className="flex flex-col items-center space-y-8 text-2xl font-oswald tracking-widest uppercase">
-                        <Link href="/men" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-brand-green transition-colors">Men</Link>
-                        <Link href="/women" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-brand-green transition-colors">Women</Link>
-                        <Link href="/accessories" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-brand-green transition-colors">Accessories</Link>
-                        <Link href="/about" onClick={() => setIsMobileMenuOpen(false)} className="text-brand-green hover:text-white transition-colors">About Us</Link>
+                    <div className="flex flex-col items-center space-y-8 text-2xl font-oswald tracking-widest uppercase text-center px-4">
+                        <Link href="/shop" prefetch={false} onClick={() => setIsMobileMenuOpen(false)} className="hover:text-brand-green transition-colors">Shop</Link>
+                        <Link href="/yubbydubby-x-adidas" prefetch={false} onClick={() => setIsMobileMenuOpen(false)} className="hover:text-brand-green transition-colors">Yubby Dubby X Adidas</Link>
+                        <Link href="/create-your-own" prefetch={false} onClick={() => setIsMobileMenuOpen(false)} className="hover:text-brand-green transition-colors">Create Your Own</Link>
+                        <Link href="/about" prefetch={false} onClick={() => setIsMobileMenuOpen(false)} className="text-brand-green hover:text-white transition-colors">About Us</Link>
                     </div>
                 </div>
             )}

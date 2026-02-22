@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 export default function CustomCursor() {
     const dotRef = useRef<HTMLDivElement>(null);
     const ringRef = useRef<HTMLDivElement>(null);
-    const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
         // Don't render on touch devices
@@ -26,7 +25,10 @@ export default function CustomCursor() {
         const handleMouseMove = (e: MouseEvent) => {
             mouseX = e.clientX;
             mouseY = e.clientY;
-            setIsVisible(true);
+
+            // Set opacity directly via DOM to avoid React re-renders on mousemove
+            dot.style.opacity = "1";
+            ring.style.opacity = "1";
 
             // Dot follows instantly
             dot.style.transform = `translate(${mouseX - 4}px, ${mouseY - 4}px)`;
@@ -57,7 +59,8 @@ export default function CustomCursor() {
         };
 
         const handleMouseLeave = () => {
-            setIsVisible(false);
+            dot.style.opacity = "0";
+            ring.style.opacity = "0";
             isHovering = false;
             targetRect = null;
         };
@@ -132,7 +135,7 @@ export default function CustomCursor() {
                     height: 8,
                     borderRadius: "50%",
                     backgroundColor: "#B1F310",
-                    opacity: isVisible ? 1 : 0,
+                    opacity: 0,
                     transition: "opacity 0.3s ease",
                 }}
             />
@@ -141,7 +144,7 @@ export default function CustomCursor() {
                 ref={ringRef}
                 className="fixed top-0 left-0 z-[9998] pointer-events-none"
                 style={{
-                    opacity: isVisible ? 1 : 0,
+                    opacity: 0,
                     transition: "width 0.25s ease-out, height 0.25s ease-out, border-radius 0.25s ease-out, border-color 0.3s ease, background-color 0.3s ease, opacity 0.3s ease",
                     border: "2px solid rgba(255,255,255,0.6)",
                 }}

@@ -50,7 +50,7 @@ export default function AboutPage() {
                     <h1 className="font-oswald text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter mb-6 leading-tight">
                         <TextReveal text="ABOUT" delay={0.2} />
                         <br />
-                        <span className="text-[#00FF00]">
+                        <span className="text-[#b1f310]">
                             <TextReveal text="YUBBY DUBBY" delay={0.6} />
                         </span>
                     </h1>
@@ -62,7 +62,7 @@ export default function AboutPage() {
                 <div className="container mx-auto px-4 max-w-4xl text-center">
                     <FadeIn className="mb-16">
                         <p className="font-montserrat text-xl md:text-3xl leading-relaxed font-light text-neutral-300">
-                            Yubby Dubby is a contemporary e-commerce brand built on a powerful belief <span className="text-white font-medium">premium quality should be accessible, not exclusive.</span>
+                            Yubby Dubby is a contemporary <span className="whitespace-nowrap">e-commerce</span> brand built on a powerful belief <span className="text-white font-medium">premium quality should be accessible, not exclusive.</span>
                         </p>
                     </FadeIn>
 
