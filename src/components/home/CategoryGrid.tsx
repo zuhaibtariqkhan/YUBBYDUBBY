@@ -22,13 +22,13 @@ export default function CategoryGrid() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-100px" }}
                     transition={{ duration: 0.6 }}
-                    className="flex flex-col md:flex-row justify-between items-center md:items-end mb-12 text-center md:text-left"
+                    className="flex flex-col items-center justify-center mb-12 text-center w-full"
                 >
-                    <div className="flex flex-col items-center md:items-start mb-6 md:mb-0">
+                    <div className="flex flex-col items-center mb-4 w-full">
                         <span className="text-brand-green font-bold tracking-widest uppercase text-sm mb-2 block">Collections</span>
                         <TextReveal
                             text="Shop By Category"
-                            className="font-heading text-5xl md:text-6xl font-black uppercase tracking-tighter"
+                            className="font-heading text-5xl md:text-6xl font-black uppercase tracking-tighter justify-center w-full"
                         />
                     </div>
                     <Link href="/collections" className="hidden md:inline-flex items-center gap-2 font-bold uppercase tracking-widest text-sm hover:text-brand-green transition-colors">
