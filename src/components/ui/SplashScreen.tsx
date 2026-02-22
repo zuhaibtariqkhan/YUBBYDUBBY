@@ -55,18 +55,18 @@ export default function SplashScreen() {
                 >
                     {/* Scan line sweep */}
                     <motion.div
-                        initial={{ top: "-2px" }}
-                        animate={{ top: "100%" }}
+                        initial={{ y: "-10vh" }}
+                        animate={{ y: "110vh" }}
                         transition={{
                             duration: 2.5,
                             delay: 0.3,
                             ease: "easeInOut",
                         }}
-                        className="absolute left-0 w-full h-[2px] z-20"
+                        className="absolute top-0 left-0 w-full h-[2px] z-20 will-change-transform"
                         style={{
                             background:
                                 "linear-gradient(90deg, transparent, #B1F310, rgba(177,243,16,0.4), transparent)",
-                            boxShadow: "0 0 20px rgba(177,243,16,0.6), 0 0 60px rgba(177,243,16,0.2)",
+                            boxShadow: "0 0 15px rgba(177,243,16,0.5)",
                         }}
                     />
 
@@ -101,14 +101,14 @@ export default function SplashScreen() {
                         initial={{ opacity: 0, scale: 0.85 }}
                         animate={
                             phase === "exit"
-                                ? { opacity: 0, scale: 1.3, filter: "blur(6px)" }
-                                : { opacity: 1, scale: 1, filter: "blur(0px)" }
+                                ? { opacity: 0, scale: 1.15 }
+                                : { opacity: 1, scale: 1 }
                         }
                         transition={{
                             duration: phase === "exit" ? 0.7 : 0.8,
                             ease: "easeOut",
                         }}
-                        className="relative z-10 w-[280px] h-[280px] sm:w-[360px] sm:h-[360px] md:w-[420px] md:h-[420px] flex items-center justify-center"
+                        className="relative z-10 w-[280px] h-[280px] sm:w-[360px] sm:h-[360px] md:w-[420px] md:h-[420px] flex items-center justify-center will-change-transform"
                     >
                         <video
                             ref={videoRef}
