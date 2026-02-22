@@ -51,7 +51,7 @@ export default function TextReveal({ text, className = "", type = "words", delay
             style={{ perspective: "1000px" }}
         >
             {items.map((item, index) => (
-                <span key={index} className="overflow-hidden inline-flex">
+                <span key={index} className="inline-flex overflow-visible pb-2 -mb-2 pr-1 -mr-1">
                     <motion.span
                         variants={itemVariants}
                         className="inline-block"
