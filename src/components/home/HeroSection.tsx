@@ -25,7 +25,7 @@ export default function HeroSection() {
             {/* Background Video with parallax */}
             <motion.div
                 style={{ y: videoY, scale: videoScale }}
-                className="absolute inset-0 z-0"
+                className="absolute inset-0 z-0 will-change-transform"
             >
                 <video
                     autoPlay

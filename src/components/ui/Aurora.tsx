@@ -30,14 +30,14 @@ export default function Aurora({
                 }}
                 style={{
                     background: `
-                        radial-gradient(ellipse at 50% 50%, ${colorStops[0]} 0%, transparent 50%),
-                        radial-gradient(ellipse at 80% 20%, ${colorStops[1]} 0%, transparent 50%),
-                        radial-gradient(ellipse at 20% 80%, ${colorStops[2]} 0%, transparent 50%)
+                        radial-gradient(ellipse at 50% 50%, ${colorStops[0]} 0%, transparent 60%),
+                        radial-gradient(ellipse at 80% 20%, ${colorStops[1]} 0%, transparent 60%),
+                        radial-gradient(ellipse at 20% 80%, ${colorStops[2]} 0%, transparent 60%)
                     `,
                     backgroundSize: "100% 100%",
                     backgroundBlendMode: "screen",
-                    filter: `blur(${15 * blend}px)`,
-                    opacity: 0.9,
+                    opacity: 0.8,
+                    willChange: "transform",
                 }}
             />
             {/* Base overlay for contrast */}
