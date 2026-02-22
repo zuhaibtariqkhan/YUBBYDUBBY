@@ -15,13 +15,13 @@ export default function GlitchText({ text, className = "", as: Component = "span
         >
             <span className="relative z-10 inline-block">{text}</span>
             <span
-                className="absolute top-0 left-0 z-0 w-full h-full opacity-0 group-hover:opacity-100 group-hover:animate-glitch-1 text-[#0ff] mix-blend-screen"
+                className="absolute top-0 left-0 z-0 w-full h-full opacity-0 group-hover:opacity-100 text-[#0ff] mix-blend-screen glitch-layer-1"
                 aria-hidden="true"
             >
                 {text}
             </span>
             <span
-                className="absolute top-0 left-0 z-0 w-full h-full opacity-0 group-hover:opacity-100 group-hover:animate-glitch-2 text-[#f0f] mix-blend-screen"
+                className="absolute top-0 left-0 z-0 w-full h-full opacity-0 group-hover:opacity-100 text-[#f0f] mix-blend-screen glitch-layer-2"
                 aria-hidden="true"
             >
                 {text}

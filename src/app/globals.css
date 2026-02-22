@@ -228,10 +228,10 @@
   }
 }
 
-.animate-glitch-1 {
+.group:hover .glitch-layer-1 {
   animation: glitch-anim-1 0.4s infinite linear alternate-reverse;
 }
 
-.animate-glitch-2 {
+.group:hover .glitch-layer-2 {
   animation: glitch-anim-2 0.4s infinite linear alternate-reverse;
 }
