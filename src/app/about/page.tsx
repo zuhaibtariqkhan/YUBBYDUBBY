@@ -5,6 +5,8 @@ import { Footer } from "@/components/home/HomeSections";
 import TextReveal from "@/components/ui/TextReveal";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
+import ProfileCard from "@/components/ProfileCard";
+import { Instagram, Facebook, Mail } from "lucide-react";
 
 // Fade in component for text blocks
 const FadeIn = ({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) => {
@@ -192,6 +194,53 @@ export default function AboutPage() {
                             </FadeIn>
                         </div>
                     </div>
+                </div>
+            </section>
+
+            {/* Founder Section */}
+            <section className="py-24 relative z-10 bg-brand-black">
+                <div className="container mx-auto px-4 flex flex-col items-center">
+                    <FadeIn className="w-full text-center">
+                        <h2 className="font-oswald text-5xl md:text-7xl font-black uppercase tracking-tighter text-white mb-24">
+                            FOUNDER
+                        </h2>
+                    </FadeIn>
+                    <FadeIn delay={0.2}>
+                        <ProfileCard
+                            name="Zuhaib Tariq Khan"
+                            title="Founder"
+                            avatarUrl="/ZTKKK.jpeg"
+                            handle="zuhaibtariqkhan"
+                            status="Entrepreneur"
+                            contactText="Get in Touch"
+                            socials={
+                                <>
+                                    <a
+                                        href="https://www.instagram.com/zuhaibtariqkhan/"
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="text-white hover:text-brand-green transition-colors cursor-pointer pointer-events-auto"
+                                    >
+                                        <Instagram size={24} />
+                                    </a>
+                                    <a
+                                        href="https://www.facebook.com/zuhaibtariqkhan/"
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="text-white hover:text-brand-green transition-colors cursor-pointer pointer-events-auto"
+                                    >
+                                        <Facebook size={24} />
+                                    </a>
+                                    <a
+                                        href="mailto:zuhaibtariqkhann@gmail.com"
+                                        className="text-white hover:text-brand-green transition-colors cursor-pointer pointer-events-auto"
+                                    >
+                                        <Mail size={24} />
+                                    </a>
+                                </>
+                            }
+                        />
+                    </FadeIn>
                 </div>
             </section>
 
