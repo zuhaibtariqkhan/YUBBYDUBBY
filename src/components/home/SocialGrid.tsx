@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { Instagram } from "lucide-react";
 import { useEffect, useState } from "react";
-import GlitchText from "../ui/GlitchText";
 
 const fallbackPosts = [
     { id: 1, image: "/prod-hoodie.png", link: "https://instagram.com/yubby.dubby" },
@@ -45,8 +44,8 @@ export default function SocialGrid() {
         <section className="py-20 bg-brand-black border-t border-white/10">
             <div className="max-w-7xl mx-auto px-6 mb-12 text-center md:text-left flex flex-col md:flex-row justify-between items-center md:items-end gap-6">
                 <div>
-                    <h2 className="font-heading text-4xl md:text-5xl font-black uppercase tracking-tighter text-brand-white flex items-center gap-2 flex-wrap justify-center md:justify-start">
-                        <GlitchText text="Join The" as="span" /> <span className="text-brand-green italic drop-shadow-[0_0_15px_rgba(177,243,16,0.5)]">Syndicate</span>
+                    <h2 className="font-heading text-4xl md:text-5xl font-black uppercase tracking-tighter text-brand-white">
+                        Join The <span className="text-brand-green italic drop-shadow-[0_0_15px_rgba(177,243,16,0.5)]">Syndicate</span>
                     </h2>
                     <p className="text-gray-400 mt-4 max-w-md font-sans text-sm md:text-base">
                         Tag @yubby.dubby to be featured on our official grid.

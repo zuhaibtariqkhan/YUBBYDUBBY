@@ -9,7 +9,6 @@ import { Truck, ShieldCheck, Lock, ArrowRight, Instagram, Mail, Check, Loader2 }
 import { FaCcVisa, FaCcMastercard, FaGooglePay, FaApplePay } from "react-icons/fa";
 import { SiPaytm, SiPhonepe } from "react-icons/si";
 import { MdOutlinePayment } from "react-icons/md";
-import GlitchText from "../ui/GlitchText";
 
 function NewsletterSubscribe() {
     const [email, setEmail] = useState("");
@@ -210,7 +209,7 @@ export function Footer() {
                             <source src="/logooo.mp4" type="video/mp4" />
                         </video>
                     </div>
-                    <GlitchText text="Yubby Dubby" as="h3" className="font-heading text-3xl md:text-4xl font-bold tracking-widest uppercase mb-4 md:mb-6" />
+                    <h3 className="font-heading text-3xl md:text-4xl font-bold tracking-widest uppercase mb-4 md:mb-6">Yubby Dubby</h3>
                     <p className="text-gray-400 max-w-sm mb-6 md:mb-8 text-sm md:text-base">
                         Join the collective. Gain early access to limited drops and exclusive studio content.
                     </p>
