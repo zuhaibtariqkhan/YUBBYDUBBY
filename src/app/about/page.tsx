@@ -3,10 +3,10 @@
 import Navbar from "@/components/layout/Navbar";
 import { Footer } from "@/components/home/HomeSections";
 import TextReveal from "@/components/ui/TextReveal";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { motion, useScroll, useTransform, useInView } from "framer-motion";
+import { useRef, useEffect, useState } from "react";
 import ProfileCard from "@/components/ProfileCard";
-import { Instagram, Facebook, Mail } from "lucide-react";
+import { Instagram, Facebook, Gem, Truck, Heart, Palette, ShieldCheck, Sparkles } from "lucide-react";
 
 // Fade in component for text blocks
 const FadeIn = ({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) => {
@@ -19,6 +19,105 @@ const FadeIn = ({ children, delay = 0, className = "" }: { children: React.React
             className={className}
         >
             {children}
+        </motion.div>
+    );
+};
+
+// Animated counter hook
+function useAnimatedCounter(target: number, duration: number = 2) {
+    const ref = useRef(null);
+    const isInView = useInView(ref, { once: true, margin: "-100px" });
+    const [count, setCount] = useState(0);
+
+    useEffect(() => {
+        if (!isInView) return;
+        let start = 0;
+        const increment = target / (duration * 60);
+        const timer = setInterval(() => {
+            start += increment;
+            if (start >= target) {
+                setCount(target);
+                clearInterval(timer);
+            } else {
+                setCount(Math.floor(start));
+            }
+        }, 1000 / 60);
+        return () => clearInterval(timer);
+    }, [isInView, target, duration]);
+
+    return { ref, count };
+}
+
+// Stats data
+const stats = [
+    { value: 4, suffix: "+", label: "Years of Passion", description: "Crafting premium experiences" },
+    { value: 500, suffix: "+", label: "Products", description: "Across lifestyle categories" },
+    { value: 10000, suffix: "+", label: "Happy Customers", description: "And growing every day" },
+    { value: 50, suffix: "+", label: "Categories", description: "Fashion, home & beyond" },
+];
+
+// Brand values data
+const brandValues = [
+    {
+        icon: Gem,
+        title: "Premium Quality",
+        description: "Every product undergoes rigorous quality checks to ensure exceptional craftsmanship.",
+        gradient: "from-violet-500 to-purple-600"
+    },
+    {
+        icon: Heart,
+        title: "Customer First",
+        description: "Your satisfaction drives everything we do — from design to delivery.",
+        gradient: "from-rose-500 to-pink-600"
+    },
+    {
+        icon: Palette,
+        title: "Design Excellence",
+        description: "Merging modern aesthetics with timeless appeal in every collection.",
+        gradient: "from-amber-500 to-orange-600"
+    },
+    {
+        icon: ShieldCheck,
+        title: "Trust & Integrity",
+        description: "Transparent pricing, honest quality — no compromises, ever.",
+        gradient: "from-emerald-500 to-green-600"
+    },
+    {
+        icon: Truck,
+        title: "Reliable Delivery",
+        description: "Fast, secure shipping so your order reaches you in perfect condition.",
+        gradient: "from-sky-500 to-blue-600"
+    },
+    {
+        icon: Sparkles,
+        title: "Affordable Luxury",
+        description: "Premium living shouldn't cost a fortune — we make it accessible.",
+        gradient: "from-yellow-400 to-amber-500"
+    },
+];
+
+// Stat Card Component
+const StatCard = ({ value, suffix, label, description, index }: { value: number; suffix: string; label: string; description: string; index: number }) => {
+    const { ref, count } = useAnimatedCounter(value, 2);
+    const displayCount = value >= 10000 ? `${Math.floor(count / 1000)}k` : count;
+
+    return (
+        <motion.div
+            ref={ref}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, delay: index * 0.15, ease: [0.21, 0.47, 0.32, 0.98] }}
+            className="text-center group"
+        >
+            <div className="relative mb-3">
+                <span className="font-oswald text-5xl sm:text-6xl md:text-7xl font-black text-white tracking-tight">
+                    {displayCount}
+                </span>
+                <span className="font-oswald text-3xl sm:text-4xl md:text-5xl font-black text-[#b1f310]">{suffix}</span>
+            </div>
+            <p className="font-oswald text-sm sm:text-base md:text-lg uppercase tracking-[0.2em] text-white mb-1">{label}</p>
+            <p className="font-montserrat text-xs sm:text-sm text-neutral-500">{description}</p>
         </motion.div>
     );
 };
@@ -106,6 +205,30 @@ export default function AboutPage() {
                             We are here to redefine what affordable luxury truly means and to deliver it with consistency, integrity, and vision.
                         </p>
                     </FadeIn>
+                </div>
+            </section>
+
+            {/* Animated Stats Section */}
+            <section className="py-20 sm:py-28 md:py-32 relative z-10 bg-brand-black overflow-hidden">
+                {/* Subtle background accents */}
+                <div className="absolute inset-0 pointer-events-none">
+                    <div className="absolute top-0 left-1/4 w-64 h-64 bg-[#b1f310]/5 rounded-full blur-[120px]" />
+                    <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-purple-500/5 rounded-full blur-[120px]" />
+                </div>
+                <div className="container mx-auto px-4 max-w-6xl relative">
+                    <FadeIn className="text-center mb-16 sm:mb-20">
+                        <h2 className="font-oswald text-sm md:text-base uppercase tracking-[0.3em] text-neutral-500 mb-4">By the Numbers</h2>
+                        <p className="font-montserrat text-lg sm:text-xl text-neutral-400 max-w-2xl mx-auto">Our growth tells a story of relentless dedication and unwavering commitment.</p>
+                    </FadeIn>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 md:gap-12">
+                        {stats.map((stat, i) => (
+                            <StatCard key={stat.label} {...stat} index={i} />
+                        ))}
+                    </div>
+                    {/* Decorative divider */}
+                    <div className="mt-16 sm:mt-20 flex justify-center">
+                        <div className="w-24 h-px bg-gradient-to-r from-transparent via-neutral-600 to-transparent" />
+                    </div>
                 </div>
             </section>
 
@@ -197,6 +320,64 @@ export default function AboutPage() {
                 </div>
             </section>
 
+            {/* Brand Values Section */}
+            <section className="py-20 sm:py-28 md:py-32 relative z-10 bg-brand-black overflow-hidden">
+                {/* Background glow effects */}
+                <div className="absolute inset-0 pointer-events-none">
+                    <div className="absolute top-1/3 left-0 w-96 h-96 bg-[#b1f310]/3 rounded-full blur-[150px]" />
+                    <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-blue-500/3 rounded-full blur-[150px]" />
+                </div>
+                <div className="container mx-auto px-4 max-w-6xl relative">
+                    <FadeIn className="text-center mb-16 sm:mb-20">
+                        <h2 className="font-oswald text-4xl sm:text-5xl md:text-7xl font-black uppercase tracking-tighter text-white mb-4">
+                            OUR VALUES
+                        </h2>
+                        <p className="font-montserrat text-base sm:text-lg md:text-xl text-neutral-400 max-w-2xl mx-auto">
+                            The principles that guide every decision, every design, and every delivery.
+                        </p>
+                    </FadeIn>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 md:gap-8">
+                        {brandValues.map((value, i) => {
+                            const IconComponent = value.icon;
+                            return (
+                                <motion.div
+                                    key={value.title}
+                                    initial={{ opacity: 0, y: 40 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ duration: 0.7, delay: i * 0.1, ease: [0.21, 0.47, 0.32, 0.98] }}
+                                    className="group relative p-6 sm:p-8 rounded-2xl border border-neutral-800 bg-neutral-900/50 backdrop-blur-sm hover:border-neutral-700 transition-all duration-500 hover:bg-neutral-900/80"
+                                >
+                                    {/* Hover glow */}
+                                    <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${value.gradient} opacity-0 group-hover:opacity-[0.05] transition-opacity duration-500`} />
+
+                                    <div className="relative z-10">
+                                        {/* Icon */}
+                                        <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br ${value.gradient} flex items-center justify-center mb-5 sm:mb-6 group-hover:scale-110 transition-transform duration-500`}>
+                                            <IconComponent className="w-6 h-6 sm:w-7 sm:h-7 text-white" strokeWidth={1.5} />
+                                        </div>
+
+                                        {/* Title */}
+                                        <h3 className="font-oswald text-lg sm:text-xl uppercase tracking-wider text-white mb-2 sm:mb-3">
+                                            {value.title}
+                                        </h3>
+
+                                        {/* Description */}
+                                        <p className="font-montserrat text-sm sm:text-[15px] text-neutral-400 leading-relaxed">
+                                            {value.description}
+                                        </p>
+                                    </div>
+
+                                    {/* Corner accent */}
+                                    <div className={`absolute top-0 right-0 w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-bl ${value.gradient} opacity-[0.03] group-hover:opacity-[0.08] rounded-tr-2xl rounded-bl-[40px] transition-opacity duration-500`} />
+                                </motion.div>
+                            );
+                        })}
+                    </div>
+                </div>
+            </section>
+
             {/* Founder Section */}
             <section className="py-24 relative z-10 bg-brand-black">
                 <div className="container mx-auto px-4 flex flex-col items-center">
@@ -213,6 +394,7 @@ export default function AboutPage() {
                             handle="zuhaibtariqkhan"
                             status="Entrepreneur"
                             contactText="Get in Touch"
+                            onContactClick={() => window.open("https://www.instagram.com/zuhaibtariqkhan/", "_blank")}
                             socials={
                                 <>
                                     <a
@@ -230,12 +412,6 @@ export default function AboutPage() {
                                         className="text-white hover:text-brand-green transition-colors cursor-pointer pointer-events-auto"
                                     >
                                         <Facebook size={24} />
-                                    </a>
-                                    <a
-                                        href="mailto:zuhaibtariqkhann@gmail.com"
-                                        className="text-white hover:text-brand-green transition-colors cursor-pointer pointer-events-auto"
-                                    >
-                                        <Mail size={24} />
                                     </a>
                                 </>
                             }
