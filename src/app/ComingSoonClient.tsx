@@ -5,8 +5,8 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, ShieldCheck, Zap, ShoppingBag, Mail, Check, Clock } from "lucide-react";
 
-// Countdown Target Date: September 1, 2026 00:00:00 UTC
-const TARGET_DATE = new Date("2026-09-01T00:00:00Z").getTime();
+// Countdown Target Date: Exactly 7 days from June 9, 2026 20:52:00
+const TARGET_DATE = new Date("2026-06-16T15:22:00Z").getTime();
 
 interface TimeRemaining {
   days: number;
@@ -280,6 +280,22 @@ export default function ComingSoonClient() {
         
         {/* HERO SECTION */}
         <section className="text-center space-y-8 max-w-3xl mt-6">
+          <style dangerouslySetInnerHTML={{ __html: `
+            @keyframes gradient-shift {
+              0% { background-position: 0% 50%; }
+              50% { background-position: 100% 50%; }
+              100% { background-position: 0% 50%; }
+            }
+            .highlight-text {
+              background: linear-gradient(90deg, #FFFFFF, #B1F310, #FFFFFF, #B1F310);
+              background-size: 300% 300%;
+              -webkit-background-clip: text;
+              -webkit-text-fill-color: transparent;
+              animation: gradient-shift 6s ease-in-out infinite;
+              filter: drop-shadow(0 0 15px rgba(177, 243, 16, 0.25));
+            }
+          ` }} />
+
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
@@ -293,23 +309,43 @@ export default function ComingSoonClient() {
             initial={{ opacity: 0, y: 25 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-5xl md:text-7xl lg:text-8xl font-heading font-black uppercase tracking-tighter leading-none text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]"
+            className="text-5xl md:text-7xl lg:text-8xl font-heading font-black uppercase tracking-tighter leading-none drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]"
           >
             The Future of <br className="hidden md:inline" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-brand-green">
+            <span className="highlight-text">
               Online Shopping
             </span> <br className="hidden md:inline" />
             Is Loading
           </motion.h1>
 
-          <motion.p
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.3 }}
-            className="text-gray-400 text-sm md:text-lg max-w-xl mx-auto leading-relaxed font-sans"
+            className="text-gray-400 text-xs md:text-sm max-w-2xl mx-auto leading-relaxed font-sans text-left bg-white/[0.01] border border-white/5 p-6 md:p-8 rounded-[var(--radius-card)] backdrop-blur-md space-y-4"
           >
-            We are engineering a premium, ultra-fast, headless streetwear and lifestyle launchpad. Dynamic product grids and secure edge checkouts are coming soon.
-          </motion.p>
+            <p className="text-white font-bold text-sm md:text-base text-center">
+              Yubby Dubby is entering its next evolution.
+            </p>
+            <p>
+              We are building a faster, smarter, and more immersive shopping experience designed for the future. Behind the scenes, our team is crafting a premium digital marketplace where innovation, design, and convenience come together seamlessly.
+            </p>
+            <p>
+              From fashion and lifestyle products to home décor, accessories, tech essentials, and exclusive collections, Yubby Dubby is being reimagined to deliver a world-class online shopping experience unlike anything before.
+            </p>
+            <p>
+              Every detail is being refined. Every feature is being enhanced. Every interaction is being designed with precision.
+            </p>
+            <p className="text-brand-green font-bold tracking-widest uppercase text-center py-2 border-y border-white/5">
+              The future of shopping is loading.
+            </p>
+            <p className="text-center text-xs text-gray-500">
+              Stay connected and be among the first to experience the next generation of Yubby Dubby when we officially launch.
+            </p>
+            <p className="text-brand-green font-heading font-black text-center text-lg md:text-xl uppercase tracking-widest pt-2">
+              Something extraordinary is coming.
+            </p>
+          </motion.div>
         </section>
 
         {/* COUNTDOWN TIMER */}
@@ -465,7 +501,7 @@ export default function ComingSoonClient() {
             <a href="#" className="hover:text-brand-green transition-colors">Twitter</a>
           </div>
           <div className="text-gray-600">
-            Designed & Developed with Precision
+            Designed & Developed with Precision by ZTK
           </div>
         </div>
       </footer>
