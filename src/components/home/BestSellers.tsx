@@ -59,8 +59,10 @@ function TiltCard({ children }: { children: React.ReactNode }) {
     );
 }
 
+import { WooCommerceProduct } from "@/lib/woocommerce";
+
 // Expanded Mock Data
-const topProducts = [
+const mockProducts = [
     { id: "p1", name: "0-GRAVITY HOODIE", price: 120, image: "/prod-hoodie.png", tag: "NEW", category: "Mens" },
     { id: "p2", name: "VOID CARGO PANTS", price: 145, image: "/prod-cargo.png", tag: "", category: "Mens" },
     { id: "p3", name: "NEBULA OVERSIZED TEE", price: 65, image: "/prod-tee.png", tag: "BEST SELLER", category: "Womens" },
@@ -77,8 +79,47 @@ const topProducts = [
 
 const categories = ["All", "Mens", "Womens", "Kids", "Home & Living", "Accessories"];
 
-export default function BestSellers() {
+interface BestSellersProps {
+    initialProducts?: WooCommerceProduct[];
+}
+
+export default function BestSellers({ initialProducts }: BestSellersProps) {
     const [activeCategory, setActiveCategory] = useState("All");
+
+    const topProducts = initialProducts && initialProducts.length > 0
+        ? initialProducts.map(prod => {
+            let category = "Accessories";
+            const catSlugs = prod.categories.map(c => c.slug.toLowerCase());
+            if (catSlugs.some(s => s.includes("men"))) category = "Mens";
+            else if (catSlugs.some(s => s.includes("women"))) category = "Womens";
+            else if (catSlugs.some(s => s.includes("kid"))) category = "Kids";
+            else if (catSlugs.some(s => s.includes("home") || s.includes("living"))) category = "Home & Living";
+            else if (prod.categories.length > 0) {
+                const name = prod.categories[0].name;
+                category = name.charAt(0).toUpperCase() + name.slice(1);
+            }
+
+            let tag = "";
+            if (prod.on_sale) {
+                tag = "SALE";
+            } else if (prod.tags.some(t => t.slug.includes("new"))) {
+                tag = "NEW";
+            } else if (prod.tags.some(t => t.slug.includes("best-seller") || t.slug.includes("featured"))) {
+                tag = "BEST SELLER";
+            } else if (prod.tags.some(t => t.slug.includes("limited"))) {
+                tag = "LIMITED";
+            }
+
+            return {
+                id: prod.id.toString(),
+                name: prod.name.toUpperCase(),
+                price: parseFloat(prod.price) || 0,
+                image: prod.images[0]?.src || "/prod-hoodie.png",
+                tag,
+                category
+            };
+        })
+        : mockProducts;
 
     const filteredProducts = topProducts.filter(
         (product) => activeCategory === "All" || product.category === activeCategory
