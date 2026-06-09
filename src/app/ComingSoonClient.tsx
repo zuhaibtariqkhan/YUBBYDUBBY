@@ -272,10 +272,10 @@ export default function ComingSoonClient() {
       </header>
 
       {/* 2. Main Content Wrapper */}
-      <main className="w-full max-w-7xl mx-auto px-6 md:px-12 py-12 flex flex-col items-center gap-20 z-20 relative">
+      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-12 py-8 md:py-12 flex flex-col items-center gap-12 md:gap-20 z-20 relative">
         
         {/* HERO SECTION */}
-        <section className="text-center space-y-8 max-w-3xl mt-6">
+        <section className="text-center space-y-6 md:space-y-8 max-w-3xl mt-2 md:mt-6">
           <style dangerouslySetInnerHTML={{ __html: `
             @keyframes gradient-shift {
               0% { background-position: 0% 50%; }
@@ -306,7 +306,7 @@ export default function ComingSoonClient() {
             initial={{ opacity: 0, y: 25 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-heading font-black uppercase tracking-tighter leading-none drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]"
+            className="text-3xl xs:text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-heading font-black uppercase tracking-tighter leading-none drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]"
           >
             The Future of <br className="hidden md:inline" />
             <span className="highlight-text">
@@ -319,9 +319,9 @@ export default function ComingSoonClient() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.3 }}
-            className="text-gray-400 text-xs md:text-sm max-w-2xl mx-auto leading-relaxed font-sans text-left bg-white/[0.01] border border-white/5 p-6 md:p-8 rounded-[var(--radius-card)] backdrop-blur-md space-y-4"
+            className="text-gray-400 text-[11px] sm:text-xs md:text-sm max-w-2xl mx-auto leading-relaxed font-sans text-left bg-white/[0.01] border border-white/5 p-4 sm:p-6 md:p-8 rounded-[var(--radius-card)] backdrop-blur-md space-y-4"
           >
-            <p className="text-white font-bold text-sm md:text-base text-center">
+            <p className="text-white font-bold text-xs sm:text-sm md:text-base text-center">
               Yubby Dubby is entering its next evolution.
             </p>
             <p>
@@ -333,13 +333,13 @@ export default function ComingSoonClient() {
             <p>
               Every detail is being refined. Every feature is being enhanced. Every interaction is being designed with precision.
             </p>
-            <p className="text-brand-green font-bold tracking-widest uppercase text-center py-2 border-y border-white/5">
+            <p className="text-brand-green font-bold tracking-widest uppercase text-center py-2 border-y border-white/5 text-[10px] sm:text-xs md:text-sm">
               The future of shopping is loading.
             </p>
-            <p className="text-center text-xs text-gray-500">
+            <p className="text-center text-[10px] sm:text-xs text-gray-500">
               Stay connected and be among the first to experience the next generation of Yubby Dubby when we officially launch.
             </p>
-            <p className="text-brand-green font-heading font-black text-center text-lg md:text-xl uppercase tracking-widest pt-2">
+            <p className="text-brand-green font-heading font-black text-center text-base sm:text-lg md:text-xl uppercase tracking-widest pt-2">
               Something extraordinary is coming.
             </p>
           </motion.div>
@@ -350,7 +350,7 @@ export default function ComingSoonClient() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="w-full max-w-2xl bg-white/[0.02] border border-white/5 backdrop-blur-md rounded-[24px] p-8 md:p-10 shadow-[0_30px_60px_rgba(0,0,0,0.8),_0_0_50px_rgba(177,243,16,0.02)] relative overflow-hidden"
+          className="w-full max-w-2xl bg-white/[0.02] border border-white/5 backdrop-blur-md rounded-[24px] p-4 xs:p-6 sm:p-8 md:p-10 shadow-[0_30px_60px_rgba(0,0,0,0.8),_0_0_50px_rgba(177,243,16,0.02)] relative overflow-hidden"
         >
           {/* Inner HUD lines decoration */}
           <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-brand-green/30 rounded-tl-[24px]" />
@@ -361,31 +361,31 @@ export default function ComingSoonClient() {
           <div className="grid grid-cols-4 gap-2 md:gap-8 text-center relative z-10">
             {/* Days */}
             <div className="space-y-2">
-              <div className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-heading font-black tracking-widest text-brand-green drop-shadow-[0_0_20px_rgba(177,243,16,0.3)]">
+              <div className="text-2xl xs:text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-heading font-black tracking-widest text-brand-green drop-shadow-[0_0_20px_rgba(177,243,16,0.3)]">
                 {padZero(timeRemaining.days)}
               </div>
-              <div className="text-[9px] md:text-xs uppercase tracking-widest text-gray-500 font-bold font-mono">Days</div>
+              <div className="text-[8px] xs:text-[9px] sm:text-xs uppercase tracking-widest text-gray-500 font-bold font-mono">Days</div>
             </div>
             {/* Hours */}
             <div className="space-y-2 border-l border-white/5">
-              <div className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-heading font-black tracking-widest text-white">
+              <div className="text-2xl xs:text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-heading font-black tracking-widest text-white">
                 {padZero(timeRemaining.hours)}
               </div>
-              <div className="text-[9px] md:text-xs uppercase tracking-widest text-gray-500 font-bold font-mono">Hours</div>
+              <div className="text-[8px] xs:text-[9px] sm:text-xs uppercase tracking-widest text-gray-500 font-bold font-mono">Hours</div>
             </div>
             {/* Minutes */}
             <div className="space-y-2 border-l border-white/5">
-              <div className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-heading font-black tracking-widest text-white">
+              <div className="text-2xl xs:text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-heading font-black tracking-widest text-white">
                 {padZero(timeRemaining.minutes)}
               </div>
-              <div className="text-[9px] md:text-xs uppercase tracking-widest text-gray-500 font-bold font-mono">Minutes</div>
+              <div className="text-[8px] xs:text-[9px] sm:text-xs uppercase tracking-widest text-gray-500 font-bold font-mono">Minutes</div>
             </div>
             {/* Seconds */}
             <div className="space-y-2 border-l border-white/5">
-              <div className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-heading font-black tracking-widest text-brand-green drop-shadow-[0_0_20px_rgba(177,243,16,0.3)]">
+              <div className="text-2xl xs:text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-heading font-black tracking-widest text-brand-green drop-shadow-[0_0_20px_rgba(177,243,16,0.3)]">
                 {padZero(timeRemaining.seconds)}
               </div>
-              <div className="text-[9px] md:text-xs uppercase tracking-widest text-gray-500 font-bold font-mono">Seconds</div>
+              <div className="text-[8px] xs:text-[9px] sm:text-xs uppercase tracking-widest text-gray-500 font-bold font-mono">Seconds</div>
             </div>
           </div>
         </motion.section>
