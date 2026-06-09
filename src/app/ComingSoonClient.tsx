@@ -290,16 +290,7 @@ export default function ComingSoonClient() {
               animation: gradient-shift 6s ease-in-out infinite;
               filter: drop-shadow(0 0 15px rgba(177, 243, 16, 0.25));
             }
-            
-            /* Restore browser cursor visibility */
-            @media (hover: hover) and (pointer: fine) {
-              *, *::before, *::after {
-                cursor: auto !important;
-              }
-              a, button, [role="button"], input, select, textarea {
-                cursor: pointer !important;
-              }
-            }
+
           ` }} />
 
           <motion.div
