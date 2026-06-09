@@ -269,10 +269,6 @@ export default function ComingSoonClient() {
             priority
           />
         </div>
-        <div className="hidden sm:flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/5 bg-white/5 backdrop-blur-md text-[10px] uppercase font-mono tracking-widest text-gray-400">
-          <span className="w-2 h-2 rounded-full bg-brand-green animate-ping" />
-          Status: DEV_STAGED_ACTIVE
-        </div>
       </header>
 
       {/* 2. Main Content Wrapper */}
@@ -294,6 +290,16 @@ export default function ComingSoonClient() {
               animation: gradient-shift 6s ease-in-out infinite;
               filter: drop-shadow(0 0 15px rgba(177, 243, 16, 0.25));
             }
+            
+            /* Restore browser cursor visibility */
+            @media (hover: hover) and (pointer: fine) {
+              *, *::before, *::after {
+                cursor: auto !important;
+              }
+              a, button, [role="button"], input, select, textarea {
+                cursor: pointer !important;
+              }
+            }
           ` }} />
 
           <motion.div
@@ -309,7 +315,7 @@ export default function ComingSoonClient() {
             initial={{ opacity: 0, y: 25 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-5xl md:text-7xl lg:text-8xl font-heading font-black uppercase tracking-tighter leading-none drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]"
+            className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-heading font-black uppercase tracking-tighter leading-none drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]"
           >
             The Future of <br className="hidden md:inline" />
             <span className="highlight-text">
@@ -361,34 +367,34 @@ export default function ComingSoonClient() {
           <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-brand-green/30 rounded-bl-[24px]" />
           <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-brand-green/30 rounded-br-[24px]" />
 
-          <div className="grid grid-cols-4 gap-4 md:gap-8 text-center relative z-10">
+          <div className="grid grid-cols-4 gap-2 md:gap-8 text-center relative z-10">
             {/* Days */}
             <div className="space-y-2">
-              <div className="text-4xl md:text-6xl lg:text-7xl font-heading font-black tracking-widest text-brand-green drop-shadow-[0_0_20px_rgba(177,243,16,0.3)]">
+              <div className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-heading font-black tracking-widest text-brand-green drop-shadow-[0_0_20px_rgba(177,243,16,0.3)]">
                 {padZero(timeRemaining.days)}
               </div>
-              <div className="text-[10px] md:text-xs uppercase tracking-widest text-gray-500 font-bold font-mono">Days</div>
+              <div className="text-[9px] md:text-xs uppercase tracking-widest text-gray-500 font-bold font-mono">Days</div>
             </div>
             {/* Hours */}
             <div className="space-y-2 border-l border-white/5">
-              <div className="text-4xl md:text-6xl lg:text-7xl font-heading font-black tracking-widest text-white">
+              <div className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-heading font-black tracking-widest text-white">
                 {padZero(timeRemaining.hours)}
               </div>
-              <div className="text-[10px] md:text-xs uppercase tracking-widest text-gray-500 font-bold font-mono">Hours</div>
+              <div className="text-[9px] md:text-xs uppercase tracking-widest text-gray-500 font-bold font-mono">Hours</div>
             </div>
             {/* Minutes */}
             <div className="space-y-2 border-l border-white/5">
-              <div className="text-4xl md:text-6xl lg:text-7xl font-heading font-black tracking-widest text-white">
+              <div className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-heading font-black tracking-widest text-white">
                 {padZero(timeRemaining.minutes)}
               </div>
-              <div className="text-[10px] md:text-xs uppercase tracking-widest text-gray-500 font-bold font-mono">Minutes</div>
+              <div className="text-[9px] md:text-xs uppercase tracking-widest text-gray-500 font-bold font-mono">Minutes</div>
             </div>
             {/* Seconds */}
             <div className="space-y-2 border-l border-white/5">
-              <div className="text-4xl md:text-6xl lg:text-7xl font-heading font-black tracking-widest text-brand-green drop-shadow-[0_0_20px_rgba(177,243,16,0.3)]">
+              <div className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-heading font-black tracking-widest text-brand-green drop-shadow-[0_0_20px_rgba(177,243,16,0.3)]">
                 {padZero(timeRemaining.seconds)}
               </div>
-              <div className="text-[10px] md:text-xs uppercase tracking-widest text-gray-500 font-bold font-mono">Seconds</div>
+              <div className="text-[9px] md:text-xs uppercase tracking-widest text-gray-500 font-bold font-mono">Seconds</div>
             </div>
           </div>
         </motion.section>
