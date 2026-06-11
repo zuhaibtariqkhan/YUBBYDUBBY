@@ -66,8 +66,9 @@ export default function SplashScreen() {
                     initial={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.6, ease: "easeInOut" }}
-                    className="fixed inset-0 z-[10000] flex items-center justify-center bg-black"
+                    className="fixed inset-0 z-[10000] flex items-center justify-center bg-black cursor-pointer"
                     style={{ pointerEvents: phase === "exit" ? "none" : "auto" }}
+                    onClick={handleVideoEnd}
                 >
                     {/* Scan line sweep */}
                     <motion.div

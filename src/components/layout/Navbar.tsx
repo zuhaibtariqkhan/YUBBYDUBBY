@@ -18,7 +18,7 @@ export default function Navbar() {
                 <div className="max-w-7xl mx-auto px-4 md:px-6 h-20 flex items-center justify-between relative">
 
                     {/* Left Section Navigation Links */}
-                    <div className="flex items-center">
+                    <div className="flex items-center relative z-20">
                         <button
                             className="md:hidden hover:text-brand-green transition-colors mr-3 sm:mr-4"
                             onClick={() => setIsMobileMenuOpen(true)}
@@ -34,8 +34,8 @@ export default function Navbar() {
                     </div>
 
                     {/* Center Logo */}
-                    <div className="absolute left-1/2 -translate-x-1/2 flex items-center h-full max-h-20 pt-1">
-                        <Link href="/" className="relative h-[80px] w-[200px] sm:h-[90px] sm:w-[250px] md:h-24 md:w-[320px] flex items-center justify-center">
+                    <div className="absolute left-1/2 -translate-x-1/2 flex items-center h-full max-h-20 pt-1 z-10 pointer-events-none">
+                        <Link href="/" className="relative h-[80px] w-[200px] sm:h-[90px] sm:w-[250px] md:h-24 md:w-[320px] flex items-center justify-center pointer-events-auto">
                             <Image
                                 src="/LOGOO.png"
                                 alt="Yubby Dubby Logo"
@@ -47,7 +47,7 @@ export default function Navbar() {
                     </div>
 
                     {/* Right Icons */}
-                    <div className="flex items-center space-x-3 sm:space-x-4 md:space-x-6">
+                    <div className="flex items-center space-x-3 sm:space-x-4 md:space-x-6 relative z-20">
                         <button className="hover:text-brand-green transition-colors">
                             <Search className="w-5 h-5 md:w-[22px] md:h-[22px]" />
                         </button>
