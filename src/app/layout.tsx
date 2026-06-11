@@ -4,6 +4,7 @@ import CustomCursor from "@/components/ui/CustomCursor";
 import SplashScreen from "@/components/ui/SplashScreen";
 import BackToTop from "@/components/ui/BackToTop";
 import Grain from "@/components/ui/Grain";
+import { CartProvider } from "@/context/CartContext";
 import "./globals.css";
 
 const oswald = Oswald({
@@ -31,12 +32,15 @@ export default function RootLayout({
       <body
         className={`${oswald.variable} ${montserrat.variable} antialiased bg-black text-white font-sans`}
       >
-        <SplashScreen />
-        <CustomCursor />
-        <BackToTop />
-        <Grain />
-        {children}
+        <CartProvider>
+          <SplashScreen />
+          <CustomCursor />
+          <BackToTop />
+          <Grain />
+          {children}
+        </CartProvider>
       </body>
     </html>
   );
 }
+

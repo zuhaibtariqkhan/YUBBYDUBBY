@@ -61,6 +61,8 @@ function TiltCard({ children }: { children: React.ReactNode }) {
 
 import { WooCommerceProduct } from "@/lib/woocommerce";
 
+import { useCart } from "@/context/CartContext";
+
 // Expanded Mock Data
 const mockProducts = [
     { id: "p1", name: "0-GRAVITY HOODIE", price: 120, image: "/prod-hoodie.png", tag: "NEW", category: "Mens" },
@@ -85,6 +87,7 @@ interface BestSellersProps {
 
 export default function BestSellers({ initialProducts }: BestSellersProps) {
     const [activeCategory, setActiveCategory] = useState("All");
+    const { addToCart } = useCart();
 
     const topProducts = initialProducts && initialProducts.length > 0
         ? initialProducts.map(prod => {
@@ -195,11 +198,24 @@ export default function BestSellers({ initialProducts }: BestSellersProps) {
                                         )}
 
                                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                                            <button className="bg-brand-white text-brand-black font-bold uppercase tracking-widest px-6 py-3 rounded-[var(--radius-btn)] hover:bg-brand-green transition-colors transform translate-y-4 group-hover:translate-y-0 duration-300">
+                                            <button 
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    addToCart({
+                                                        id: product.id,
+                                                        name: product.name,
+                                                        price: product.price,
+                                                        size: "M",
+                                                        image: product.image
+                                                    }, 1);
+                                                }}
+                                                className="bg-brand-white text-brand-black font-bold uppercase tracking-widest px-6 py-3 rounded-[var(--radius-btn)] hover:bg-brand-green transition-colors transform translate-y-4 group-hover:translate-y-0 duration-300 cursor-pointer"
+                                            >
                                                 Quick Add
                                             </button>
                                         </div>
                                     </div>
+
 
                                     <div className="px-2">
                                         <div className="flex items-center gap-1 mb-2">

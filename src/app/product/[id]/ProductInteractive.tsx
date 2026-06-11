@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { Star, Minus, Plus, ShoppingBag, Heart, Shield, RotateCcw, Truck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useCart } from "@/context/CartContext";
 
 interface ProductInteractiveProps {
   product: {
@@ -26,11 +27,20 @@ export default function ProductInteractive({ product }: ProductInteractiveProps)
   const [activeImage, setActiveImage] = useState(product.images[0] || "/prod-hoodie.png");
   const [isLiked, setIsLiked] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
+  const { addToCart } = useCart();
 
   const handleAddToCart = () => {
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      size: selectedSize,
+      image: product.images[0] || "/prod-hoodie.png"
+    }, quantity);
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
   };
+
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
