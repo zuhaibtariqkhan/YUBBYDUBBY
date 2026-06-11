@@ -51,9 +51,9 @@ export default function Navbar() {
                         <button className="hover:text-brand-green transition-colors">
                             <Search className="w-5 h-5 md:w-[22px] md:h-[22px]" />
                         </button>
-                        <button className="hover:text-brand-green transition-colors">
+                        <Link href="/account" className="hover:text-brand-green transition-colors cursor-pointer">
                             <User className="w-5 h-5 md:w-[22px] md:h-[22px]" />
-                        </button>
+                        </Link>
                         <button 
                             onClick={() => setIsCartOpen(true)}
                             className="relative hover:text-brand-green transition-colors cursor-pointer"
