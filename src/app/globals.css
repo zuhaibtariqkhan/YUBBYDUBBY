@@ -60,6 +60,12 @@
     }
   }
 
+  /* Ensure custom cursor elements never intercept mouse clicks */
+  .custom-cursor-dot,
+  .custom-cursor-ring {
+    pointer-events: none !important;
+  }
+
   /* Glassmorphism utility classes */
   .glass-card {
     @apply bg-glass border border-white/10 backdrop-blur-md rounded-[var(--radius-card)];

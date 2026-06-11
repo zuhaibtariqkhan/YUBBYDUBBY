@@ -2,44 +2,59 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePathname } from "next/navigation";
 
 export default function SplashScreen() {
+    const pathname = usePathname();
     const [mounted, setMounted] = useState(false);
-    const [isVisible, setIsVisible] = useState(true);
+    const [isVisible, setIsVisible] = useState(false);
     const [phase, setPhase] = useState<"playing" | "exit">("playing");
     const videoRef = useRef<HTMLVideoElement>(null);
 
     useEffect(() => {
         setMounted(true);
-    }, []);
+        // Only show splash screen on homepage and only once per browser session
+        const isHomepage = pathname === "/";
+        const hasShown = sessionStorage.getItem("yubby_dubby_splash_shown");
+        
+        if (isHomepage && !hasShown) {
+            setIsVisible(true);
+        }
+    }, [pathname]);
 
     useEffect(() => {
-        // Lock body scroll during splash
-        document.body.style.overflow = "hidden";
+        // Lock body scroll only when splash screen is visible
+        if (isVisible) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "";
+        }
 
         return () => {
             document.body.style.overflow = "";
         };
-    }, []);
+    }, [isVisible]);
 
     const handleVideoEnd = () => {
         setPhase("exit");
+        sessionStorage.setItem("yubby_dubby_splash_shown", "true");
         setTimeout(() => {
             setIsVisible(false);
             document.body.style.overflow = "";
         }, 800);
     };
 
-    // Fallback: auto-dismiss after 8s if video doesn't end
+    // Fallback: auto-dismiss after 2.5s if video doesn't end
     useEffect(() => {
+        if (!isVisible) return;
         const fallback = setTimeout(() => {
             if (phase === "playing") {
                 handleVideoEnd();
             }
-        }, 8000);
+        }, 2500);
         return () => clearTimeout(fallback);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [phase]);
+    }, [phase, isVisible]);
 
     if (!mounted) return null;
 
@@ -52,6 +67,7 @@ export default function SplashScreen() {
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.6, ease: "easeInOut" }}
                     className="fixed inset-0 z-[10000] flex items-center justify-center bg-black"
+                    style={{ pointerEvents: phase === "exit" ? "none" : "auto" }}
                 >
                     {/* Scan line sweep */}
                     <motion.div

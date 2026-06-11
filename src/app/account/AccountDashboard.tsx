@@ -10,6 +10,7 @@ import {
   Lock, Smartphone, Key, Star, Clock, AlertTriangle, Eye, Sparkles
 } from "lucide-react";
 import { Footer } from "@/components/home/HomeSections";
+import Navbar from "@/components/layout/Navbar";
 
 
 // Mock WooCommerce Products for Wishlist / Recently Viewed
@@ -157,6 +158,7 @@ export default function AccountDashboard() {
 
   return (
     <div className="relative min-h-screen w-full bg-[#030303] text-white flex flex-col justify-between overflow-x-hidden font-sans z-10 selection:bg-brand-green selection:text-brand-black">
+      <Navbar />
       
       {/* Decorative Blur Orbs */}
       <div className="absolute top-[10%] left-[5%] w-[400px] h-[400px] bg-radial from-[#B1F310]/5 via-transparent to-transparent blur-[120px] pointer-events-none z-0" />
