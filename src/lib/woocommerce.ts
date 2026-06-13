@@ -92,7 +92,8 @@ export async function fetchWooCommerce<T>(endpoint: string, options: RequestInit
     if (!res.ok) {
       const errorData = await res.json().catch(() => ({}));
       console.error('WooCommerce API error response:', errorData);
-      throw new Error(`WooCommerce API HTTP error ${res.status}: ${res.statusText}`);
+      const friendlyMsg = errorData.message || `WooCommerce API HTTP error ${res.status}: ${res.statusText}`;
+      throw new Error(friendlyMsg);
     }
 
     return (await res.json()) as T;

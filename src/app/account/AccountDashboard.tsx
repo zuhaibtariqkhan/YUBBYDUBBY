@@ -76,6 +76,11 @@ export default function AccountDashboard() {
   const [authLastName, setAuthLastName] = useState("");
   const [authError, setAuthError] = useState("");
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [isOtpSent, setIsOtpSent] = useState(false);
+  const [enteredEmailOtp, setEnteredEmailOtp] = useState("");
+  const [enteredPhoneOtp, setEnteredPhoneOtp] = useState("");
+  const [isOtpVerifying, setIsOtpVerifying] = useState(false);
+  const [otpDebugMessage, setOtpDebugMessage] = useState("");
 
   // Load customer session on mount
   useEffect(() => {
@@ -188,7 +193,7 @@ export default function AccountDashboard() {
     }
   };
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const triggerSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError("");
 
@@ -198,8 +203,61 @@ export default function AccountDashboard() {
     }
 
     setIsAuthenticating(true);
+    setOtpDebugMessage("");
 
     try {
+      const res = await fetch("/api/auth/otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "send",
+          email: authEmail,
+          phone: authPhone,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to dispatch verification codes.");
+      }
+
+      setIsOtpSent(true);
+      if (data.debugNote) {
+        setOtpDebugMessage(data.debugNote);
+      }
+    } catch (err: any) {
+      setAuthError(err.message || "Failed to dispatch verification codes.");
+    } finally {
+      setIsAuthenticating(false);
+    }
+  };
+
+  const handleOtpVerificationAndRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError("");
+    setIsOtpVerifying(true);
+
+    try {
+      // 1. Verify OTPs
+      const verifyRes = await fetch("/api/auth/otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "verify",
+          email: authEmail,
+          phone: authPhone,
+          emailOtp: enteredEmailOtp,
+          phoneOtp: enteredPhoneOtp,
+        }),
+      });
+
+      const verifyData = await verifyRes.json();
+      if (!verifyRes.ok) {
+        throw new Error(verifyData.error || "OTP verification failed.");
+      }
+
+      // 2. Finalize WooCommerce registration
+      setIsAuthenticating(true);
       const registerRes = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -213,12 +271,11 @@ export default function AccountDashboard() {
       });
 
       const registerData = await registerRes.json();
-
       if (!registerRes.ok) {
         throw new Error(registerData.error || "Registration failed.");
       }
 
-      // Automatically log in the user after successful registration
+      // 3. Automatically login
       const loginRes = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -226,7 +283,6 @@ export default function AccountDashboard() {
       });
 
       const loginData = await loginRes.json();
-
       if (!loginRes.ok) {
         throw new Error("Registration succeeded, but auto-login failed. Please log in manually.");
       }
@@ -238,9 +294,16 @@ export default function AccountDashboard() {
       setToken(loginData.token);
       setIsAuthenticated(true);
       await fetchCustomerData(loginData.token);
+      
+      // Reset OTP states on complete success
+      setIsOtpSent(false);
+      setEnteredEmailOtp("");
+      setEnteredPhoneOtp("");
+      setOtpDebugMessage("");
     } catch (err: any) {
-      setAuthError(err.message || "Registration failed.");
+      setAuthError(err.message || "Authentication verification failed.");
     } finally {
+      setIsOtpVerifying(false);
       setIsAuthenticating(false);
     }
   };
@@ -381,6 +444,11 @@ export default function AccountDashboard() {
                       setAuthPhone("");
                       setShowPassword(false); 
                       setShowConfirmPassword(false); 
+                      setIsOtpSent(false);
+                      setEnteredEmailOtp("");
+                      setEnteredPhoneOtp("");
+                      setIsOtpVerifying(false);
+                      setOtpDebugMessage("");
                     }}
                     className={`py-2 px-4 rounded-full transition-all uppercase tracking-wider font-bold cursor-pointer ${
                       authMode === "login" 
@@ -398,6 +466,11 @@ export default function AccountDashboard() {
                       setAuthPhone("");
                       setShowPassword(false); 
                       setShowConfirmPassword(false); 
+                      setIsOtpSent(false);
+                      setEnteredEmailOtp("");
+                      setEnteredPhoneOtp("");
+                      setIsOtpVerifying(false);
+                      setOtpDebugMessage("");
                     }}
                     className={`py-2 px-4 rounded-full transition-all uppercase tracking-wider font-bold cursor-pointer ${
                       authMode === "register" 
@@ -418,120 +491,202 @@ export default function AccountDashboard() {
                 )}
 
                 {/* Form */}
-                <form onSubmit={authMode === "login" ? handleLogin : handleRegister} className="space-y-4">
-                  {authMode === "register" && (
-                    <div className="grid grid-cols-2 gap-4">
-                      {/* First Name */}
-                      <div className="space-y-1">
-                        <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">First Name</label>
-                        <input
-                          type="text"
-                          required
-                          value={authFirstName}
-                          onChange={(e) => setAuthFirstName(e.target.value)}
-                          className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-xs uppercase font-mono tracking-wider focus:outline-none focus:border-brand-green text-white"
-                        />
+                <form 
+                  onSubmit={
+                    authMode === "login" 
+                      ? handleLogin 
+                      : (isOtpSent ? handleOtpVerificationAndRegister : triggerSendOtp)
+                  } 
+                  className="space-y-4"
+                >
+                  {authMode === "register" && isOtpSent ? (
+                    <div className="space-y-4">
+                      <div className="p-3 bg-brand-green/10 border border-brand-green/20 text-brand-green text-xs rounded-lg font-mono uppercase tracking-wider text-center">
+                        Verification Codes Dispatched
                       </div>
-                      {/* Last Name */}
-                      <div className="space-y-1">
-                        <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">Last Name</label>
-                        <input
-                          type="text"
-                          required
-                          value={authLastName}
-                          onChange={(e) => setAuthLastName(e.target.value)}
-                          className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-xs uppercase font-mono tracking-wider focus:outline-none focus:border-brand-green text-white"
-                        />
+                      <p className="text-gray-400 text-xs font-sans text-center">
+                        We sent secure codes to <strong>{authEmail}</strong> and <strong>{authPhone}</strong>. Please enter them below to verify your identity.
+                      </p>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        {/* Email OTP */}
+                        <div className="space-y-1">
+                          <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">Email OTP Code</label>
+                          <input
+                            type="text"
+                            required
+                            maxLength={6}
+                            value={enteredEmailOtp}
+                            onChange={(e) => setEnteredEmailOtp(e.target.value)}
+                            className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-center text-sm font-mono tracking-[0.25em] focus:outline-none focus:border-brand-green text-white"
+                            placeholder="••••••"
+                          />
+                        </div>
+
+                        {/* Phone OTP */}
+                        <div className="space-y-1">
+                          <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">Mobile OTP Code</label>
+                          <input
+                            type="text"
+                            required
+                            maxLength={6}
+                            value={enteredPhoneOtp}
+                            onChange={(e) => setEnteredPhoneOtp(e.target.value)}
+                            className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-center text-sm font-mono tracking-[0.25em] focus:outline-none focus:border-brand-green text-white"
+                            placeholder="••••••"
+                          />
+                        </div>
                       </div>
-                    </div>
-                  )}
 
-                  {/* Email */}
-                  <div className="space-y-1">
-                    <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">
-                      {authMode === "login" ? "Email Address or Mobile Number" : "Email Address"}
-                    </label>
-                    <input
-                      type={authMode === "login" ? "text" : "email"}
-                      required
-                      value={authEmail}
-                      onChange={(e) => setAuthEmail(e.target.value)}
-                      className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-xs font-mono tracking-wider focus:outline-none focus:border-brand-green text-white"
-                    />
-                  </div>
+                      {otpDebugMessage && (
+                        <div className="p-2.5 bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[10px] rounded font-mono uppercase tracking-wider text-center animate-pulse-slow">
+                          {otpDebugMessage}
+                        </div>
+                      )}
 
-                  {/* Mobile Number (Register Only) */}
-                  {authMode === "register" && (
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">Mobile Number</label>
-                      <input
-                        type="tel"
-                        required
-                        value={authPhone}
-                        onChange={(e) => setAuthPhone(e.target.value)}
-                        className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-xs font-mono tracking-wider focus:outline-none focus:border-brand-green text-white"
-                      />
-                    </div>
-                  )}
+                      <button
+                        type="submit"
+                        disabled={isOtpVerifying}
+                        className="w-full py-3 bg-brand-green text-brand-black font-heading font-black uppercase tracking-widest text-xs rounded-full hover:bg-white hover:shadow-[0_0_20px_rgba(177,243,16,0.3)] transition-all cursor-pointer flex items-center justify-center gap-2"
+                      >
+                        {isOtpVerifying ? (
+                          <>
+                            <RefreshCw size={14} className="animate-spin" />
+                            <span>Validating Credentials...</span>
+                          </>
+                        ) : (
+                          <span>CONFIRM VERIFICATION</span>
+                        )}
+                      </button>
 
-                  {/* Password */}
-                  <div className="space-y-1">
-                    <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">Password</label>
-                    <div className="relative">
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        required
-                        value={authPassword}
-                        onChange={(e) => setAuthPassword(e.target.value)}
-                        className="w-full h-11 pl-4 pr-10 bg-white/5 border border-white/10 rounded-xl text-xs font-mono tracking-wider focus:outline-none focus:border-brand-green text-white"
-                      />
                       <button
                         type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors cursor-pointer flex items-center justify-center"
+                        onClick={() => {
+                          setIsOtpSent(false);
+                          setAuthError("");
+                        }}
+                        className="w-full py-2 bg-transparent text-gray-400 hover:text-white text-[10px] font-mono uppercase tracking-wider transition-colors cursor-pointer text-center"
                       >
-                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                        ← Back to registration details
                       </button>
                     </div>
-                  </div>
+                  ) : (
+                    <>
+                      {authMode === "register" && (
+                        <div className="grid grid-cols-2 gap-4">
+                          {/* First Name */}
+                          <div className="space-y-1">
+                            <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">First Name</label>
+                            <input
+                              type="text"
+                              required
+                              value={authFirstName}
+                              onChange={(e) => setAuthFirstName(e.target.value)}
+                              className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-xs uppercase font-mono tracking-wider focus:outline-none focus:border-brand-green text-white"
+                            />
+                          </div>
+                          {/* Last Name */}
+                          <div className="space-y-1">
+                            <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">Last Name</label>
+                            <input
+                              type="text"
+                              required
+                              value={authLastName}
+                              onChange={(e) => setAuthLastName(e.target.value)}
+                              className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-xs uppercase font-mono tracking-wider focus:outline-none focus:border-brand-green text-white"
+                            />
+                          </div>
+                        </div>
+                      )}
 
-                  {/* Confirm Password (Register Only) */}
-                  {authMode === "register" && (
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">Confirm Password</label>
-                      <div className="relative">
+                      {/* Email */}
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">
+                          {authMode === "login" ? "Email Address or Mobile Number" : "Email Address"}
+                        </label>
                         <input
-                          type={showConfirmPassword ? "text" : "password"}
+                          type={authMode === "login" ? "text" : "email"}
                           required
-                          value={authConfirmPassword}
-                          onChange={(e) => setAuthConfirmPassword(e.target.value)}
-                          className="w-full h-11 pl-4 pr-10 bg-white/5 border border-white/10 rounded-xl text-xs font-mono tracking-wider focus:outline-none focus:border-brand-green text-white"
+                          value={authEmail}
+                          onChange={(e) => setAuthEmail(e.target.value)}
+                          className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-xs font-mono tracking-wider focus:outline-none focus:border-brand-green text-white"
                         />
-                        <button
-                          type="button"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors cursor-pointer flex items-center justify-center"
-                        >
-                          {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                        </button>
                       </div>
-                    </div>
-                  )}
 
-                  <button
-                    type="submit"
-                    disabled={isAuthenticating}
-                    className="w-full py-3 bg-brand-green text-brand-black font-heading font-black uppercase tracking-widest text-xs rounded-full hover:bg-white hover:shadow-[0_0_20px_rgba(177,243,16,0.3)] transition-all cursor-pointer flex items-center justify-center gap-2"
-                  >
-                    {isAuthenticating ? (
-                      <>
-                        <RefreshCw size={14} className="animate-spin" />
-                        <span>Verifying Security Key...</span>
-                      </>
-                    ) : (
-                      <span>{authMode === "login" ? "INITIALIZE SESSION" : "REGISTER PROFILE"}</span>
-                    )}
-                  </button>
+                      {/* Mobile Number (Register Only) */}
+                      {authMode === "register" && (
+                        <div className="space-y-1">
+                          <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">Mobile Number</label>
+                          <input
+                            type="tel"
+                            required
+                            value={authPhone}
+                            onChange={(e) => setAuthPhone(e.target.value)}
+                            className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-xs font-mono tracking-wider focus:outline-none focus:border-brand-green text-white"
+                          />
+                        </div>
+                      )}
+
+                      {/* Password */}
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">Password</label>
+                        <div className="relative">
+                          <input
+                            type={showPassword ? "text" : "password"}
+                            required
+                            value={authPassword}
+                            onChange={(e) => setAuthPassword(e.target.value)}
+                            className="w-full h-11 pl-4 pr-10 bg-white/5 border border-white/10 rounded-xl text-xs font-mono tracking-wider focus:outline-none focus:border-brand-green text-white"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors cursor-pointer flex items-center justify-center"
+                          >
+                            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Confirm Password (Register Only) */}
+                      {authMode === "register" && (
+                        <div className="space-y-1">
+                          <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">Confirm Password</label>
+                          <div className="relative">
+                            <input
+                              type={showConfirmPassword ? "text" : "password"}
+                              required
+                              value={authConfirmPassword}
+                              onChange={(e) => setAuthConfirmPassword(e.target.value)}
+                              className="w-full h-11 pl-4 pr-10 bg-white/5 border border-white/10 rounded-xl text-xs font-mono tracking-wider focus:outline-none focus:border-brand-green text-white"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors cursor-pointer flex items-center justify-center"
+                            >
+                              {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      <button
+                        type="submit"
+                        disabled={isAuthenticating}
+                        className="w-full py-3 bg-brand-green text-brand-black font-heading font-black uppercase tracking-widest text-xs rounded-full hover:bg-white hover:shadow-[0_0_20px_rgba(177,243,16,0.3)] transition-all cursor-pointer flex items-center justify-center gap-2"
+                      >
+                        {isAuthenticating ? (
+                          <>
+                            <RefreshCw size={14} className="animate-spin" />
+                            <span>Verifying Security Key...</span>
+                          </>
+                        ) : (
+                          <span>{authMode === "login" ? "INITIALIZE SESSION" : "REGISTER PROFILE"}</span>
+                        )}
+                      </button>
+                    </>
+                  )}
                 </form>
               </div>
             </motion.div>
