@@ -24,6 +24,9 @@ const productsList = [
 
 export default function AccountDashboard() {
   const { addToCart } = useCart();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<string>("overview");
   const [timeGreeting, setTimeGreeting] = useState("Welcome Back");
   const [showNotifications, setShowNotifications] = useState(false);
@@ -31,83 +34,22 @@ export default function AccountDashboard() {
 
   // Load name and settings
   const [personalInfo, setPersonalInfo] = useState({
-    firstName: "ZTK",
-    lastName: "Studio",
-    email: "ztk@yubbydubby.com",
-    phone: "+91 9876543210",
-    birthday: "2000-06-09",
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    birthday: "",
     gender: "Male"
   });
 
   // Load saved addresses
-  const [addresses, setAddresses] = useState([
-    {
-      id: 1,
-      type: "Home",
-      isDefault: true,
-      name: "ZTK Headquarters",
-      street: "108 Cyberpunk Avenue, Sector 9",
-      city: "Neo Delhi",
-      state: "Delhi",
-      postcode: "110001",
-      country: "India"
-    },
-    {
-      id: 2,
-      type: "Office",
-      isDefault: false,
-      name: "Yubby Dubby Labs",
-      street: "Suite 404, Void Towers, 0-Gravity Block",
-      city: "Bengaluru",
-      state: "Karnataka",
-      postcode: "560001",
-      country: "India"
-    }
-  ]);
+  const [addresses, setAddresses] = useState<any[]>([]);
 
   // Wishlist list
   const [wishlist, setWishlist] = useState<any[]>(productsList.slice(0, 3));
 
   // Order List with Milestones
-  const [orders] = useState([
-    {
-      id: "YD-2026-9042",
-      date: "June 09, 2026",
-      total: 265,
-      status: "Shipped", // Processing | Packed | Shipped | Out For Delivery | Delivered
-      tracking: "TRK-094109432",
-      paymentStatus: "Paid via Direct Bank Transfer",
-      timeline: [
-        { label: "Order Placed", date: "June 09, 2026 20:52", done: true },
-        { label: "Order Packed", date: "June 10, 2026 09:12", done: true },
-        { label: "Shipped", date: "June 10, 2026 14:30", done: true },
-        { label: "Out For Delivery", date: "Pending", done: false },
-        { label: "Delivered", date: "Pending", done: false }
-      ],
-      items: [
-        { name: "0-GRAVITY HOODIE", qty: 1, size: "L", price: 120, image: "/prod-hoodie.png" },
-        { name: "VOID CARGO PANTS", qty: 1, size: "M", price: 145, image: "/prod-cargo.png" }
-      ]
-    },
-    {
-      id: "YD-2026-8791",
-      date: "May 24, 2026",
-      total: 65,
-      status: "Delivered",
-      tracking: "TRK-083103212",
-      paymentStatus: "Paid via UPI",
-      timeline: [
-        { label: "Order Placed", date: "May 24, 2026 11:04", done: true },
-        { label: "Order Packed", date: "May 24, 2026 16:15", done: true },
-        { label: "Shipped", date: "May 25, 2026 10:00", done: true },
-        { label: "Out For Delivery", date: "May 26, 2026 08:30", done: true },
-        { label: "Delivered", date: "May 26, 2026 15:45", done: true }
-      ],
-      items: [
-        { name: "NEBULA OVERSIZED TEE", qty: 1, size: "XL", price: 65, image: "/prod-tee.png" }
-      ]
-    }
-  ]);
+  const [orders, setOrders] = useState<any[]>([]);
 
   // Notifications
   const [notifications, setNotifications] = useState([
@@ -122,6 +64,194 @@ export default function AccountDashboard() {
   const [emailVerified, setEmailVerified] = useState(true);
   const [phoneVerified, setPhoneVerified] = useState(false);
 
+  // Auth local inputs
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
+  const [authEmail, setAuthEmail] = useState("");
+  const [authPassword, setAuthPassword] = useState("");
+  const [authFirstName, setAuthFirstName] = useState("");
+  const [authLastName, setAuthLastName] = useState("");
+  const [authError, setAuthError] = useState("");
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+
+  // Load customer session on mount
+  useEffect(() => {
+    const savedToken = localStorage.getItem("cocart_token");
+    if (savedToken) {
+      setToken(savedToken);
+      setIsAuthenticated(true);
+      fetchCustomerData(savedToken);
+    } else {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const fetchCustomerData = async (authToken: string) => {
+    setIsLoading(true);
+    try {
+      // Fetch WooCommerce Profile via Next.js backend API
+      const profileRes = await fetch("/api/customer/me", {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      if (profileRes.ok) {
+        const profileData = await profileRes.json();
+        setPersonalInfo({
+          firstName: profileData.firstName || "",
+          lastName: profileData.lastName || "",
+          email: profileData.email || "",
+          phone: profileData.billing?.phone || "",
+          birthday: localStorage.getItem("user_birthday") || "",
+          gender: localStorage.getItem("user_gender") || "Male"
+        });
+
+        // Map WooCommerce addresses
+        const addressList = [];
+        if (profileData.billing?.address1) {
+          addressList.push({
+            id: 1,
+            type: "Billing",
+            isDefault: true,
+            name: `${profileData.firstName} ${profileData.lastName}`,
+            street: profileData.billing.address1 + (profileData.billing.address2 ? ", " + profileData.billing.address2 : ""),
+            city: profileData.billing.city,
+            state: profileData.billing.state,
+            postcode: profileData.billing.postcode,
+            country: profileData.billing.country || "India"
+          });
+        }
+        if (profileData.shipping?.address1) {
+          addressList.push({
+            id: 2,
+            type: "Shipping",
+            isDefault: false,
+            name: `${profileData.firstName} ${profileData.lastName}`,
+            street: profileData.shipping.address1 + (profileData.shipping.address2 ? ", " + profileData.shipping.address2 : ""),
+            city: profileData.shipping.city,
+            state: profileData.shipping.state,
+            postcode: profileData.shipping.postcode,
+            country: profileData.shipping.country || "India"
+          });
+        }
+        setAddresses(addressList);
+      } else if (profileRes.status === 401) {
+        handleLogout();
+      }
+
+      // Fetch Orders via Next.js backend API
+      const ordersRes = await fetch("/api/customer/orders", {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      if (ordersRes.ok) {
+        const ordersData = await ordersRes.json();
+        setOrders(ordersData);
+      }
+    } catch (err) {
+      console.error("Error fetching customer data:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError("");
+    setIsAuthenticating(true);
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: authEmail, password: authPassword }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Authentication failed.");
+      }
+
+      // Save token in storage
+      localStorage.setItem("cocart_token", data.token);
+      localStorage.setItem("customer_email", data.email);
+      localStorage.setItem("customer_display_name", data.displayName);
+      
+      setToken(data.token);
+      setIsAuthenticated(true);
+      await fetchCustomerData(data.token);
+    } catch (err: any) {
+      setAuthError(err.message || "Invalid credentials.");
+    } finally {
+      setIsAuthenticating(false);
+    }
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError("");
+    setIsAuthenticating(true);
+
+    try {
+      const registerRes = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: authEmail,
+          password: authPassword,
+          firstName: authFirstName,
+          lastName: authLastName,
+        }),
+      });
+
+      const registerData = await registerRes.json();
+
+      if (!registerRes.ok) {
+        throw new Error(registerData.error || "Registration failed.");
+      }
+
+      // Automatically log in the user after successful registration
+      const loginRes = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: authEmail, password: authPassword }),
+      });
+
+      const loginData = await loginRes.json();
+
+      if (!loginRes.ok) {
+        throw new Error("Registration succeeded, but auto-login failed. Please log in manually.");
+      }
+
+      localStorage.setItem("cocart_token", loginData.token);
+      localStorage.setItem("customer_email", loginData.email);
+      localStorage.setItem("customer_display_name", loginData.displayName);
+
+      setToken(loginData.token);
+      setIsAuthenticated(true);
+      await fetchCustomerData(loginData.token);
+    } catch (err: any) {
+      setAuthError(err.message || "Registration failed.");
+    } finally {
+      setIsAuthenticating(false);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("cocart_token");
+    localStorage.removeItem("customer_email");
+    localStorage.removeItem("customer_display_name");
+    setToken(null);
+    setIsAuthenticated(false);
+    setPersonalInfo({
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      birthday: "",
+      gender: "Male"
+    });
+    setAddresses([]);
+    setOrders([]);
+  };
+
   // Time-based greetings
   useEffect(() => {
     const hrs = new Date().getHours();
@@ -130,10 +260,43 @@ export default function AccountDashboard() {
     else setTimeGreeting("Good Evening");
   }, []);
 
-  const handleInfoSave = (e: React.FormEvent) => {
+  const handleInfoSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setInfoSaved(true);
-    setTimeout(() => setInfoSaved(false), 3000);
+    setInfoSaved(false);
+
+    try {
+      const activeToken = localStorage.getItem("cocart_token") || token;
+      if (!activeToken) return;
+
+      localStorage.setItem("user_birthday", personalInfo.birthday);
+      localStorage.setItem("user_gender", personalInfo.gender);
+
+      const res = await fetch("/api/customer/me", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${activeToken}`,
+        },
+        body: JSON.stringify({
+          firstName: personalInfo.firstName,
+          lastName: personalInfo.lastName,
+          phone: personalInfo.phone,
+          billing: {
+            phone: personalInfo.phone
+          }
+        }),
+      });
+
+      if (res.ok) {
+        setInfoSaved(true);
+        setTimeout(() => setInfoSaved(false), 3000);
+      } else {
+        const errData = await res.json();
+        console.error("Profile save error:", errData.error);
+      }
+    } catch (err) {
+      console.error("Failed to save profile:", err);
+    }
   };
 
   const handleToggleDefaultAddress = (id: number) => {
@@ -164,40 +327,181 @@ export default function AccountDashboard() {
       <div className="absolute top-[10%] left-[5%] w-[400px] h-[400px] bg-radial from-[#B1F310]/5 via-transparent to-transparent blur-[120px] pointer-events-none z-0" />
       <div className="absolute bottom-[20%] right-[-5%] w-[500px] h-[500px] bg-radial from-[#B1F310]/4 via-transparent to-transparent blur-[140px] pointer-events-none z-0" />
 
-      {/* Main Container */}
       <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-24 z-10 relative flex-1">
-        
-        {/* Dynamic Greeting */}
-        <div className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-white/5 pb-6">
-          <div>
-            <span className="text-xs font-mono uppercase tracking-[0.25em] text-brand-green font-bold">
-              Secure Member Space
-            </span>
-            <h1 className="text-3xl sm:text-4xl font-heading font-black uppercase tracking-tighter text-white mt-1">
-              {timeGreeting}, {personalInfo.firstName}
-            </h1>
-            <p className="text-gray-400 text-xs mt-1 font-sans">
-              Ready for your next drop? Manage your profile and orders here.
-            </p>
+        {isLoading && isAuthenticated ? (
+          <div className="flex flex-col items-center justify-center pt-24 pb-12 space-y-4">
+            <RefreshCw className="w-8 h-8 text-brand-green animate-spin" />
+            <p className="text-gray-400 text-xs font-mono uppercase tracking-[0.25em]">Retrieving Secure Grid Credentials...</p>
           </div>
-
-          {/* Action Row */}
-          <div className="flex items-center gap-4">
-            {/* Notifications Alert */}
-            <button
-              onClick={() => setShowNotifications(!showNotifications)}
-              className="relative p-3 bg-white/5 border border-white/10 rounded-full hover:border-brand-green hover:text-brand-green transition-all duration-300 cursor-pointer"
+        ) : !isAuthenticated ? (
+          <div className="w-full max-w-md mx-auto py-12">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="glass-card p-8 rounded-[24px] border border-white/10 bg-white/[0.01] hover:border-brand-green/35 hover:shadow-[0_0_50px_rgba(177,243,16,0.03)] transition-all duration-500 relative overflow-hidden"
             >
-              <Bell className="w-5 h-5" />
-              {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-brand-green rounded-full shadow-[0_0_8px_#B1F310]" />
-              )}
-            </button>
-            <div className="text-[10px] text-gray-500 font-mono tracking-wider bg-white/5 px-4 py-2 border border-white/5 rounded-full uppercase">
-              Loyalty Status: <span className="text-brand-green font-bold">Silver Drop</span>
-            </div>
+              {/* Outer glow orb */}
+              <div className="absolute top-0 right-0 w-[150px] h-[150px] bg-radial from-[#B1F310]/5 via-transparent to-transparent blur-[40px] pointer-events-none" />
+
+              <div className="space-y-6 relative z-10">
+                {/* Header */}
+                <div className="text-center space-y-1">
+                  <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-brand-green font-bold block">
+                    Headless Access Portal
+                  </span>
+                  <h2 className="text-2xl font-heading font-black uppercase tracking-widest text-white mt-1">
+                    {authMode === "login" ? "MEMBER SIGN IN" : "CREATING PROFILE"}
+                  </h2>
+                  <p className="text-gray-400 text-xs font-sans">
+                    {authMode === "login" 
+                      ? "Enter your credentials to download profile settings." 
+                      : "Register your coordinates in the central drop database."}
+                  </p>
+                </div>
+
+                {/* Form Mode Tabs */}
+                <div className="grid grid-cols-2 gap-2 bg-white/5 border border-white/5 p-1 rounded-full text-xs font-mono">
+                  <button
+                    onClick={() => { setAuthMode("login"); setAuthError(""); }}
+                    className={`py-2 px-4 rounded-full transition-all uppercase tracking-wider font-bold cursor-pointer ${
+                      authMode === "login" 
+                        ? "bg-brand-green text-brand-black" 
+                        : "text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    Login
+                  </button>
+                  <button
+                    onClick={() => { setAuthMode("register"); setAuthError(""); }}
+                    className={`py-2 px-4 rounded-full transition-all uppercase tracking-wider font-bold cursor-pointer ${
+                      authMode === "register" 
+                        ? "bg-brand-green text-brand-black" 
+                        : "text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    Register
+                  </button>
+                </div>
+
+                {/* Error Banner */}
+                {authError && (
+                  <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 text-xs rounded-lg font-mono uppercase tracking-wider flex items-center gap-2">
+                    <AlertTriangle size={14} className="shrink-0" />
+                    <span>{authError}</span>
+                  </div>
+                )}
+
+                {/* Form */}
+                <form onSubmit={authMode === "login" ? handleLogin : handleRegister} className="space-y-4">
+                  {authMode === "register" && (
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* First Name */}
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">First Name</label>
+                        <input
+                          type="text"
+                          required
+                          value={authFirstName}
+                          onChange={(e) => setAuthFirstName(e.target.value)}
+                          className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-xs uppercase font-mono tracking-wider focus:outline-none focus:border-brand-green text-white"
+                        />
+                      </div>
+                      {/* Last Name */}
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">Last Name</label>
+                        <input
+                          type="text"
+                          required
+                          value={authLastName}
+                          onChange={(e) => setAuthLastName(e.target.value)}
+                          className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-xs uppercase font-mono tracking-wider focus:outline-none focus:border-brand-green text-white"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Email */}
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">Email Address</label>
+                    <input
+                      type="email"
+                      required
+                      value={authEmail}
+                      onChange={(e) => setAuthEmail(e.target.value)}
+                      className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-xs font-mono tracking-wider focus:outline-none focus:border-brand-green text-white"
+                    />
+                  </div>
+
+                  {/* Password */}
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">Password Code</label>
+                    <input
+                      type="password"
+                      required
+                      value={authPassword}
+                      onChange={(e) => setAuthPassword(e.target.value)}
+                      className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-xs font-mono tracking-wider focus:outline-none focus:border-brand-green text-white"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isAuthenticating}
+                    className="w-full py-3 bg-brand-green text-brand-black font-heading font-black uppercase tracking-widest text-xs rounded-full hover:bg-white hover:shadow-[0_0_20px_rgba(177,243,16,0.3)] transition-all cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    {isAuthenticating ? (
+                      <>
+                        <RefreshCw size={14} className="animate-spin" />
+                        <span>Verifying Security Key...</span>
+                      </>
+                    ) : (
+                      <span>{authMode === "login" ? "INITIALIZE SESSION" : "REGISTER PROFILE"}</span>
+                    )}
+                  </button>
+                </form>
+              </div>
+            </motion.div>
           </div>
-        </div>
+        ) : (
+          <>
+            {/* Dynamic Greeting */}
+            <div className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-white/5 pb-6">
+              <div>
+                <span className="text-xs font-mono uppercase tracking-[0.25em] text-brand-green font-bold">
+                  Secure Member Space
+                </span>
+                <h1 className="text-3xl sm:text-4xl font-heading font-black uppercase tracking-tighter text-white mt-1">
+                  {timeGreeting}, {personalInfo.firstName || "Member"}
+                </h1>
+                <p className="text-gray-400 text-xs mt-1 font-sans">
+                  Ready for your next drop? Manage your profile and orders here.
+                </p>
+              </div>
+
+              {/* Action Row */}
+              <div className="flex items-center gap-4">
+                {/* Notifications Alert */}
+                <button
+                  onClick={() => setShowNotifications(!showNotifications)}
+                  className="relative p-3 bg-white/5 border border-white/10 rounded-full hover:border-brand-green hover:text-brand-green transition-all duration-300 cursor-pointer"
+                >
+                  <Bell className="w-5 h-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-brand-green rounded-full shadow-[0_0_8px_#B1F310]" />
+                  )}
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="text-[10px] text-red-400 font-mono hover:text-red-500 tracking-wider bg-white/5 px-4 py-2 border border-white/5 rounded-full uppercase cursor-pointer transition-colors"
+                >
+                  LOGOUT
+                </button>
+                <div className="text-[10px] text-gray-500 font-mono tracking-wider bg-white/5 px-4 py-2 border border-white/5 rounded-full uppercase">
+                  Loyalty Status: <span className="text-brand-green font-bold">Silver Drop</span>
+                </div>
+              </div>
+            </div>
 
         {/* HERO PROFILE SECTION */}
         <section className="group glass-card p-6 sm:p-8 rounded-[20px] border border-white/10 bg-white/[0.01] hover:border-brand-green/35 hover:shadow-[0_20px_50px_rgba(177,243,16,0.03)] transition-all duration-500 relative overflow-hidden mb-12">
@@ -522,36 +826,42 @@ export default function AccountDashboard() {
                       </button>
                     </div>
 
-                    <div className="p-4 rounded-[12px] bg-white/[0.02] border border-white/5 space-y-4">
-                      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 text-xs font-mono border-b border-white/5 pb-2 text-gray-400">
-                        <div>ORDER ID: <span className="text-white">{orders[0].id}</span></div>
-                        <div>DATE: <span className="text-white">{orders[0].date}</span></div>
-                        <div>STATUS: <span className="text-brand-green uppercase font-bold">{orders[0].status}</span></div>
-                      </div>
+                    {orders.length > 0 ? (
+                      <div className="p-4 rounded-[12px] bg-white/[0.02] border border-white/5 space-y-4">
+                        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 text-xs font-mono border-b border-white/5 pb-2 text-gray-400">
+                          <div>ORDER ID: <span className="text-white">{orders[0].id}</span></div>
+                          <div>DATE: <span className="text-white">{orders[0].date}</span></div>
+                          <div>STATUS: <span className="text-brand-green uppercase font-bold">{orders[0].status}</span></div>
+                        </div>
 
-                      {/* Order Timeline indicator */}
-                      <div className="pt-2">
-                        <div className="flex justify-between relative">
-                          <div className="absolute top-2.5 left-0 right-0 h-0.5 bg-white/10 z-0" />
-                          {orders[0].timeline.map((step, idx) => (
-                            <div key={idx} className="flex flex-col items-center relative z-10">
-                              <div
-                                className={`w-5 h-5 rounded-full border flex items-center justify-center text-[10px] ${
-                                  step.done
-                                    ? "bg-brand-green border-brand-green text-brand-black font-bold shadow-[0_0_10px_#B1F310]"
-                                    : "bg-brand-black border-white/20 text-gray-500"
-                                }`}
-                              >
-                                {step.done ? "✓" : idx + 1}
+                        {/* Order Timeline indicator */}
+                        <div className="pt-2">
+                          <div className="flex justify-between relative">
+                            <div className="absolute top-2.5 left-0 right-0 h-0.5 bg-white/10 z-0" />
+                            {orders[0].timeline.map((step: any, idx: number) => (
+                              <div key={idx} className="flex flex-col items-center relative z-10">
+                                <div
+                                  className={`w-5 h-5 rounded-full border flex items-center justify-center text-[10px] ${
+                                    step.done
+                                      ? "bg-brand-green border-brand-green text-brand-black font-bold shadow-[0_0_10px_#B1F310]"
+                                      : "bg-brand-black border-white/20 text-gray-500"
+                                  }`}
+                                >
+                                  {step.done ? "✓" : idx + 1}
+                                </div>
+                                <span className="text-[9px] font-heading uppercase tracking-tighter text-center mt-2 max-w-[60px] leading-none text-white block">
+                                  {step.label}
+                                </span>
                               </div>
-                              <span className="text-[9px] font-heading uppercase tracking-tighter text-center mt-2 max-w-[60px] leading-none text-white block">
-                                {step.label}
-                              </span>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="p-6 rounded-[12px] bg-white/[0.01] border border-white/5 text-center text-xs text-gray-400 font-mono uppercase tracking-wider">
+                        No active orders found in drop logs
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               )}
@@ -614,7 +924,7 @@ export default function AccountDashboard() {
                           <div className="flex justify-between relative px-2">
                             {/* Connecting Line */}
                             <div className="absolute top-2.5 left-4 right-4 h-0.5 bg-white/5 z-0" />
-                            {order.timeline.map((step, idx) => (
+                            {order.timeline.map((step: any, idx: number) => (
                               <div key={idx} className="flex flex-col items-center relative z-10">
                                 <div
                                   className={`w-5 h-5 rounded-full border flex items-center justify-center text-[10px] ${
@@ -637,7 +947,7 @@ export default function AccountDashboard() {
 
                         {/* Items in Order */}
                         <div className="border-t border-white/5 pt-4 space-y-3">
-                          {order.items.map((item, index) => (
+                          {order.items.map((item: any, index: number) => (
                             <div key={index} className="flex gap-4 items-center justify-between">
                               <div className="flex gap-4 items-center min-w-0">
                                 <div className="relative aspect-square w-12 rounded-[8px] overflow-hidden border border-white/10 bg-white/5 shrink-0 flex items-center justify-center">
@@ -1233,6 +1543,8 @@ export default function AccountDashboard() {
             </div>
           </div>
         </section>
+          </>
+        )}
 
       </main>
 
