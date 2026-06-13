@@ -407,18 +407,18 @@ export default function CheckoutPage() {
                   <ShieldCheck size={20} className="text-brand-green shrink-0" />
                   <div>
                     <span className="font-bold text-white block uppercase tracking-wider text-[10px]">
-                      Authentic WooCommerce API Link
+                      Guaranteed Secure Checkout
                     </span>
-                    Direct token handshake encryption ensures details are processed securely.
+                    Your transaction is processed via industry-standard SSL encryption. Payment and card details are never stored on our servers.
                   </div>
                 </div>
                 <div className="flex items-center gap-3 text-xs text-gray-400">
                   <Truck size={20} className="text-brand-green shrink-0" />
                   <div>
                     <span className="font-bold text-white block uppercase tracking-wider text-[10px]">
-                      Global Printful Fulfillment
+                      Express Global Shipping
                     </span>
-                    Orders automatically sync with global print-on-demand pipelines.
+                    Orders are packed and dispatched with priority tracking. Receive live shipping updates sent directly to your inbox and dashboard.
                   </div>
                 </div>
               </div>
