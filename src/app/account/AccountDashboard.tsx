@@ -348,15 +348,15 @@ export default function AccountDashboard() {
                 {/* Header */}
                 <div className="text-center space-y-1">
                   <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-brand-green font-bold block">
-                    Headless Access Portal
+                    {authMode === "login" ? "Access Your World" : "Join The Yubby Dubby Club"}
                   </span>
                   <h2 className="text-2xl font-heading font-black uppercase tracking-widest text-white mt-1">
                     {authMode === "login" ? "MEMBER SIGN IN" : "CREATING PROFILE"}
                   </h2>
                   <p className="text-gray-400 text-xs font-sans">
                     {authMode === "login" 
-                      ? "Enter your credentials to download profile settings." 
-                      : "Register your coordinates in the central drop database."}
+                      ? "Track orders, save favorites, unlock rewards and discover your next obsession." 
+                      : "Create your account and unlock exclusive rewards, faster checkout, saved collections and personalized recommendations."}
                   </p>
                 </div>
 
