@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Call CoCart JWT Authentication token endpoint on WordPress
-    const response = await fetch("https://shop.yubbydubby.com/wp-json/cocart/jwt/v1/token", {
+    const response = await fetch("https://shop.yubbydubby.com/wp-json/cocart/v2/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
