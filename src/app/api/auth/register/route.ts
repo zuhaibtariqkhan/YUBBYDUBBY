@@ -4,11 +4,11 @@ import { fetchWooCommerce } from "@/lib/woocommerce";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { email, password, firstName, lastName } = body;
+    const { email, phone, password, firstName, lastName } = body;
 
-    if (!email || !password || !firstName || !lastName) {
+    if (!email || !phone || !password || !firstName || !lastName) {
       return NextResponse.json(
-        { error: "All registration specifications (email, password, first name, last name) are required." },
+        { error: "All registration specifications (email, phone, password, first name, last name) are required." },
         { status: 400 }
       );
     }
@@ -16,12 +16,23 @@ export async function POST(req: NextRequest) {
     // Construct the WooCommerce Customer creation payload
     const customerPayload = {
       email,
+      username: phone, // Store phone as username so they can login with it
       first_name: firstName,
       last_name: lastName,
       password,
+      billing: {
+        first_name: firstName,
+        last_name: lastName,
+        email: email,
+        phone: phone,
+      },
+      shipping: {
+        first_name: firstName,
+        last_name: lastName,
+      }
     };
 
-    console.log(`Registering customer: ${email} on WooCommerce...`);
+    console.log(`Registering customer: ${email} with phone: ${phone} on WooCommerce...`);
 
     // Call WooCommerce customers endpoint securely using admin credentials
     const customer: any = await fetchWooCommerce("customers", {
@@ -40,6 +51,7 @@ export async function POST(req: NextRequest) {
       message: "Registration completed successfully.",
       customerId: customer.id,
       email: customer.email,
+      phone: customer.billing?.phone || phone,
     });
   } catch (error: any) {
     console.error("WooCommerce Registration Error:", error);

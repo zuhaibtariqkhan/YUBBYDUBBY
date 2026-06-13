@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   User, ShoppingBag, Heart, Award, MapPin, Shield, Bell, 
   Trash2, Plus, Edit2, Check, RefreshCw, ChevronRight, FileText, 
-  Lock, Smartphone, Key, Star, Clock, AlertTriangle, Eye, Sparkles
+  Lock, Smartphone, Key, Star, Clock, AlertTriangle, Eye, EyeOff, Sparkles
 } from "lucide-react";
 import { Footer } from "@/components/home/HomeSections";
 import Navbar from "@/components/layout/Navbar";
@@ -67,7 +67,11 @@ export default function AccountDashboard() {
   // Auth local inputs
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [authEmail, setAuthEmail] = useState("");
+  const [authPhone, setAuthPhone] = useState("");
   const [authPassword, setAuthPassword] = useState("");
+  const [authConfirmPassword, setAuthConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [authFirstName, setAuthFirstName] = useState("");
   const [authLastName, setAuthLastName] = useState("");
   const [authError, setAuthError] = useState("");
@@ -187,6 +191,12 @@ export default function AccountDashboard() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError("");
+
+    if (authPassword !== authConfirmPassword) {
+      setAuthError("Passwords do not match.");
+      return;
+    }
+
     setIsAuthenticating(true);
 
     try {
@@ -195,6 +205,7 @@ export default function AccountDashboard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: authEmail,
+          phone: authPhone,
           password: authPassword,
           firstName: authFirstName,
           lastName: authLastName,
@@ -363,7 +374,14 @@ export default function AccountDashboard() {
                 {/* Form Mode Tabs */}
                 <div className="grid grid-cols-2 gap-2 bg-white/5 border border-white/5 p-1 rounded-full text-xs font-mono">
                   <button
-                    onClick={() => { setAuthMode("login"); setAuthError(""); }}
+                    onClick={() => { 
+                      setAuthMode("login"); 
+                      setAuthError(""); 
+                      setAuthConfirmPassword(""); 
+                      setAuthPhone("");
+                      setShowPassword(false); 
+                      setShowConfirmPassword(false); 
+                    }}
                     className={`py-2 px-4 rounded-full transition-all uppercase tracking-wider font-bold cursor-pointer ${
                       authMode === "login" 
                         ? "bg-brand-green text-brand-black" 
@@ -373,7 +391,14 @@ export default function AccountDashboard() {
                     Login
                   </button>
                   <button
-                    onClick={() => { setAuthMode("register"); setAuthError(""); }}
+                    onClick={() => { 
+                      setAuthMode("register"); 
+                      setAuthError(""); 
+                      setAuthConfirmPassword(""); 
+                      setAuthPhone("");
+                      setShowPassword(false); 
+                      setShowConfirmPassword(false); 
+                    }}
                     className={`py-2 px-4 rounded-full transition-all uppercase tracking-wider font-bold cursor-pointer ${
                       authMode === "register" 
                         ? "bg-brand-green text-brand-black" 
@@ -423,9 +448,11 @@ export default function AccountDashboard() {
 
                   {/* Email */}
                   <div className="space-y-1">
-                    <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">Email Address</label>
+                    <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">
+                      {authMode === "login" ? "Email Address or Mobile Number" : "Email Address"}
+                    </label>
                     <input
-                      type="email"
+                      type={authMode === "login" ? "text" : "email"}
                       required
                       value={authEmail}
                       onChange={(e) => setAuthEmail(e.target.value)}
@@ -433,17 +460,63 @@ export default function AccountDashboard() {
                     />
                   </div>
 
+                  {/* Mobile Number (Register Only) */}
+                  {authMode === "register" && (
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">Mobile Number</label>
+                      <input
+                        type="tel"
+                        required
+                        value={authPhone}
+                        onChange={(e) => setAuthPhone(e.target.value)}
+                        className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-xs font-mono tracking-wider focus:outline-none focus:border-brand-green text-white"
+                      />
+                    </div>
+                  )}
+
                   {/* Password */}
                   <div className="space-y-1">
-                    <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">Password Code</label>
-                    <input
-                      type="password"
-                      required
-                      value={authPassword}
-                      onChange={(e) => setAuthPassword(e.target.value)}
-                      className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-xs font-mono tracking-wider focus:outline-none focus:border-brand-green text-white"
-                    />
+                    <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">Password</label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        required
+                        value={authPassword}
+                        onChange={(e) => setAuthPassword(e.target.value)}
+                        className="w-full h-11 pl-4 pr-10 bg-white/5 border border-white/10 rounded-xl text-xs font-mono tracking-wider focus:outline-none focus:border-brand-green text-white"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors cursor-pointer flex items-center justify-center"
+                      >
+                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    </div>
                   </div>
+
+                  {/* Confirm Password (Register Only) */}
+                  {authMode === "register" && (
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">Confirm Password</label>
+                      <div className="relative">
+                        <input
+                          type={showConfirmPassword ? "text" : "password"}
+                          required
+                          value={authConfirmPassword}
+                          onChange={(e) => setAuthConfirmPassword(e.target.value)}
+                          className="w-full h-11 pl-4 pr-10 bg-white/5 border border-white/10 rounded-xl text-xs font-mono tracking-wider focus:outline-none focus:border-brand-green text-white"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors cursor-pointer flex items-center justify-center"
+                        >
+                          {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
+                      </div>
+                    </div>
+                  )}
 
                   <button
                     type="submit"
