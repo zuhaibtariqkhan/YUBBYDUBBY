@@ -9,24 +9,36 @@ export async function getAuthenticatedUserId(req: Request): Promise<number | nul
   }
 
   const token = authHeader.substring(7);
+  if (!token || token === "undefined") {
+    return null;
+  }
 
   try {
-    const res = await fetch("https://shop.yubbydubby.com/wp-json/wp/v2/users/me", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      },
-    });
+    const base64Url = token.split('.')[1];
+    if (!base64Url) return null;
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(Buffer.from(base64, 'base64').toString('utf8'));
+    const decoded = JSON.parse(jsonPayload);
 
-    if (!res.ok) {
+    // Verify issuer is the WooCommerce store and token has not expired
+    const iss = decoded.iss || "";
+    const exp = decoded.exp || 0;
+    const now = Math.floor(Date.now() / 1000);
+
+    if (iss !== "https://shop.yubbydubby.com") {
+      console.warn("JWT Verification failed: issuer mismatch", iss);
       return null;
     }
 
-    const data = await res.json();
-    return data.id || null;
+    if (exp && now > exp) {
+      console.warn("JWT Verification failed: token expired");
+      return null;
+    }
+
+    const userId = decoded.data?.user?.id || decoded.user_id || null;
+    return userId ? Number(userId) : null;
   } catch (error) {
-    console.error("Token verification error:", error);
+    console.error("Token decoding error:", error);
     return null;
   }
 }

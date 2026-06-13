@@ -36,10 +36,10 @@ export async function POST(req: NextRequest) {
 
     // Return the token and user metadata to the browser
     return NextResponse.json({
-      token: data.token,
-      email: data.user_email,
-      displayName: data.user_display_name,
-      nicename: data.user_nicename,
+      token: data.extras?.jwt_token || data.token,
+      email: data.email || data.user_email,
+      displayName: data.display_name || data.user_display_name,
+      nicename: data.first_name || data.user_nicename || "",
     });
   } catch (error: any) {
     console.error("Auth Login Error:", error);
