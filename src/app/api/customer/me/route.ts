@@ -28,6 +28,9 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    const genderMeta = customer.meta_data?.find((m: any) => m.key === "gender");
+    const gender = genderMeta ? genderMeta.value : "Male";
+
     // Return only necessary profile specifications to the client
     return NextResponse.json({
       id: customer.id,
@@ -35,6 +38,7 @@ export async function GET(req: NextRequest) {
       firstName: customer.first_name,
       lastName: customer.last_name,
       username: customer.username,
+      gender: gender,
       billing: {
         firstName: customer.billing?.first_name || "",
         lastName: customer.billing?.last_name || "",
@@ -81,7 +85,7 @@ export async function PUT(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { firstName, lastName, phone, billing, shipping } = body;
+    const { firstName, lastName, phone, billing, shipping, gender } = body;
 
     console.log(`Updating customer profile for WordPress User ID: ${userId}...`);
 
@@ -89,6 +93,14 @@ export async function PUT(req: NextRequest) {
     const updatePayload: any = {};
     if (firstName) updatePayload.first_name = firstName;
     if (lastName) updatePayload.last_name = lastName;
+    if (gender) {
+      updatePayload.meta_data = [
+        {
+          key: "gender",
+          value: gender,
+        }
+      ];
+    }
 
     if (billing) {
       updatePayload.billing = {

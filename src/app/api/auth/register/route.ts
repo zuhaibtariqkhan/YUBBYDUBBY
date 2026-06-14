@@ -5,18 +5,18 @@ import { verifyPayload } from "@/lib/otp-token";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { email, phone, password, firstName, lastName, verifiedToken } = body;
+    const { email, password, firstName, lastName, verifiedToken, gender } = body;
 
-    if (!password || !firstName || !lastName || (!email && !phone)) {
+    if (!email || !password || !firstName || !lastName) {
       return NextResponse.json(
-        { error: "First name, last name, password, and at least email or mobile phone number are required." },
+        { error: "First name, last name, email address, and password are required." },
         { status: 400 }
       );
     }
 
     if (!verifiedToken) {
       return NextResponse.json(
-        { error: "Verification authorization token is missing. Please verify your OTP first." },
+        { error: "Verification authorization token is missing. Please verify your email OTP first." },
         { status: 400 }
       );
     }
@@ -25,38 +25,28 @@ export async function POST(req: NextRequest) {
     const payload = verifyPayload(verifiedToken);
     if (!payload || !payload.verified) {
       return NextResponse.json(
-        { error: "Verification check failed or session has expired. Please verify your credentials via OTP first." },
+        { error: "Verification check failed or session has expired. Please verify your email via OTP first." },
         { status: 400 }
       );
     }
 
-    // Ensure email/phone match the payload data
-    const cleanEmail = email ? email.toLowerCase().trim() : null;
-    const cleanPhone = phone ? phone.trim() : null;
-
-    if (cleanEmail && payload.email !== cleanEmail) {
+    // Ensure email matches the payload data
+    const cleanEmail = email.toLowerCase().trim();
+    if (payload.email !== cleanEmail) {
       return NextResponse.json({ error: "Submitted email does not match verified OTP credentials." }, { status: 400 });
     }
-    if (cleanPhone && payload.phone !== cleanPhone) {
-      return NextResponse.json({ error: "Submitted mobile phone does not match verified OTP credentials." }, { status: 400 });
-    }
-
-    // WooCommerce requires a valid email. Generate a placeholder if only phone is provided.
-    const wcEmail = cleanEmail || `phone-${cleanPhone?.replace(/[^0-9]/g, "")}@yubbydubby.com`;
-    const wcPhone = cleanPhone || "";
 
     // Construct the WooCommerce Customer creation payload
-    const customerPayload = {
-      email: wcEmail,
-      username: wcPhone || wcEmail, // Store phone as username, fallback to email
+    const customerPayload: any = {
+      email: cleanEmail,
+      username: cleanEmail, // Store email as username
       first_name: firstName,
       last_name: lastName,
       password,
       billing: {
         first_name: firstName,
         last_name: lastName,
-        email: wcEmail,
-        phone: wcPhone,
+        email: cleanEmail,
       },
       shipping: {
         first_name: firstName,
@@ -64,7 +54,16 @@ export async function POST(req: NextRequest) {
       }
     };
 
-    console.log(`Registering WooCommerce customer: ${wcEmail} with username: ${customerPayload.username}...`);
+    if (gender) {
+      customerPayload.meta_data = [
+        {
+          key: "gender",
+          value: gender
+        }
+      ];
+    }
+
+    console.log(`Registering WooCommerce customer: ${cleanEmail}...`);
 
     // Call WooCommerce customers endpoint securely using admin credentials
     const customer: any = await fetchWooCommerce("customers", {
@@ -83,7 +82,6 @@ export async function POST(req: NextRequest) {
       message: "Registration completed successfully.",
       customerId: customer.id,
       email: customer.email,
-      phone: customer.billing?.phone || wcPhone,
     });
   } catch (error: any) {
     console.error("WooCommerce Registration Error:", error);

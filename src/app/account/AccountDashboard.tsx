@@ -22,6 +22,40 @@ const productsList = [
   { id: "p5", name: "SYNTHETIC BEANIE", price: 35, oldPrice: 45, image: "/prod-hoodie.png", tag: "", category: "Accessories" }
 ];
 
+// Helper to render gender specific icons on the profile dashboard
+const renderGenderIcon = (genderVal: string) => {
+  const cleanGender = (genderVal || "").toLowerCase().trim();
+  if (cleanGender === "male" || cleanGender === "men" || cleanGender === "man") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10 text-gray-400 group-hover:text-brand-green transition-colors">
+        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
+        {/* Small male symbol arrow in top right */}
+        <path d="M16 5l3-3m0 0h-3m3 0v3" strokeWidth="1.5" stroke="currentColor" />
+      </svg>
+    );
+  }
+  if (cleanGender === "female" || cleanGender === "women" || cleanGender === "woman") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10 text-gray-400 group-hover:text-brand-green transition-colors">
+        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
+        {/* Small female symbol cross at bottom/right */}
+        <path d="M12 11v3m-1.5-1.5h3" strokeWidth="1.5" stroke="currentColor" />
+      </svg>
+    );
+  }
+  // Other / Non-Binary
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10 text-gray-400 group-hover:text-brand-green transition-colors">
+      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+      {/* Sparkle/star overlay */}
+      <path d="M12 2l1 1.5L14.5 4 13 5l-1 1.5L11 5 9.5 4 11 3.5z" fill="currentColor" stroke="none" />
+    </svg>
+  );
+};
+
 export default function AccountDashboard() {
   const { addToCart } = useCart();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -62,24 +96,21 @@ export default function AccountDashboard() {
   // Security Toggles
   const [twoFactor, setTwoFactor] = useState(false);
   const [emailVerified, setEmailVerified] = useState(true);
-  const [phoneVerified, setPhoneVerified] = useState(false);
 
   // Auth local inputs
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [authEmail, setAuthEmail] = useState("");
-  const [authPhone, setAuthPhone] = useState("");
-  const [countryCode, setCountryCode] = useState("+91");
   const [authPassword, setAuthPassword] = useState("");
   const [authConfirmPassword, setAuthConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [authFirstName, setAuthFirstName] = useState("");
   const [authLastName, setAuthLastName] = useState("");
+  const [authGender, setAuthGender] = useState("Men");
   const [authError, setAuthError] = useState("");
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [enteredEmailOtp, setEnteredEmailOtp] = useState("");
-  const [enteredPhoneOtp, setEnteredPhoneOtp] = useState("");
   const [isOtpVerifying, setIsOtpVerifying] = useState(false);
   const [otpDebugMessage, setOtpDebugMessage] = useState("");
   const [otpToken, setOtpToken] = useState("");
@@ -112,7 +143,7 @@ export default function AccountDashboard() {
           email: profileData.email || "",
           phone: profileData.billing?.phone || "",
           birthday: localStorage.getItem("user_birthday") || "",
-          gender: localStorage.getItem("user_gender") || "Male"
+          gender: profileData.gender || localStorage.getItem("user_gender") || "Male"
         });
 
         // Map WooCommerce addresses
@@ -200,8 +231,8 @@ export default function AccountDashboard() {
     e.preventDefault();
     setAuthError("");
 
-    if (!authEmail.trim() && !authPhone.trim()) {
-      setAuthError("Please provide either an email address or mobile number.");
+    if (!authEmail.trim()) {
+      setAuthError("Please provide an email address.");
       return;
     }
 
@@ -213,22 +244,19 @@ export default function AccountDashboard() {
     setIsAuthenticating(true);
     setOtpDebugMessage("");
 
-    const fullPhone = authPhone.trim() ? `${countryCode}${authPhone.trim()}` : "";
-
     try {
       const res = await fetch("/api/auth/otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "send",
-          email: authEmail.trim() ? authEmail : undefined,
-          phone: fullPhone || undefined,
+          email: authEmail.trim(),
         }),
       });
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || "Failed to dispatch verification codes.");
+        throw new Error(data.error || "Failed to dispatch verification code.");
       }
 
       setIsOtpSent(true);
@@ -239,7 +267,7 @@ export default function AccountDashboard() {
         setOtpDebugMessage(data.debugNote);
       }
     } catch (err: any) {
-      setAuthError(err.message || "Failed to dispatch verification codes.");
+      setAuthError(err.message || "Failed to dispatch verification code.");
     } finally {
       setIsAuthenticating(false);
     }
@@ -250,19 +278,15 @@ export default function AccountDashboard() {
     setAuthError("");
     setIsOtpVerifying(true);
 
-    const fullPhone = authPhone.trim() ? `${countryCode}${authPhone.trim()}` : "";
-
     try {
-      // 1. Verify OTPs
+      // 1. Verify OTP
       const verifyRes = await fetch("/api/auth/otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "verify",
-          email: authEmail.trim() ? authEmail : undefined,
-          phone: fullPhone || undefined,
-          emailOtp: authEmail.trim() ? enteredEmailOtp : undefined,
-          phoneOtp: fullPhone ? enteredPhoneOtp : undefined,
+          email: authEmail.trim(),
+          emailOtp: enteredEmailOtp,
           otpToken: otpToken,
         }),
       });
@@ -278,12 +302,12 @@ export default function AccountDashboard() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: authEmail.trim() ? authEmail : undefined,
-          phone: fullPhone || undefined,
+          email: authEmail.trim(),
           password: authPassword,
           firstName: authFirstName,
           lastName: authLastName,
           verifiedToken: verifyData.verifiedToken,
+          gender: authGender,
         }),
       });
 
@@ -297,7 +321,7 @@ export default function AccountDashboard() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
-          email: authEmail.trim() ? authEmail : fullPhone, 
+          email: authEmail.trim(), 
           password: authPassword 
         }),
       });
@@ -310,6 +334,7 @@ export default function AccountDashboard() {
       localStorage.setItem("cocart_token", loginData.token);
       localStorage.setItem("customer_email", loginData.email);
       localStorage.setItem("customer_display_name", loginData.displayName);
+      localStorage.setItem("user_gender", authGender);
 
       setToken(loginData.token);
       setIsAuthenticated(true);
@@ -318,7 +343,6 @@ export default function AccountDashboard() {
       // Reset OTP states on complete success
       setIsOtpSent(false);
       setEnteredEmailOtp("");
-      setEnteredPhoneOtp("");
       setOtpDebugMessage("");
     } catch (err: any) {
       setAuthError(err.message || "Authentication verification failed.");
@@ -461,12 +485,10 @@ export default function AccountDashboard() {
                       setAuthMode("login"); 
                       setAuthError(""); 
                       setAuthConfirmPassword(""); 
-                      setAuthPhone("");
                       setShowPassword(false); 
                       setShowConfirmPassword(false); 
                       setIsOtpSent(false);
                       setEnteredEmailOtp("");
-                      setEnteredPhoneOtp("");
                       setIsOtpVerifying(false);
                       setOtpDebugMessage("");
                     }}
@@ -483,12 +505,10 @@ export default function AccountDashboard() {
                       setAuthMode("register"); 
                       setAuthError(""); 
                       setAuthConfirmPassword(""); 
-                      setAuthPhone("");
                       setShowPassword(false); 
                       setShowConfirmPassword(false); 
                       setIsOtpSent(false);
                       setEnteredEmailOtp("");
-                      setEnteredPhoneOtp("");
                       setIsOtpVerifying(false);
                       setOtpDebugMessage("");
                     }}
@@ -522,54 +542,26 @@ export default function AccountDashboard() {
                   {authMode === "register" && isOtpSent ? (
                     <div className="space-y-4">
                       <div className="p-3 bg-brand-green/10 border border-brand-green/20 text-brand-green text-xs rounded-lg font-mono uppercase tracking-wider text-center">
-                        Verification Codes Dispatched
+                        Verification Code Sent
                       </div>
                       <p className="text-gray-400 text-xs font-sans text-center">
-                        We sent secure verification codes to{" "}
-                        {authEmail.trim() && (
-                          <>
-                            <strong>{authEmail}</strong>
-                            {authPhone.trim() && " and "}
-                          </>
-                        )}
-                        {authPhone.trim() && (
-                          <strong>{countryCode} {authPhone}</strong>
-                        )}
-                        . Please enter them below to complete your registration.
+                        We sent a secure verification code to <strong>{authEmail}</strong>. Please enter it below to complete your registration.
                       </p>
 
-                      <div className={`grid gap-4 ${authEmail.trim() && authPhone.trim() ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}>
+                      <div className="grid gap-4 grid-cols-1">
                         {/* Email OTP */}
-                        {authEmail.trim() && (
-                          <div className="space-y-1">
-                            <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">Email OTP Code</label>
-                            <input
-                              type="text"
-                              required
-                              maxLength={6}
-                              value={enteredEmailOtp}
-                              onChange={(e) => setEnteredEmailOtp(e.target.value)}
-                              className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-center text-sm font-mono tracking-[0.25em] focus:outline-none focus:border-brand-green text-white"
-                              placeholder="••••••"
-                            />
-                          </div>
-                        )}
-
-                        {/* Phone OTP */}
-                        {authPhone.trim() && (
-                          <div className="space-y-1">
-                            <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">Mobile OTP Code</label>
-                            <input
-                              type="text"
-                              required
-                              maxLength={6}
-                              value={enteredPhoneOtp}
-                              onChange={(e) => setEnteredPhoneOtp(e.target.value)}
-                              className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-center text-sm font-mono tracking-[0.25em] focus:outline-none focus:border-brand-green text-white"
-                              placeholder="••••••"
-                            />
-                          </div>
-                        )}
+                        <div className="space-y-1">
+                          <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">Email OTP Code</label>
+                          <input
+                            type="text"
+                            required
+                            maxLength={6}
+                            value={enteredEmailOtp}
+                            onChange={(e) => setEnteredEmailOtp(e.target.value)}
+                            className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-center text-sm font-mono tracking-[0.25em] focus:outline-none focus:border-brand-green text-white"
+                            placeholder="••••••"
+                          />
+                        </div>
                       </div>
 
                       {otpDebugMessage && (
@@ -636,45 +628,37 @@ export default function AccountDashboard() {
                       {/* Email */}
                       <div className="space-y-1">
                         <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">
-                          {authMode === "login" ? "Email Address or Mobile Number" : "Email Address (Optional if mobile entered)"}
+                          Email Address
                         </label>
                         <input
-                          type={authMode === "login" ? "text" : "email"}
-                          required={authMode === "login"}
+                          type="email"
+                          required
                           value={authEmail}
                           onChange={(e) => setAuthEmail(e.target.value)}
                           className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-xs font-mono tracking-wider focus:outline-none focus:border-brand-green text-white"
-                          placeholder={authMode === "login" ? "e.g. email or mobile" : "e.g. name@domain.com"}
+                          placeholder="e.g. name@domain.com"
                         />
                       </div>
 
-                      {/* Mobile Number (Register Only) */}
+                      {/* Gender Selection */}
                       {authMode === "register" && (
                         <div className="space-y-1">
-                          <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">
-                            Mobile Number (Optional if email entered)
-                          </label>
-                          <div className="flex gap-2">
-                            <select
-                              value={countryCode}
-                              onChange={(e) => setCountryCode(e.target.value)}
-                              className="h-11 px-3 bg-[#111] border border-white/10 rounded-xl text-xs font-mono text-white focus:outline-none focus:border-brand-green shrink-0 w-24 cursor-pointer"
-                            >
-                              <option value="+91">IN (+91)</option>
-                              <option value="+1">US (+1)</option>
-                              <option value="+44">UK (+44)</option>
-                              <option value="+971">AE (+971)</option>
-                              <option value="+966">SA (+966)</option>
-                              <option value="+61">AU (+61)</option>
-                              <option value="+65">SG (+65)</option>
-                            </select>
-                            <input
-                              type="tel"
-                              value={authPhone}
-                              onChange={(e) => setAuthPhone(e.target.value)}
-                              className="flex-1 h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-xs font-mono tracking-wider focus:outline-none focus:border-brand-green text-white"
-                              placeholder="9876543210"
-                            />
+                          <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">Gender</label>
+                          <div className="grid grid-cols-3 gap-2">
+                            {["Men", "Women", "Other"].map((g) => (
+                              <button
+                                key={g}
+                                type="button"
+                                onClick={() => setAuthGender(g)}
+                                className={`h-11 rounded-xl text-[11px] font-mono uppercase tracking-wider border transition-all cursor-pointer ${
+                                  authGender === g
+                                    ? "bg-brand-green text-brand-black border-brand-green font-bold shadow-[0_0_15px_rgba(177,243,16,0.15)]"
+                                    : "bg-white/5 border-white/10 text-gray-400 hover:text-white hover:border-white/20"
+                                }`}
+                              >
+                                {g}
+                              </button>
+                            ))}
                           </div>
                         </div>
                       )}
@@ -793,7 +777,7 @@ export default function AccountDashboard() {
             <div className="lg:col-span-4 flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
               <div className="relative w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-brand-green to-white/10 shadow-[0_0_15px_rgba(177,243,16,0.2)] animate-pulse-slow">
                 <div className="w-full h-full bg-[#0d0d0d] rounded-full overflow-hidden flex items-center justify-center border border-black">
-                  <User size={40} className="text-gray-400 group-hover:text-brand-green transition-colors" />
+                  {renderGenderIcon(personalInfo.gender)}
                 </div>
                 <span className="absolute bottom-0 right-0 bg-brand-green text-brand-black w-6 h-6 rounded-full border border-black flex items-center justify-center text-[10px] font-bold">
                   ✓
@@ -1569,25 +1553,7 @@ export default function AccountDashboard() {
                           </span>
                         </div>
 
-                        {/* Phone verification */}
-                        <div className="flex items-center justify-between p-3 bg-white/[0.01] border border-white/5 rounded-[12px]">
-                          <div className="flex items-center gap-3">
-                            <Smartphone className={`w-5 h-5 ${phoneVerified ? "text-brand-green" : "text-yellow-500"}`} />
-                            <div className="text-xs">
-                              <span className="font-bold text-white block uppercase tracking-wider">Phone Verification</span>
-                              Verified: {personalInfo.phone}
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => setPhoneVerified(true)}
-                            disabled={phoneVerified}
-                            className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded cursor-pointer ${
-                              phoneVerified ? "bg-brand-green/10 text-brand-green" : "bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500 hover:text-black transition-colors"
-                            }`}
-                          >
-                            {phoneVerified ? "SECURE" : "VERIFY PHONE"}
-                          </button>
-                        </div>
+
 
                         {/* Two Factor Toggle */}
                         <div className="flex items-center justify-between p-3 bg-white/[0.01] border border-white/5 rounded-[12px]">
