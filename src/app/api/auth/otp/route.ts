@@ -65,6 +65,9 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { action, email, phone, emailOtp, phoneOtp } = body;
 
+    console.log("[OTP API] Request action:", action, "email:", email, "phone:", phone);
+    console.log("[OTP API] Loaded ENV - SMTP_HOST:", process.env.SMTP_HOST ? "DEFINED" : "UNDEFINED", "MSG91_AUTH_KEY:", process.env.MSG91_AUTH_KEY ? "DEFINED" : "UNDEFINED");
+
     if (!email && !phone) {
       return NextResponse.json(
         { error: "At least email address or mobile phone number is required." },
@@ -113,9 +116,12 @@ export async function POST(req: NextRequest) {
 
       // Send Email OTP using SMTP if configured
       let emailSent = false;
+      let emailErrorDetail = "";
       if (cleanEmail && generatedEmailOtp) {
         const transporter = getTransporter();
-        if (transporter) {
+        if (!transporter) {
+          emailErrorDetail = `SMTP configuration missing (SMTP_HOST, SMTP_USER or SMTP_PASS is undefined). Available env keys: ${Object.keys(process.env).filter(k => k.toLowerCase().includes("smtp")).join(", ") || "none"}`;
+        } else {
           try {
             await transporter.sendMail({
               from: `"Yubby Dubby Security" <${process.env.SMTP_USER}>`,
@@ -135,19 +141,23 @@ export async function POST(req: NextRequest) {
             });
             console.log(`[OTP] Sent email verification OTP to ${cleanEmail}`);
             emailSent = true;
-          } catch (emailError) {
+          } catch (emailError: any) {
             console.error("Nodemailer failed to send email, logged as fallback:", emailError);
+            emailErrorDetail = emailError?.message || String(emailError);
           }
         }
       }
 
       // Send SMS OTP using Msg91 if configured
       let smsSent = false;
+      let smsErrorDetail = "";
       if (cleanPhone && generatedPhoneOtp) {
         const authKey = process.env.MSG91_AUTH_KEY;
         const templateId = process.env.MSG91_TEMPLATE_ID;
 
-        if (authKey && templateId) {
+        if (!authKey || !templateId) {
+          smsErrorDetail = `Msg91 configuration missing (MSG91_AUTH_KEY or MSG91_TEMPLATE_ID is undefined). Available env keys: ${Object.keys(process.env).filter(k => k.toLowerCase().includes("msg91")).join(", ") || "none"}`;
+        } else {
           try {
             const cleanDigits = cleanPhone.replace(/[^0-9]/g, "");
             const url = `https://control.msg91.com/api/v5/otp?template_id=${templateId}&mobile=${cleanDigits}&authkey=${authKey}&otp=${generatedPhoneOtp}`;
@@ -159,9 +169,12 @@ export async function POST(req: NextRequest) {
             console.log("[Msg91] Sent OTP response:", data);
             if (data.type === "success") {
               smsSent = true;
+            } else {
+              smsErrorDetail = `Msg91 API error: ${data.message || JSON.stringify(data)}`;
             }
-          } catch (smsError) {
+          } catch (smsError: any) {
             console.error("[Msg91] Error sending OTP SMS:", smsError);
+            smsErrorDetail = smsError?.message || String(smsError);
           }
         }
       }
@@ -169,10 +182,10 @@ export async function POST(req: NextRequest) {
       // Prepare user guidance response message
       let debugNote = "";
       if (cleanEmail && !emailSent) {
-        debugNote += "Email OTP fallback to log. ";
+        debugNote += `[Email Failed: ${emailErrorDetail}] `;
       }
       if (cleanPhone && !smsSent) {
-        debugNote += "Mobile OTP fallback to log. ";
+        debugNote += `[SMS Failed: ${smsErrorDetail}] `;
       }
       if (debugNote) {
         debugNote += "Find your verification code in the root file 'otp-debug.log'";
