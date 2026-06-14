@@ -65,82 +65,131 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { action, email, phone, emailOtp, phoneOtp } = body;
 
-    if (!email || !phone) {
+    if (!email && !phone) {
       return NextResponse.json(
-        { error: "Email and phone number are required." },
+        { error: "At least email address or mobile phone number is required." },
         { status: 400 }
       );
     }
 
-    const cleanEmail = email.toLowerCase().trim();
-    const cleanPhone = phone.trim();
+    const cleanEmail = email ? email.toLowerCase().trim() : null;
+    const cleanPhone = phone ? phone.trim() : null;
+    const storeKey = cleanEmail || cleanPhone;
+
+    if (!storeKey) {
+      return NextResponse.json(
+        { error: "Invalid registration credentials." },
+        { status: 400 }
+      );
+    }
 
     if (action === "send") {
-      // 1. Generate 6-digit numeric OTPs
-      const generatedEmailOtp = Math.floor(100000 + Math.random() * 900000).toString();
-      const generatedPhoneOtp = Math.floor(100000 + Math.random() * 900000).toString();
+      let generatedEmailOtp = "";
+      let generatedPhoneOtp = "";
+
+      if (cleanEmail) {
+        generatedEmailOtp = Math.floor(100000 + Math.random() * 900000).toString();
+      }
+      if (cleanPhone) {
+        generatedPhoneOtp = Math.floor(100000 + Math.random() * 900000).toString();
+      }
+
       const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes expiration
 
-      // 2. Store OTP in database/local file
+      // Store OTP in database/local file
       const store = readOtpStore();
-      store[cleanEmail] = {
+      store[storeKey] = {
+        email: cleanEmail,
         phone: cleanPhone,
-        emailOtp: generatedEmailOtp,
-        phoneOtp: generatedPhoneOtp,
+        emailOtp: generatedEmailOtp || undefined,
+        phoneOtp: generatedPhoneOtp || undefined,
         expiresAt,
         verified: false,
       };
       writeOtpStore(store);
 
-      // 3. Log OTPs locally so developer can read them instantly
-      logOtpToDebugFile(cleanEmail, cleanPhone, generatedEmailOtp, generatedPhoneOtp);
+      // Log OTPs locally so developer can read them instantly
+      logOtpToDebugFile(cleanEmail || "N/A", cleanPhone || "N/A", generatedEmailOtp || "N/A", generatedPhoneOtp || "N/A");
 
-      // 4. Send Email OTP using SMTP if configured
-      const transporter = getTransporter();
-      if (transporter) {
-        try {
-          await transporter.sendMail({
-            from: `"Yubby Dubby Security" <${process.env.SMTP_USER}>`,
-            to: cleanEmail,
-            subject: "YUBBY DUBBY - Complete Your Profile Registration",
-            text: `Use this 6-digit OTP code to verify your email: ${generatedEmailOtp}\nIt will expire in 5 minutes.`,
-            html: `
-              <div style="background-color: #000; color: #fff; padding: 30px; font-family: sans-serif; text-align: center; border-radius: 12px;">
-                <h1 style="color: #B1F310; letter-spacing: 2px;">SECURE ACCESS PORTAL</h1>
-                <p style="font-size: 14px; color: #ccc;">Use the verification code below to authorize your email address and finalize registration.</p>
-                <div style="font-size: 36px; font-weight: bold; background-color: #111; border: 1px solid #B1F310; color: #B1F310; padding: 15px; margin: 25px auto; width: 200px; border-radius: 8px; letter-spacing: 4px;">
-                  ${generatedEmailOtp}
+      // Send Email OTP using SMTP if configured
+      let emailSent = false;
+      if (cleanEmail && generatedEmailOtp) {
+        const transporter = getTransporter();
+        if (transporter) {
+          try {
+            await transporter.sendMail({
+              from: `"Yubby Dubby Security" <${process.env.SMTP_USER}>`,
+              to: cleanEmail,
+              subject: "YUBBY DUBBY - Complete Your Profile Registration",
+              text: `Use this 6-digit OTP code to verify your email: ${generatedEmailOtp}\nIt will expire in 5 minutes.`,
+              html: `
+                <div style="background-color: #000; color: #fff; padding: 30px; font-family: sans-serif; text-align: center; border-radius: 12px;">
+                  <h1 style="color: #B1F310; letter-spacing: 2px;">SECURE ACCESS PORTAL</h1>
+                  <p style="font-size: 14px; color: #ccc;">Use the verification code below to authorize your email address and finalize registration.</p>
+                  <div style="font-size: 36px; font-weight: bold; background-color: #111; border: 1px solid #B1F310; color: #B1F310; padding: 15px; margin: 25px auto; width: 200px; border-radius: 8px; letter-spacing: 4px;">
+                    ${generatedEmailOtp}
+                  </div>
+                  <p style="font-size: 11px; color: #666;">This security credentials validation request will expire in 5 minutes.</p>
                 </div>
-                <p style="font-size: 11px; color: #666;">This security credentials validation request will expire in 5 minutes.</p>
-              </div>
-            `,
-          });
-          console.log(`[OTP] Sent email verification OTP to ${cleanEmail}`);
-        } catch (emailError) {
-          console.error("Nodemailer failed to send email, logged as fallback:", emailError);
+              `,
+            });
+            console.log(`[OTP] Sent email verification OTP to ${cleanEmail}`);
+            emailSent = true;
+          } catch (emailError) {
+            console.error("Nodemailer failed to send email, logged as fallback:", emailError);
+          }
         }
       }
 
-      // Return status (even if SMTP is not set up, dev can get it from otp-debug.log)
+      // Send SMS OTP using Msg91 if configured
+      let smsSent = false;
+      if (cleanPhone && generatedPhoneOtp) {
+        const authKey = process.env.MSG91_AUTH_KEY;
+        const templateId = process.env.MSG91_TEMPLATE_ID;
+
+        if (authKey && templateId) {
+          try {
+            const cleanDigits = cleanPhone.replace(/[^0-9]/g, "");
+            const url = `https://control.msg91.com/api/v5/otp?template_id=${templateId}&mobile=${cleanDigits}&authkey=${authKey}&otp=${generatedPhoneOtp}`;
+            const response = await fetch(url, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" }
+            });
+            const data = await response.json();
+            console.log("[Msg91] Sent OTP response:", data);
+            if (data.type === "success") {
+              smsSent = true;
+            }
+          } catch (smsError) {
+            console.error("[Msg91] Error sending OTP SMS:", smsError);
+          }
+        }
+      }
+
+      // Prepare user guidance response message
+      let debugNote = "";
+      if (cleanEmail && !emailSent) {
+        debugNote += "Email OTP fallback to log. ";
+      }
+      if (cleanPhone && !smsSent) {
+        debugNote += "Mobile OTP fallback to log. ";
+      }
+      if (debugNote) {
+        debugNote += "Find your verification code in the root file 'otp-debug.log'";
+      }
+
       return NextResponse.json({
         success: true,
         message: "Verification OTPs generated and dispatched.",
-        debugNote: "If SMTP variables are not set in .env.local, find your verification code in the root file 'otp-debug.log'"
+        debugNote: debugNote || undefined
       });
     }
 
     if (action === "verify") {
-      if (!emailOtp || !phoneOtp) {
-        return NextResponse.json(
-          { error: "Both email OTP and mobile OTP codes are required for validation." },
-          { status: 400 }
-        );
-      }
-
       const store = readOtpStore();
-      const record = store[cleanEmail];
+      const record = store[storeKey];
 
-      if (!record || record.phone !== cleanPhone) {
+      if (!record) {
         return NextResponse.json(
           { error: "No active verification request found for these credentials." },
           { status: 400 }
@@ -154,22 +203,23 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      const emailMatch = record.emailOtp === emailOtp.trim();
-      const phoneMatch = record.phoneOtp === phoneOtp.trim();
+      // Enforce email OTP check only if email OTP was sent
+      if (record.emailOtp) {
+        if (!emailOtp || emailOtp.trim() !== record.emailOtp) {
+          return NextResponse.json({ error: "Email verification code is incorrect." }, { status: 400 });
+        }
+      }
 
-      if (!emailMatch && !phoneMatch) {
-        return NextResponse.json({ error: "Both verification codes are invalid." }, { status: 400 });
-      }
-      if (!emailMatch) {
-        return NextResponse.json({ error: "Email verification code is incorrect." }, { status: 400 });
-      }
-      if (!phoneMatch) {
-        return NextResponse.json({ error: "Mobile verification code is incorrect." }, { status: 400 });
+      // Enforce phone OTP check only if phone OTP was sent
+      if (record.phoneOtp) {
+        if (!phoneOtp || phoneOtp.trim() !== record.phoneOtp) {
+          return NextResponse.json({ error: "Mobile verification code is incorrect." }, { status: 400 });
+        }
       }
 
       // Update record to verified status
       record.verified = true;
-      store[cleanEmail] = record;
+      store[storeKey] = record;
       writeOtpStore(store);
 
       return NextResponse.json({

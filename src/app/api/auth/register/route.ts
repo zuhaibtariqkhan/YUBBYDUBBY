@@ -5,13 +5,24 @@ import path from "path";
 
 const OTP_STORE_PATH = path.join(process.cwd(), "otp-store.json");
 
-function isOtpVerified(email: string, phone: string): boolean {
+function isOtpVerified(email?: string, phone?: string): boolean {
   try {
     if (fs.existsSync(OTP_STORE_PATH)) {
       const content = fs.readFileSync(OTP_STORE_PATH, "utf8");
       const store = JSON.parse(content || "{}");
-      const record = store[email.toLowerCase().trim()];
-      return !!(record && record.phone === phone.trim() && record.verified);
+      const cleanEmail = email ? email.toLowerCase().trim() : null;
+      const cleanPhone = phone ? phone.trim() : null;
+      const storeKey = cleanEmail || cleanPhone;
+
+      if (!storeKey) return false;
+
+      const record = store[storeKey];
+      if (!record) return false;
+
+      if (record.email && record.email !== cleanEmail) return false;
+      if (record.phone && record.phone !== cleanPhone) return false;
+
+      return !!record.verified;
     }
   } catch (error) {
     console.error("Error reading OTP store in register route:", error);
@@ -19,13 +30,19 @@ function isOtpVerified(email: string, phone: string): boolean {
   return false;
 }
 
-function clearOtpRecord(email: string) {
+function clearOtpRecord(email?: string, phone?: string) {
   try {
     if (fs.existsSync(OTP_STORE_PATH)) {
       const content = fs.readFileSync(OTP_STORE_PATH, "utf8");
       const store = JSON.parse(content || "{}");
-      delete store[email.toLowerCase().trim()];
-      fs.writeFileSync(OTP_STORE_PATH, JSON.stringify(store, null, 2), "utf8");
+      const cleanEmail = email ? email.toLowerCase().trim() : null;
+      const cleanPhone = phone ? phone.trim() : null;
+      const storeKey = cleanEmail || cleanPhone;
+
+      if (storeKey) {
+        delete store[storeKey];
+        fs.writeFileSync(OTP_STORE_PATH, JSON.stringify(store, null, 2), "utf8");
+      }
     }
   } catch (error) {
     console.error("Error clearing OTP record in register route:", error);
@@ -37,9 +54,9 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { email, phone, password, firstName, lastName } = body;
 
-    if (!email || !phone || !password || !firstName || !lastName) {
+    if (!password || !firstName || !lastName || (!email && !phone)) {
       return NextResponse.json(
-        { error: "All registration specifications (email, phone, password, first name, last name) are required." },
+        { error: "First name, last name, password, and at least email or mobile phone number are required." },
         { status: 400 }
       );
     }
@@ -47,23 +64,27 @@ export async function POST(req: NextRequest) {
     // Enforce server-side OTP verification
     if (!isOtpVerified(email, phone)) {
       return NextResponse.json(
-        { error: "Verification check failed. Please verify your email and mobile phone via OTP first." },
+        { error: "Verification check failed. Please verify your email and/or mobile phone via OTP first." },
         { status: 400 }
       );
     }
 
+    // WooCommerce requires an email address. If they didn't provide one, generate a placeholder based on phone.
+    const cleanEmail = email ? email.toLowerCase().trim() : `phone-${phone.replace(/[^0-9]/g, "")}@yubbydubby.com`;
+    const cleanPhone = phone ? phone.trim() : "";
+
     // Construct the WooCommerce Customer creation payload
     const customerPayload = {
-      email,
-      username: phone, // Store phone as username so they can login with it
+      email: cleanEmail,
+      username: cleanPhone || cleanEmail, // Store phone as username, fallback to email
       first_name: firstName,
       last_name: lastName,
       password,
       billing: {
         first_name: firstName,
         last_name: lastName,
-        email: email,
-        phone: phone,
+        email: cleanEmail,
+        phone: cleanPhone,
       },
       shipping: {
         first_name: firstName,
@@ -71,7 +92,7 @@ export async function POST(req: NextRequest) {
       }
     };
 
-    console.log(`Registering customer: ${email} with phone: ${phone} on WooCommerce...`);
+    console.log(`Registering customer: ${cleanEmail} with username: ${customerPayload.username} on WooCommerce...`);
 
     // Call WooCommerce customers endpoint securely using admin credentials
     const customer: any = await fetchWooCommerce("customers", {
@@ -86,7 +107,7 @@ export async function POST(req: NextRequest) {
     console.log(`Successfully registered WooCommerce customer ID: ${customer.id}`);
 
     // Clear the OTP verification entry on successful registration
-    clearOtpRecord(email);
+    clearOtpRecord(email, phone);
 
     return NextResponse.json({
       success: true,

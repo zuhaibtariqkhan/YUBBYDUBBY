@@ -68,6 +68,7 @@ export default function AccountDashboard() {
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [authEmail, setAuthEmail] = useState("");
   const [authPhone, setAuthPhone] = useState("");
+  const [countryCode, setCountryCode] = useState("+91");
   const [authPassword, setAuthPassword] = useState("");
   const [authConfirmPassword, setAuthConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -197,6 +198,11 @@ export default function AccountDashboard() {
     e.preventDefault();
     setAuthError("");
 
+    if (!authEmail.trim() && !authPhone.trim()) {
+      setAuthError("Please provide either an email address or mobile number.");
+      return;
+    }
+
     if (authPassword !== authConfirmPassword) {
       setAuthError("Passwords do not match.");
       return;
@@ -205,14 +211,16 @@ export default function AccountDashboard() {
     setIsAuthenticating(true);
     setOtpDebugMessage("");
 
+    const fullPhone = authPhone.trim() ? `${countryCode}${authPhone.trim()}` : "";
+
     try {
       const res = await fetch("/api/auth/otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "send",
-          email: authEmail,
-          phone: authPhone,
+          email: authEmail.trim() ? authEmail : undefined,
+          phone: fullPhone || undefined,
         }),
       });
 
@@ -237,6 +245,8 @@ export default function AccountDashboard() {
     setAuthError("");
     setIsOtpVerifying(true);
 
+    const fullPhone = authPhone.trim() ? `${countryCode}${authPhone.trim()}` : "";
+
     try {
       // 1. Verify OTPs
       const verifyRes = await fetch("/api/auth/otp", {
@@ -244,10 +254,10 @@ export default function AccountDashboard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "verify",
-          email: authEmail,
-          phone: authPhone,
-          emailOtp: enteredEmailOtp,
-          phoneOtp: enteredPhoneOtp,
+          email: authEmail.trim() ? authEmail : undefined,
+          phone: fullPhone || undefined,
+          emailOtp: authEmail.trim() ? enteredEmailOtp : undefined,
+          phoneOtp: fullPhone ? enteredPhoneOtp : undefined,
         }),
       });
 
@@ -262,8 +272,8 @@ export default function AccountDashboard() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: authEmail,
-          phone: authPhone,
+          email: authEmail.trim() ? authEmail : undefined,
+          phone: fullPhone || undefined,
           password: authPassword,
           firstName: authFirstName,
           lastName: authLastName,
@@ -279,7 +289,10 @@ export default function AccountDashboard() {
       const loginRes = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: authEmail, password: authPassword }),
+        body: JSON.stringify({ 
+          email: authEmail.trim() ? authEmail : fullPhone, 
+          password: authPassword 
+        }),
       });
 
       const loginData = await loginRes.json();
@@ -413,7 +426,7 @@ export default function AccountDashboard() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="glass-card p-8 rounded-[24px] border border-white/10 bg-white/[0.01] hover:border-brand-green/35 hover:shadow-[0_0_50px_rgba(177,243,16,0.03)] transition-all duration-500 relative overflow-hidden"
+              className="glass-card p-6 sm:p-8 rounded-[24px] border border-white/10 bg-white/[0.01] hover:border-brand-green/35 hover:shadow-[0_0_50px_rgba(177,243,16,0.03)] transition-all duration-500 relative overflow-hidden"
             >
               {/* Outer glow orb */}
               <div className="absolute top-0 right-0 w-[150px] h-[150px] bg-radial from-[#B1F310]/5 via-transparent to-transparent blur-[40px] pointer-events-none" />
@@ -505,37 +518,51 @@ export default function AccountDashboard() {
                         Verification Codes Dispatched
                       </div>
                       <p className="text-gray-400 text-xs font-sans text-center">
-                        We sent secure codes to <strong>{authEmail}</strong> and <strong>{authPhone}</strong>. Please enter them below to verify your identity.
+                        We sent secure verification codes to{" "}
+                        {authEmail.trim() && (
+                          <>
+                            <strong>{authEmail}</strong>
+                            {authPhone.trim() && " and "}
+                          </>
+                        )}
+                        {authPhone.trim() && (
+                          <strong>{countryCode} {authPhone}</strong>
+                        )}
+                        . Please enter them below to complete your registration.
                       </p>
 
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className={`grid gap-4 ${authEmail.trim() && authPhone.trim() ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}>
                         {/* Email OTP */}
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">Email OTP Code</label>
-                          <input
-                            type="text"
-                            required
-                            maxLength={6}
-                            value={enteredEmailOtp}
-                            onChange={(e) => setEnteredEmailOtp(e.target.value)}
-                            className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-center text-sm font-mono tracking-[0.25em] focus:outline-none focus:border-brand-green text-white"
-                            placeholder="••••••"
-                          />
-                        </div>
+                        {authEmail.trim() && (
+                          <div className="space-y-1">
+                            <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">Email OTP Code</label>
+                            <input
+                              type="text"
+                              required
+                              maxLength={6}
+                              value={enteredEmailOtp}
+                              onChange={(e) => setEnteredEmailOtp(e.target.value)}
+                              className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-center text-sm font-mono tracking-[0.25em] focus:outline-none focus:border-brand-green text-white"
+                              placeholder="••••••"
+                            />
+                          </div>
+                        )}
 
                         {/* Phone OTP */}
-                        <div className="space-y-1">
-                          <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">Mobile OTP Code</label>
-                          <input
-                            type="text"
-                            required
-                            maxLength={6}
-                            value={enteredPhoneOtp}
-                            onChange={(e) => setEnteredPhoneOtp(e.target.value)}
-                            className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-center text-sm font-mono tracking-[0.25em] focus:outline-none focus:border-brand-green text-white"
-                            placeholder="••••••"
-                          />
-                        </div>
+                        {authPhone.trim() && (
+                          <div className="space-y-1">
+                            <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">Mobile OTP Code</label>
+                            <input
+                              type="text"
+                              required
+                              maxLength={6}
+                              value={enteredPhoneOtp}
+                              onChange={(e) => setEnteredPhoneOtp(e.target.value)}
+                              className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-center text-sm font-mono tracking-[0.25em] focus:outline-none focus:border-brand-green text-white"
+                              placeholder="••••••"
+                            />
+                          </div>
+                        )}
                       </div>
 
                       {otpDebugMessage && (
@@ -573,7 +600,7 @@ export default function AccountDashboard() {
                   ) : (
                     <>
                       {authMode === "register" && (
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           {/* First Name */}
                           <div className="space-y-1">
                             <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">First Name</label>
@@ -602,28 +629,46 @@ export default function AccountDashboard() {
                       {/* Email */}
                       <div className="space-y-1">
                         <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">
-                          {authMode === "login" ? "Email Address or Mobile Number" : "Email Address"}
+                          {authMode === "login" ? "Email Address or Mobile Number" : "Email Address (Optional if mobile entered)"}
                         </label>
                         <input
                           type={authMode === "login" ? "text" : "email"}
-                          required
+                          required={authMode === "login"}
                           value={authEmail}
                           onChange={(e) => setAuthEmail(e.target.value)}
                           className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-xs font-mono tracking-wider focus:outline-none focus:border-brand-green text-white"
+                          placeholder={authMode === "login" ? "e.g. email or mobile" : "e.g. name@domain.com"}
                         />
                       </div>
 
                       {/* Mobile Number (Register Only) */}
                       {authMode === "register" && (
                         <div className="space-y-1">
-                          <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">Mobile Number</label>
-                          <input
-                            type="tel"
-                            required
-                            value={authPhone}
-                            onChange={(e) => setAuthPhone(e.target.value)}
-                            className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-xs font-mono tracking-wider focus:outline-none focus:border-brand-green text-white"
-                          />
+                          <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">
+                            Mobile Number (Optional if email entered)
+                          </label>
+                          <div className="flex gap-2">
+                            <select
+                              value={countryCode}
+                              onChange={(e) => setCountryCode(e.target.value)}
+                              className="h-11 px-3 bg-[#111] border border-white/10 rounded-xl text-xs font-mono text-white focus:outline-none focus:border-brand-green shrink-0 w-24 cursor-pointer"
+                            >
+                              <option value="+91">IN (+91)</option>
+                              <option value="+1">US (+1)</option>
+                              <option value="+44">UK (+44)</option>
+                              <option value="+971">AE (+971)</option>
+                              <option value="+966">SA (+966)</option>
+                              <option value="+61">AU (+61)</option>
+                              <option value="+65">SG (+65)</option>
+                            </select>
+                            <input
+                              type="tel"
+                              value={authPhone}
+                              onChange={(e) => setAuthPhone(e.target.value)}
+                              className="flex-1 h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-xs font-mono tracking-wider focus:outline-none focus:border-brand-green text-white"
+                              placeholder="9876543210"
+                            />
+                          </div>
                         </div>
                       )}
 
