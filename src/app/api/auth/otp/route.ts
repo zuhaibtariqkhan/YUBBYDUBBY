@@ -153,7 +153,7 @@ export async function POST(req: NextRequest) {
       let smsErrorDetail = "";
       if (cleanPhone && generatedPhoneOtp) {
         const authKey = process.env.MSG91_AUTH_KEY;
-        const templateId = process.env.MSG91_TEMPLATE_ID;
+        const templateId = process.env.MSG91_TEMPLATE_ID || process.env.MSG91_TEMP_ID;
 
         if (!authKey || !templateId) {
           smsErrorDetail = `Msg91 configuration missing (MSG91_AUTH_KEY or MSG91_TEMPLATE_ID is undefined). Available env keys: ${Object.keys(process.env).filter(k => k.toLowerCase().includes("msg91")).join(", ") || "none"}`;
