@@ -2,31 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import nodemailer from "nodemailer";
+import { signPayload, verifyPayload } from "@/lib/otp-token";
 
-const OTP_STORE_PATH = path.join(process.cwd(), "otp-store.json");
 const OTP_DEBUG_LOG_PATH = path.join(process.cwd(), "otp-debug.log");
-
-// Helper to read OTP store
-function readOtpStore(): Record<string, any> {
-  try {
-    if (fs.existsSync(OTP_STORE_PATH)) {
-      const content = fs.readFileSync(OTP_STORE_PATH, "utf8");
-      return JSON.parse(content || "{}");
-    }
-  } catch (error) {
-    console.error("Error reading OTP store:", error);
-  }
-  return {};
-}
-
-// Helper to write OTP store
-function writeOtpStore(data: Record<string, any>) {
-  try {
-    fs.writeFileSync(OTP_STORE_PATH, JSON.stringify(data, null, 2), "utf8");
-  } catch (error) {
-    console.error("Error writing OTP store:", error);
-  }
-}
 
 // Helper to log OTP to a local debug file for developer convenience
 function logOtpToDebugFile(email: string, phone: string, emailOtp: string, phoneOtp: string) {
@@ -63,30 +41,21 @@ function getTransporter() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { action, email, phone, emailOtp, phoneOtp } = body;
+    const { action, email, phone, emailOtp, phoneOtp, otpToken } = body;
 
     console.log("[OTP API] Request action:", action, "email:", email, "phone:", phone);
-    console.log("[OTP API] Loaded ENV - SMTP_HOST:", process.env.SMTP_HOST ? "DEFINED" : "UNDEFINED", "MSG91_AUTH_KEY:", process.env.MSG91_AUTH_KEY ? "DEFINED" : "UNDEFINED");
-
-    if (!email && !phone) {
-      return NextResponse.json(
-        { error: "At least email address or mobile phone number is required." },
-        { status: 400 }
-      );
-    }
-
-    const cleanEmail = email ? email.toLowerCase().trim() : null;
-    const cleanPhone = phone ? phone.trim() : null;
-    const storeKey = cleanEmail || cleanPhone;
-
-    if (!storeKey) {
-      return NextResponse.json(
-        { error: "Invalid registration credentials." },
-        { status: 400 }
-      );
-    }
 
     if (action === "send") {
+      if (!email && !phone) {
+        return NextResponse.json(
+          { error: "At least email address or mobile phone number is required." },
+          { status: 400 }
+        );
+      }
+
+      const cleanEmail = email ? email.toLowerCase().trim() : null;
+      const cleanPhone = phone ? phone.trim() : null;
+
       let generatedEmailOtp = "";
       let generatedPhoneOtp = "";
 
@@ -98,18 +67,6 @@ export async function POST(req: NextRequest) {
       }
 
       const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes expiration
-
-      // Store OTP in database/local file
-      const store = readOtpStore();
-      store[storeKey] = {
-        email: cleanEmail,
-        phone: cleanPhone,
-        emailOtp: generatedEmailOtp || undefined,
-        phoneOtp: generatedPhoneOtp || undefined,
-        expiresAt,
-        verified: false,
-      };
-      writeOtpStore(store);
 
       // Log OTPs locally so developer can read them instantly
       logOtpToDebugFile(cleanEmail || "N/A", cleanPhone || "N/A", generatedEmailOtp || "N/A", generatedPhoneOtp || "N/A");
@@ -179,6 +136,15 @@ export async function POST(req: NextRequest) {
         }
       }
 
+      // Generate secure signed OTP token
+      const signedOtpToken = signPayload({
+        email: cleanEmail,
+        phone: cleanPhone,
+        emailOtp: generatedEmailOtp || undefined,
+        phoneOtp: generatedPhoneOtp || undefined,
+        expiresAt,
+      });
+
       // Prepare user guidance response message
       let debugNote = "";
       if (cleanEmail && !emailSent) {
@@ -194,50 +160,53 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         success: true,
         message: "Verification OTPs generated and dispatched.",
+        otpToken: signedOtpToken,
         debugNote: debugNote || undefined
       });
     }
 
     if (action === "verify") {
-      const store = readOtpStore();
-      const record = store[storeKey];
-
-      if (!record) {
+      if (!otpToken) {
         return NextResponse.json(
-          { error: "No active verification request found for these credentials." },
+          { error: "Verification session token is missing. Please try requesting a new OTP." },
           { status: 400 }
         );
       }
 
-      if (Date.now() > record.expiresAt) {
+      const payload = verifyPayload(otpToken);
+      if (!payload) {
         return NextResponse.json(
-          { error: "Verification codes have expired. Please request a new pair." },
+          { error: "Your verification request has expired or is invalid. Please request a new OTP." },
           { status: 400 }
         );
       }
 
       // Enforce email OTP check only if email OTP was sent
-      if (record.emailOtp) {
-        if (!emailOtp || emailOtp.trim() !== record.emailOtp) {
+      if (payload.emailOtp) {
+        if (!emailOtp || emailOtp.trim() !== payload.emailOtp) {
           return NextResponse.json({ error: "Email verification code is incorrect." }, { status: 400 });
         }
       }
 
       // Enforce phone OTP check only if phone OTP was sent
-      if (record.phoneOtp) {
-        if (!phoneOtp || phoneOtp.trim() !== record.phoneOtp) {
+      if (payload.phoneOtp) {
+        if (!phoneOtp || phoneOtp.trim() !== payload.phoneOtp) {
           return NextResponse.json({ error: "Mobile verification code is incorrect." }, { status: 400 });
         }
       }
 
-      // Update record to verified status
-      record.verified = true;
-      store[storeKey] = record;
-      writeOtpStore(store);
+      // Generate verified token for registration authorization step
+      const verifiedToken = signPayload({
+        email: payload.email,
+        phone: payload.phone,
+        verified: true,
+        expiresAt: Date.now() + 15 * 60 * 1000, // 15 minutes validity to fill the password and submit
+      });
 
       return NextResponse.json({
         success: true,
-        message: "Authentication validated. Proceeding to finalize profile checkout."
+        message: "Authentication validated. Proceeding to finalize profile checkout.",
+        verifiedToken,
       });
     }
 

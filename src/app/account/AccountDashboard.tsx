@@ -82,6 +82,8 @@ export default function AccountDashboard() {
   const [enteredPhoneOtp, setEnteredPhoneOtp] = useState("");
   const [isOtpVerifying, setIsOtpVerifying] = useState(false);
   const [otpDebugMessage, setOtpDebugMessage] = useState("");
+  const [otpToken, setOtpToken] = useState("");
+  const [verifiedToken, setVerifiedToken] = useState("");
 
   // Load customer session on mount
   useEffect(() => {
@@ -230,6 +232,9 @@ export default function AccountDashboard() {
       }
 
       setIsOtpSent(true);
+      if (data.otpToken) {
+        setOtpToken(data.otpToken);
+      }
       if (data.debugNote) {
         setOtpDebugMessage(data.debugNote);
       }
@@ -258,6 +263,7 @@ export default function AccountDashboard() {
           phone: fullPhone || undefined,
           emailOtp: authEmail.trim() ? enteredEmailOtp : undefined,
           phoneOtp: fullPhone ? enteredPhoneOtp : undefined,
+          otpToken: otpToken,
         }),
       });
 
@@ -277,6 +283,7 @@ export default function AccountDashboard() {
           password: authPassword,
           firstName: authFirstName,
           lastName: authLastName,
+          verifiedToken: verifyData.verifiedToken,
         }),
       });
 
