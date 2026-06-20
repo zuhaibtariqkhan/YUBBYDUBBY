@@ -20,7 +20,11 @@ const productsList = [
   { id: "p3", name: "NEBULA OVERSIZED TEE", price: 65, oldPrice: 80, image: "/prod-tee.png", tag: "BEST SELLER", category: "Womens" },
   { id: "p4", name: "STRUCTURAL JACKET", price: 210, oldPrice: 210, image: "/prod-jacket.png", tag: "LIMITED", category: "Mens" },
   { id: "p5", name: "SYNTHETIC BEANIE", price: 35, oldPrice: 45, image: "/prod-hoodie.png", tag: "", category: "Accessories" },
-  { id: "p13", name: "CYBERPUNK PHONE CASE", price: 40, oldPrice: 50, image: "/prod-phone-case.png", tag: "NEW", category: "Accessories" }
+  { id: "p13", name: "CYBERPUNK IPHONE CASE", price: 40, oldPrice: 50, image: "/prod-phone-case.png", tag: "NEW", category: "Accessories" },
+  { id: "p14", name: "CYBERPUNK AIRPODS COVER", price: 30, oldPrice: 35, image: "/prod-airpods-cover.png", tag: "NEW", category: "Accessories" },
+  { id: "p15", name: "STREETWEAR SNAPBACK CAP", price: 45, oldPrice: 55, image: "/prod-cap.png", tag: "POPULAR", category: "Accessories" },
+  { id: "p16", name: "TECHWEAR SUNGLASSES", price: 60, oldPrice: 75, image: "/prod-sunglasses.png", tag: "LIMITED", category: "Accessories" },
+  { id: "p17", name: "AESTHETIC STICKER PACK", price: 15, oldPrice: 20, image: "/prod-stickers.png", tag: "BUDGET", category: "Accessories" }
 ];
 
 // Helper to render gender specific icons on the profile dashboard
