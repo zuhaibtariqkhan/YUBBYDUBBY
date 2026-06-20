@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useCart } from "@/context/CartContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -8,7 +8,7 @@ import {
   Sliders, Check, Info, Palette, Shirt
 } from "lucide-react";
 
-const GARMENT_COLORS = [
+const FALLBACK_COLORS = [
   { name: "Void Black", hex: "#080808" },
   { name: "Arctic White", hex: "#f3f4f6" },
   { name: "Cyber Green", hex: "#B1F310" },
@@ -26,17 +26,16 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
 
   // Fallback products if none are fetched from WooCommerce
   const products = initialProducts.length > 0 ? initialProducts : [
-    { id: "mock-tee", name: "Blank Designer Tee", price: 3000, type: "tshirt", image: "/prod-tee.png" },
-    { id: "mock-hoodie", name: "Blank Heavy Hoodie", price: 4500, type: "hoodie", image: "/prod-hoodie.png" }
+    { id: "mock-tee", name: "Blank Designer Tee", price: 3000, type: "tshirt", image: "/prod-tee.png", attributes: [] },
+    { id: "mock-hoodie", name: "Blank Heavy Hoodie", price: 4500, type: "hoodie", image: "/prod-hoodie.png", attributes: [] }
   ];
 
   // Customizer States
   const [selectedProduct, setSelectedProduct] = useState(products[0]);
-  const [selectedColor, setSelectedColor] = useState(GARMENT_COLORS[0]);
+  const [selectedColor, setSelectedColor] = useState(FALLBACK_COLORS[0]);
   const [selectedSize, setSelectedSize] = useState("M");
   
-  // Customization Layers (Keeping only user upload option as requested)
-  const [decalType, setDecalType] = useState<"none" | "upload">("none");
+  // Customization Layers (Upload only)
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   
   // Transform Sliders (Scales & Positions)
@@ -47,29 +46,69 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
   // UI state
   const [isAdding, setIsAdding] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [activeTab, setActiveTab] = useState<"garment" | "design">("garment");
+  const [activeTab, setActiveTab] = useState<"product" | "design">("product");
 
-  // Stick with WooCommerce POD product price as requested (no additional fees)
+  // Helper functions to parse WooCommerce attributes dynamically
+  const getProductSizes = (product: any) => {
+    const sizeAttr = product.attributes?.find(
+      (attr: any) => attr.name.toLowerCase() === "size" || attr.name.toLowerCase() === "sizes"
+    );
+    return sizeAttr && sizeAttr.options?.length > 0 ? sizeAttr.options : ["S", "M", "L", "XL", "XXL"];
+  };
+
+  const getProductColors = (product: any) => {
+    const colorAttr = product.attributes?.find(
+      (attr: any) => attr.name.toLowerCase() === "color" || attr.name.toLowerCase() === "colors"
+    );
+    if (colorAttr && colorAttr.options?.length > 0) {
+      return colorAttr.options.map((opt: string) => {
+        const clean = opt.toLowerCase().trim();
+        let hex = "#555";
+        if (clean.includes("black")) hex = "#080808";
+        else if (clean.includes("white")) hex = "#f3f4f6";
+        else if (clean.includes("green")) hex = "#B1F310";
+        else if (clean.includes("purple")) hex = "#7c3aed";
+        else if (clean.includes("red")) hex = "#dc2626";
+        else if (clean.includes("blue")) hex = "#2563eb";
+        else if (clean.includes("yellow")) hex = "#eab308";
+        else if (clean.includes("grey") || clean.includes("gray")) hex = "#6b7280";
+        return { name: opt, hex };
+      });
+    }
+    return FALLBACK_COLORS;
+  };
+
+  const currentSizes = getProductSizes(selectedProduct);
+  const currentColors = getProductColors(selectedProduct);
+
+  // Sync size & color states when selected product changes
+  useEffect(() => {
+    const sizes = getProductSizes(selectedProduct);
+    setSelectedSize(sizes[0] || "M");
+    
+    const colors = getProductColors(selectedProduct);
+    setSelectedColor(colors[0] || FALLBACK_COLORS[0]);
+  }, [selectedProduct]);
+
+  // Pricing fetched directly from active WooCommerce product list
   const totalPrice = selectedProduct.price;
 
   // Detect whether selected product acts like a hoodie or tshirt for SVG representation
   const productType = selectedProduct.name.toLowerCase().includes("hoodie") || selectedProduct.type === "hoodie" ? "hoodie" : "tshirt";
 
-  // Handle custom image uploads (Support high quality/HD PNG images)
+  // Handle custom image uploads
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (uploadEvent) => {
         setUploadedImage(uploadEvent.target?.result as string);
-        setDecalType("upload");
       };
       reader.readAsDataURL(file);
     }
   };
 
   const handleReset = () => {
-    setDecalType("none");
     setUploadedImage(null);
     setGraphicScale(100);
     setGraphicYPos(40);
@@ -89,13 +128,12 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
       price: totalPrice,
       size: selectedSize,
       image: selectedProduct.image || "/prod-tee.png",
-      // Custom print-on-demand metadata fields
-      customImage: decalType === "upload" ? uploadedImage : "",
+      customImage: uploadedImage || "",
       customText: ""
     };
 
     setTimeout(() => {
-      // Use helper to add to cart
+      // Add to cart
       addToCart(itemPayload, 1);
       setIsAdding(false);
       setShowSuccess(true);
@@ -106,7 +144,7 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
       
-      {/* Left Side: Live Interactive Garment Canvas */}
+      {/* Left Side: Live Interactive Product Canvas */}
       <div className="lg:col-span-7 flex flex-col items-center">
         <div className="w-full aspect-[4/5] sm:aspect-square bg-white/[0.01] border border-white/10 rounded-[32px] relative flex items-center justify-center overflow-hidden p-8 shadow-[inset_0_0_80px_rgba(255,255,255,0.02)]">
           
@@ -116,7 +154,7 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
           {/* Live Render Area */}
           <div className="w-full max-w-[320px] sm:max-w-[420px] aspect-square relative flex items-center justify-center">
             
-            {/* SVG Garment Silhouette Layer */}
+            {/* SVG Product Silhouette Layer */}
             {productType === "tshirt" ? (
               <svg viewBox="0 0 300 300" className="w-full h-full drop-shadow-[0_15px_30px_rgba(0,0,0,0.8)]">
                 <path
@@ -179,7 +217,7 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
               <div className="w-[120px] h-[150px] relative mt-[-20px]">
                 
                 {/* Render Uploaded Graphic */}
-                {decalType === "upload" && uploadedImage && (
+                {uploadedImage && (
                   <div
                     style={{
                       top: `${graphicYPos}%`,
@@ -225,7 +263,9 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
           <div className="flex justify-between items-center border-b border-white/10 pb-4">
             <div>
               <h3 className="text-xs font-mono uppercase text-gray-500 tracking-wider">Product Price</h3>
-              <div className="text-3xl font-heading font-black text-brand-green mt-1 tracking-wider">₹{totalPrice.toLocaleString("en-IN")}.00</div>
+              <div className="text-3xl font-heading font-black text-brand-green mt-1 tracking-wider">
+                ₹{totalPrice.toLocaleString("en-IN")}.00
+              </div>
             </div>
             <div className="text-right">
               <span className="text-[10px] font-mono bg-white/5 px-2.5 py-1 rounded text-gray-400 border border-white/5 uppercase font-bold tracking-widest">
@@ -234,15 +274,15 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
             </div>
           </div>
 
-          {/* Category tabs */}
+          {/* Category tabs (Garment text replaced with Product) */}
           <div className="grid grid-cols-2 gap-1 bg-white/5 border border-white/5 p-1 rounded-full text-xs font-mono">
             <button
-              onClick={() => setActiveTab("garment")}
+              onClick={() => setActiveTab("product")}
               className={`py-2 rounded-full cursor-pointer transition-all uppercase tracking-wider font-bold ${
-                activeTab === "garment" ? "bg-brand-green text-brand-black" : "text-gray-400 hover:text-white"
+                activeTab === "product" ? "bg-brand-green text-brand-black" : "text-gray-400 hover:text-white"
               }`}
             >
-              Garment
+              Product
             </button>
             <button
               onClick={() => setActiveTab("design")}
@@ -256,15 +296,15 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
 
           {/* Sub-panels */}
           <AnimatePresence mode="wait">
-            {activeTab === "garment" && (
+            {activeTab === "product" && (
               <motion.div
-                key="garment-panel"
+                key="product-panel"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 className="space-y-6"
               >
-                {/* Product Option Selector (Fetched dynamically from WooCommerce) */}
+                {/* Product Option Selector (Fetched dynamically from WooCommerce - Price removed from option text) */}
                 <div className="space-y-2">
                   <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono flex items-center gap-1">
                     <Shirt size={12} className="text-brand-green" />
@@ -280,20 +320,20 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
                   >
                     {products.map((prod) => (
                       <option key={prod.id} value={prod.id} className="bg-[#090909] text-white">
-                        {prod.name.toUpperCase()} (₹{prod.price.toLocaleString("en-IN")})
+                        {prod.name.toUpperCase()}
                       </option>
                     ))}
                   </select>
                 </div>
 
-                {/* Color Swatch Selector */}
+                {/* Color Swatch Selector (Fetched dynamically from WooCommerce attributes) */}
                 <div className="space-y-2">
                   <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono flex items-center gap-1.5">
                     <Palette size={12} className="text-brand-green" />
-                    Garment Color: <span className="text-white ml-1">{selectedColor.name}</span>
+                    Product Color: <span className="text-white ml-1">{selectedColor.name}</span>
                   </label>
                   <div className="flex gap-3">
-                    {GARMENT_COLORS.map((color) => (
+                    {currentColors.map((color: any) => (
                       <button
                         key={color.name}
                         onClick={() => setSelectedColor(color)}
@@ -305,18 +345,18 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
                         }`}
                       >
                         {selectedColor.name === color.name && (
-                          <Check size={14} className={`absolute inset-0 m-auto ${color.name === "Arctic White" ? "text-black" : "text-[#B1F310]"}`} />
+                          <Check size={14} className={`absolute inset-0 m-auto ${color.hex === "#f3f4f6" ? "text-black" : "text-[#B1F310]"}`} />
                         )}
                       </button>
                     ))}
                   </div>
                 </div>
 
-                {/* Size Selector */}
+                {/* Size Selector (Fetched dynamically from WooCommerce attributes) */}
                 <div className="space-y-2">
                   <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono">Select Size</label>
                   <div className="flex gap-2">
-                    {["S", "M", "L", "XL", "XXL"].map((size) => (
+                    {currentSizes.map((size: string) => (
                       <button
                         key={size}
                         onClick={() => setSelectedSize(size)}
@@ -342,11 +382,11 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
                 exit={{ opacity: 0, y: -10 }}
                 className="space-y-6"
               >
-                {/* Upload-only graphic configuration */}
+                {/* Upload-only graphic configuration (none and preset segments removed) */}
                 <div className="space-y-4">
                   <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">Upload Design Layer</label>
                   
-                  {decalType === "none" ? (
+                  {!uploadedImage ? (
                     <button
                       onClick={() => {
                         if (fileInputRef.current) fileInputRef.current.click();
@@ -384,7 +424,7 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
                 </div>
 
                 {/* Graphic Alignment Sliders Control */}
-                {decalType === "upload" && (
+                {uploadedImage && (
                   <div className="space-y-4 border-t border-white/5 pt-4 animate-fade-in">
                     <h4 className="text-[10px] font-bold uppercase tracking-wider text-brand-green font-mono flex items-center gap-1">
                       <Sliders size={12} />
@@ -458,7 +498,7 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
             ) : (
               <>
                 <ShoppingBag size={14} />
-                <span>ADD CUSTOM DESIGN TO BAG</span>
+                <span>ADD PRODUCT TO BAG</span>
               </>
             )}
           </button>
@@ -468,7 +508,7 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
             className="w-full py-2 bg-transparent text-gray-500 hover:text-white text-[10px] font-mono uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center gap-1.5"
           >
             <RotateCcw size={12} />
-            Reset customizations
+            Reset configurations
           </button>
         </div>
       </div>

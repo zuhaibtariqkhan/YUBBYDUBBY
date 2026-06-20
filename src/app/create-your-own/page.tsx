@@ -17,9 +17,10 @@ export default async function CreateYourOwnPage() {
       initialProducts = wcProducts.map(p => ({
         id: p.id.toString(),
         name: p.name,
-        price: parseFloat(p.price) || 1000, // Dynamic base listing pricing from WooCommerce
+        price: parseFloat(p.price) || 0, // Dynamic base listing pricing from WooCommerce
         image: p.images[0]?.src || "/prod-tee.png",
-        type: p.name.toLowerCase().includes("hoodie") ? "hoodie" : "tshirt"
+        type: p.name.toLowerCase().includes("hoodie") ? "hoodie" : "tshirt",
+        attributes: p.attributes || []
       }));
     }
   } catch (error) {
