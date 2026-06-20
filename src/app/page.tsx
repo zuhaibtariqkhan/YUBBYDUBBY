@@ -3,6 +3,7 @@ import HeroSection from "@/components/home/HeroSection";
 import Marquee from "@/components/ui/Marquee";
 import CategoryGrid from "@/components/home/CategoryGrid";
 import BestSellers from "@/components/home/BestSellers";
+import NewArrivals from "@/components/home/NewArrivals";
 import FeaturedProducts from "@/components/home/FeaturedProducts";
 import ReviewsCarousel from "@/components/home/ReviewsCarousel";
 import { LimitedDrop, EditorialMessage, TrustStrip, Footer } from "@/components/home/HomeSections";
@@ -10,8 +11,9 @@ import SocialGrid from "@/components/home/SocialGrid";
 import { getProducts } from "@/lib/woocommerce";
 
 export default async function Home() {
-  const [products, featuredProducts] = await Promise.all([
-    getProducts({ limit: 16 }), // Fetches more products for Best Sellers
+  const [bestSellers, newArrivals, featuredProducts] = await Promise.all([
+    getProducts({ limit: 16 }),
+    getProducts({ limit: 4 }),
     getProducts({ featured: true, limit: 4 })
   ]);
 
@@ -21,7 +23,8 @@ export default async function Home() {
       <HeroSection />
       <Marquee />
       <CategoryGrid />
-      <BestSellers initialProducts={products} />
+      <BestSellers initialProducts={bestSellers} />
+      <NewArrivals initialProducts={newArrivals} />
       <FeaturedProducts initialProducts={featuredProducts} />
       <LimitedDrop />
       <EditorialMessage />

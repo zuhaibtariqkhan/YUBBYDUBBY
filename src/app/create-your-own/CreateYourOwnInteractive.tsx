@@ -26,8 +26,8 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
 
   // Fallback products if none are fetched from WooCommerce
   const products = initialProducts.length > 0 ? initialProducts : [
-    { id: "mock-tee", name: "Blank Designer Tee", price: 3000, type: "tshirt", image: "/prod-tee.png", attributes: [] },
-    { id: "mock-hoodie", name: "Blank Heavy Hoodie", price: 4500, type: "hoodie", image: "/prod-hoodie.png", attributes: [] }
+    { id: "mock-tee", name: "Blank Designer Tee", price: 40, type: "tshirt", image: "/prod-tee.png", attributes: [] },
+    { id: "mock-hoodie", name: "Blank Heavy Hoodie", price: 75, type: "hoodie", image: "/prod-hoodie.png", attributes: [] }
   ];
 
   // Customizer States
@@ -305,7 +305,7 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
             <div>
               <h3 className="text-xs font-mono uppercase text-gray-500 tracking-wider">Product Price</h3>
               <div className="text-2xl sm:text-3xl font-heading font-black text-brand-green mt-1 tracking-wider">
-                ₹{totalPrice.toLocaleString("en-IN")}.00
+                ${totalPrice}.00
               </div>
             </div>
             <div className="text-right">

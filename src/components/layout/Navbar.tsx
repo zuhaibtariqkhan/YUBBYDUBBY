@@ -68,6 +68,7 @@ export default function Navbar() {
                                 src="/LOGOO.png"
                                 alt="Yubby Dubby Logo"
                                 fill
+                                sizes="(max-width: 640px) 200px, (max-width: 768px) 250px, 320px"
                                 className="object-contain scale-100"
                                 priority
                             />

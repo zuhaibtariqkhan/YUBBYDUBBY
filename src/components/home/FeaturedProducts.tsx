@@ -87,19 +87,21 @@ export default function FeaturedProducts({ initialProducts }: FeaturedProductsPr
                         >
                             <div>
                                 <div className="relative aspect-[3/4] bg-black/5 rounded-[var(--radius-img)] overflow-hidden mb-6 flex items-center justify-center">
-                                    <Image
-                                        src={product.image}
-                                        alt={product.name}
-                                        fill
-                                        sizes="(max-width: 640px) 100vw, 25vw"
-                                        className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                                    />
+                                    <Link href={`/product/${product.id}`} className="absolute inset-0 w-full h-full block z-0">
+                                        <Image
+                                            src={product.image}
+                                            alt={product.name}
+                                            fill
+                                            sizes="(max-width: 640px) 100vw, 25vw"
+                                            className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                                        />
+                                    </Link>
                                     {product.tag && (
-                                        <span className="absolute top-4 left-4 bg-brand-black text-brand-white text-[10px] font-bold px-3 py-1 uppercase tracking-widest border border-white/10">
+                                        <span className="absolute top-4 left-4 bg-brand-black text-brand-white text-[10px] font-bold px-3 py-1 uppercase tracking-widest border border-white/10 z-10 pointer-events-none">
                                             {product.tag}
                                         </span>
                                     )}
-                                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10 pointer-events-none">
                                         <button 
                                             onClick={() => addToCart({
                                                 id: product.id,
@@ -108,7 +110,7 @@ export default function FeaturedProducts({ initialProducts }: FeaturedProductsPr
                                                 size: "M",
                                                 image: product.image
                                             }, 1)}
-                                            className="bg-brand-green text-brand-black font-bold uppercase tracking-widest px-6 py-3 rounded-[var(--radius-btn)] hover:bg-white hover:text-black transition-colors transform translate-y-4 group-hover:translate-y-0 duration-300 cursor-pointer"
+                                            className="bg-brand-green text-brand-black font-bold uppercase tracking-widest px-6 py-3 rounded-[var(--radius-btn)] hover:bg-white hover:text-black transition-colors transform translate-y-4 group-hover:translate-y-0 duration-300 cursor-pointer pointer-events-auto"
                                         >
                                             Quick Add
                                         </button>

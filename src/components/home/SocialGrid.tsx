@@ -6,14 +6,14 @@ import { Instagram } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const fallbackPosts = [
-    { id: 1, image: "/prod-hoodie.png", link: "https://instagram.com/yubby.dubby" },
-    { id: 2, image: "/prod-cargo.png", link: "https://instagram.com/yubby.dubby" },
-    { id: 3, image: "/prod-tee.png", link: "https://instagram.com/yubby.dubby" },
-    { id: 4, image: "/prod-jacket.png", link: "https://instagram.com/yubby.dubby" },
-    { id: 5, image: "/create-your-own.png", link: "https://instagram.com/yubby.dubby" },
-    { id: 6, image: "/prod-hoodie.png", link: "https://instagram.com/yubby.dubby" },
-    { id: 7, image: "/prod-cargo.png", link: "https://instagram.com/yubby.dubby" },
-    { id: 8, image: "/prod-tee.png", link: "https://instagram.com/yubby.dubby" },
+    { id: 1, image: "/ig-post-1.png", link: "https://instagram.com/yubby.dubby" },
+    { id: 2, image: "/ig-post-2.png", link: "https://instagram.com/yubby.dubby" },
+    { id: 3, image: "/ig-post-3.png", link: "https://instagram.com/yubby.dubby" },
+    { id: 4, image: "/ig-post-4.png", link: "https://instagram.com/yubby.dubby" },
+    { id: 5, image: "/ig-post-5.png", link: "https://instagram.com/yubby.dubby" },
+    { id: 6, image: "/ig-post-6.png", link: "https://instagram.com/yubby.dubby" },
+    { id: 7, image: "/ig-post-7.png", link: "https://instagram.com/yubby.dubby" },
+    { id: 8, image: "/ig-post-8.png", link: "https://instagram.com/yubby.dubby" },
 ];
 
 export default function SocialGrid() {

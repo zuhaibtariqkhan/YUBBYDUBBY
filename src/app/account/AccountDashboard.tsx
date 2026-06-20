@@ -1185,7 +1185,7 @@ export default function AccountDashboard() {
               </div>
               <div className="space-y-1">
                 <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest block font-mono">Lifetime Value</span>
-                <div className="text-3xl font-heading font-black text-brand-green tracking-wide">₹{personalInfo.firstName === "ZTK" ? "42,580" : "0"}</div>
+                <div className="text-3xl font-heading font-black text-brand-green tracking-wide">${personalInfo.firstName === "ZTK" ? "42,580" : "0"}</div>
                 <span className="text-[10px] text-gray-400 font-sans block">Invested in style</span>
               </div>
               <div className="space-y-1">

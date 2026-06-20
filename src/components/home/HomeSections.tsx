@@ -101,10 +101,12 @@ export function LimitedDrop() {
                     <p className="mt-6 text-gray-600 max-w-md font-sans">
                         Upload your design, choose your product, and we craft it with premium precision.
                     </p>
-                    <button className="relative mt-8 overflow-hidden bg-brand-black text-brand-white font-bold uppercase tracking-widest px-10 py-4 rounded-[var(--radius-btn)] hover:shadow-[0_0_30px_rgba(124,255,103,0.3)] hover:scale-105 transition-all duration-300 group">
-                        <Aurora colorStops={["#1a1a1a", "#050505", "#7cff67"]} blend={0.8} amplitude={1.0} speed={1.0} />
-                        <span className="relative z-10 group-hover:text-brand-white transition-colors">Create Now</span>
-                    </button>
+                    <Link href="/create-your-own">
+                        <button className="relative mt-8 overflow-hidden bg-brand-black text-brand-white font-bold uppercase tracking-widest px-10 py-4 rounded-[var(--radius-btn)] hover:shadow-[0_0_30px_rgba(124,255,103,0.3)] hover:scale-105 transition-all duration-300 group cursor-pointer">
+                            <Aurora colorStops={["#1a1a1a", "#050505", "#7cff67"]} blend={0.8} amplitude={1.0} speed={1.0} />
+                            <span className="relative z-10 group-hover:text-brand-white transition-colors">Create Now</span>
+                        </button>
+                    </Link>
                 </div>
                 <div className="md:w-1/2 relative min-h-[400px] w-full rounded-[var(--radius-card)] overflow-hidden flex items-center justify-center">
                     <Image
