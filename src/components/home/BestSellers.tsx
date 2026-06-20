@@ -82,6 +82,11 @@ const mockProducts = [
     { id: "p15", name: "STREETWEAR SNAPBACK CAP", price: 45, image: "/prod-cap.png", tag: "POPULAR", category: "Accessories" },
     { id: "p16", name: "TECHWEAR SUNGLASSES", price: 60, image: "/prod-sunglasses.png", tag: "LIMITED", category: "Accessories" },
     { id: "p17", name: "AESTHETIC STICKER PACK", price: 15, image: "/prod-stickers.png", tag: "BUDGET", category: "Accessories" },
+    { id: "p18", name: "METROPOLIS OVERCOAT", price: 280, image: "/prod-jacket.png", tag: "NEW", category: "Mens" },
+    { id: "p19", name: "GRAVITY CROPPED ZIP-UP", price: 110, image: "/prod-hoodie.png", tag: "POPULAR", category: "Womens" },
+    { id: "p20", name: "VOID PANEL LEGGINGS", price: 85, image: "/prod-cargo.png", tag: "", category: "Womens" },
+    { id: "p21", name: "CYBERPUNK YOUTH TEE", price: 45, image: "/prod-tee.png", tag: "BEST SELLER", category: "Kids" },
+    { id: "p22", name: "GRID PATTERN CUSHION", price: 50, image: "/cat-home.png", tag: "NEW", category: "Home & Living" },
 ];
 
 const categories = ["All", "Mens", "Womens", "Kids", "Home & Living", "Accessories"];
