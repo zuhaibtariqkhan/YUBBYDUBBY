@@ -17,16 +17,39 @@ export async function POST(req: NextRequest) {
     // If the ID is a string, we parse it to a number.
     const line_items = cartItems.map((item: any) => {
       const parsedId = parseInt(item.id, 10);
+      
+      const meta_data = [
+        {
+          key: "Size",
+          value: item.size || "M",
+        },
+      ];
+
+      // Attach print-on-demand custom uploaded image and custom text layers to WooCommerce order metadata
+      if (item.customImage) {
+        meta_data.push({
+          key: "Custom Design Image",
+          value: item.customImage, // Holds the full HD base64 image data or custom template name
+        });
+      }
+
+      if (item.customText) {
+        meta_data.push({
+          key: "Custom Text Layer",
+          value: item.customText,
+        });
+      }
+
+      // Overriding item pricing using subtotal/total fields (e.g. ₹1000 flat price)
+      const itemPrice = item.price || 1000;
+      const lineTotal = (itemPrice * item.quantity).toString();
+
       return {
         product_id: isNaN(parsedId) ? 0 : parsedId,
         quantity: item.quantity,
-        // Optional: you can include metadata like chosen size
-        meta_data: [
-          {
-            key: "Size",
-            value: item.size || "M",
-          },
-        ],
+        subtotal: lineTotal,
+        total: lineTotal,
+        meta_data,
       };
     });
 
