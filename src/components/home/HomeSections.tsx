@@ -3,6 +3,7 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useState, useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import Aurora from "../ui/Aurora";
 import TextReveal from "../ui/TextReveal";
 import { Truck, ShieldCheck, Lock, ArrowRight, Instagram, Mail, Check, Loader2 } from "lucide-react";
@@ -223,11 +224,11 @@ export function Footer() {
                 <div className="text-center md:text-left">
                     <h4 className="font-bold uppercase tracking-widest mb-4 md:mb-6 text-sm text-brand-green">Shop</h4>
                     <ul className="space-y-4 text-gray-400 text-sm uppercase tracking-wider flex flex-col items-center md:items-start">
-                        <li><a href="#" className="hover:text-white transition-colors">Men</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Women</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Kids</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Home & Living</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Accessories</a></li>
+                        <li><Link href="/shop#mens" className="hover:text-white transition-colors">Men</Link></li>
+                        <li><Link href="/shop#womens" className="hover:text-white transition-colors">Women</Link></li>
+                        <li><Link href="/shop#kids" className="hover:text-white transition-colors">Kids</Link></li>
+                        <li><Link href="/shop#home-living" className="hover:text-white transition-colors">Home & Living</Link></li>
+                        <li><Link href="/shop#accessories" className="hover:text-white transition-colors">Accessories</Link></li>
                     </ul>
                 </div>
 

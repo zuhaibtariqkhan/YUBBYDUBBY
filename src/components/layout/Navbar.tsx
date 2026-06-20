@@ -3,14 +3,31 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { ShoppingCart, Search, Menu, User, X } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import CartDrawer from "./CartDrawer";
+
+const navLinks = [
+    { name: "Shop", mobileName: "Shop", href: "/shop" },
+    { name: "Yubby Dubby X Adidas", mobileName: "Yubby Dubby X Adidas", href: "/yubbydubby-x-adidas" },
+    { name: "Create", mobileName: "Create Your Own", href: "/create-your-own" },
+    { name: "About", mobileName: "About Us", href: "/about" },
+];
 
 export default function Navbar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const { cartCount } = useCart();
+    const pathname = usePathname();
+
+    const isLinkActive = (href: string) => {
+        if (href === "/") return pathname === "/";
+        if (href === "/shop") {
+            return pathname === "/shop" || pathname.startsWith("/shop/") || pathname.startsWith("/product/");
+        }
+        return pathname === href || pathname.startsWith(href + "/");
+    };
 
     return (
         <>
@@ -26,10 +43,21 @@ export default function Navbar() {
                             <Menu size={24} />
                         </button>
                         <div className="hidden md:flex items-center space-x-6">
-                            <Link href="/shop" prefetch={false} className="text-xs font-semibold tracking-widest hover:text-brand-green transition-colors uppercase">Shop</Link>
-                            <Link href="/yubbydubby-x-adidas" prefetch={false} className="text-xs font-semibold tracking-widest hover:text-brand-green transition-colors uppercase">Yubby Dubby X Adidas</Link>
-                            <Link href="/create-your-own" prefetch={false} className="text-xs font-semibold tracking-widest hover:text-brand-green transition-colors uppercase">Create</Link>
-                            <Link href="/about" prefetch={false} className="text-xs font-semibold tracking-widest hover:text-brand-green transition-colors uppercase">About</Link>
+                            {navLinks.map((link) => {
+                                const active = isLinkActive(link.href);
+                                return (
+                                    <Link
+                                        key={link.href}
+                                        href={link.href}
+                                        prefetch={false}
+                                        className={`text-xs font-semibold tracking-widest transition-colors uppercase ${
+                                            active ? "text-brand-green" : "text-white hover:text-brand-green"
+                                        }`}
+                                    >
+                                        {link.name}
+                                    </Link>
+                                );
+                            })}
                         </div>
                     </div>
 
@@ -51,7 +79,12 @@ export default function Navbar() {
                         <button className="hover:text-brand-green transition-colors">
                             <Search className="w-5 h-5 md:w-[22px] md:h-[22px]" />
                         </button>
-                        <Link href="/account" className="hover:text-brand-green transition-colors cursor-pointer">
+                        <Link 
+                            href="/account" 
+                            className={`transition-colors cursor-pointer ${
+                                pathname === "/account" ? "text-brand-green" : "text-white hover:text-brand-green"
+                            }`}
+                        >
                             <User className="w-5 h-5 md:w-[22px] md:h-[22px]" />
                         </Link>
                         <button 
@@ -77,10 +110,22 @@ export default function Navbar() {
                             <X size={32} />
                         </button>
                         <div className="flex flex-col items-center space-y-8 text-2xl font-oswald tracking-widest uppercase text-center px-4">
-                            <Link href="/shop" prefetch={false} onClick={() => setIsMobileMenuOpen(false)} className="hover:text-brand-green transition-colors">Shop</Link>
-                            <Link href="/yubbydubby-x-adidas" prefetch={false} onClick={() => setIsMobileMenuOpen(false)} className="hover:text-brand-green transition-colors">Yubby Dubby X Adidas</Link>
-                            <Link href="/create-your-own" prefetch={false} onClick={() => setIsMobileMenuOpen(false)} className="hover:text-brand-green transition-colors">Create Your Own</Link>
-                            <Link href="/about" prefetch={false} onClick={() => setIsMobileMenuOpen(false)} className="text-brand-green hover:text-white transition-colors">About Us</Link>
+                            {navLinks.map((link) => {
+                                const active = isLinkActive(link.href);
+                                return (
+                                    <Link
+                                        key={link.href}
+                                        href={link.href}
+                                        prefetch={false}
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        className={`transition-colors ${
+                                            active ? "text-brand-green" : "text-white hover:text-brand-green"
+                                        }`}
+                                    >
+                                        {link.mobileName}
+                                    </Link>
+                                );
+                            })}
                         </div>
                     </div>
                 )}

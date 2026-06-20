@@ -74,7 +74,7 @@ export default async function ShopPage() {
 
                 <div className="space-y-16">
                     {sections.map((section) => (
-                        <section key={section.key} className="border-t border-white/10 pt-10">
+                        <section key={section.key} id={section.key} className="border-t border-white/10 pt-10">
                             <h2 className="text-2xl font-heading uppercase tracking-widest mb-6 border-b border-white/5 pb-2">
                                 {section.title}
                             </h2>
