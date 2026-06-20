@@ -11,6 +11,21 @@ export interface WooCommerceCategory {
   slug: string;
 }
 
+export interface WooCommerceCategoryDetail {
+  id: number;
+  name: string;
+  slug: string;
+  parent: number;
+  description: string;
+  image?: {
+    id: number;
+    src: string;
+    name: string;
+    alt: string;
+  } | null;
+  count: number;
+}
+
 export interface WooCommerceTag {
   id: number;
   name: string;
@@ -108,6 +123,7 @@ export async function fetchWooCommerce<T>(endpoint: string, options: RequestInit
  */
 export async function getProducts(params: {
   category?: string;
+  categoryId?: number;
   tag?: string;
   limit?: number;
   featured?: boolean;
@@ -123,7 +139,9 @@ export async function getProducts(params: {
   if (params.featured !== undefined) queryParams.append('featured', params.featured ? 'true' : 'false');
   
   // Note: WooCommerce API uses category and tag IDs, but we can search for categories/tags by slug first if needed
-  if (params.category) {
+  if (params.categoryId !== undefined) {
+    queryParams.append('category', params.categoryId.toString());
+  } else if (params.category) {
     const categories = await getCategoriesBySlug(params.category);
     if (categories && categories.length > 0) {
       queryParams.append('category', categories[0].id.toString());
@@ -153,6 +171,31 @@ export async function getProducts(params: {
 /**
  * Fetch a single product by ID
  */
+/**
+ * Fetch product categories from WooCommerce (e.g. parent or all)
+ */
+export async function getProductCategories(params: {
+  parent?: number;
+  per_page?: number;
+} = {}): Promise<WooCommerceCategoryDetail[]> {
+  if (!isWooCommerceConfigured()) {
+    return [];
+  }
+
+  const queryParams = new URLSearchParams();
+  if (params.parent !== undefined) {
+    queryParams.append('parent', params.parent.toString());
+  }
+  queryParams.append('per_page', (params.per_page || 100).toString());
+
+  try {
+    return await fetchWooCommerce<WooCommerceCategoryDetail[]>(`products/categories?${queryParams.toString()}`);
+  } catch (error) {
+    console.error('Failed to get product categories from WooCommerce, returning empty list.', error);
+    return [];
+  }
+}
+
 export async function getProductById(id: string): Promise<WooCommerceProduct | null> {
   if (!isWooCommerceConfigured()) {
     return null;
