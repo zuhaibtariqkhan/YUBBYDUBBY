@@ -48,16 +48,6 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps)
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const formatCategoryName = (name: string) => {
-    if (!name) return "";
-    return name
-      .replace(/&amp;amp;/g, "&")
-      .replace(/&amp;/g, "&")
-      .replace(/home and amp livining/gi, "Home & Living")
-      .replace(/home &amp; living/gi, "Home & Living")
-      .replace(/home and living/gi, "Home & Living");
-  };
-
   // Map slugs/names to local premium background images for fallbacks
   const getCategoryImageUrl = (name: string, slug: string, wcImageSrc?: string) => {
     if (wcImageSrc) return wcImageSrc;
@@ -195,7 +185,7 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps)
                   currentLevel === "subcategories" ? "text-brand-green font-bold pointer-events-none" : ""
                 }`}
               >
-                {formatCategoryName(selectedMainCategory.name)}
+                {selectedMainCategory.name}
               </button>
             </>
           )}
@@ -204,7 +194,7 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps)
             <>
               <ChevronRight size={10} className="text-gray-600" />
               <span className="text-brand-green font-bold">
-                {formatCategoryName(selectedSubcategory.name)}
+                {selectedSubcategory.name}
               </span>
             </>
           )}
@@ -294,7 +284,7 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps)
                   {/* Card Title Content */}
                   <div className="relative z-20 space-y-2 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
                     <h3 className="font-heading font-black text-2xl uppercase tracking-widest text-white group-hover:text-brand-green transition-colors">
-                      {formatCategoryName(cat.name)}
+                      {cat.name}
                     </h3>
                     {cat.description && (
                       <p className="text-[10px] text-gray-400 font-sans tracking-wide uppercase line-clamp-2">
@@ -348,7 +338,7 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps)
 
                     <div className="relative z-20 space-y-2 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
                       <h3 className="font-heading font-black text-xl uppercase tracking-widest text-white group-hover:text-brand-green transition-colors">
-                        {formatCategoryName(sub.name)}
+                        {sub.name}
                       </h3>
                       {sub.description && (
                         <p className="text-[10px] text-gray-400 font-sans tracking-wide uppercase">
