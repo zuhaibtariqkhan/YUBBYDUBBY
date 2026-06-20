@@ -242,9 +242,9 @@ export function Footer() {
                             Bengaluru, Karnataka 560066, India
                         </li>
                         <li className="flex items-center justify-center md:justify-start gap-6 mt-6">
-                            <a href="mailto:ask@yubbydubby.com" className="hover:text-white transition-colors flex items-center gap-2">
+                            <a href="mailto:team@yubbydubby.com" className="hover:text-white transition-colors flex items-center gap-2">
                                 <Mail size={18} />
-                                <span className="lowercase">ask@yubbydubby.com</span>
+                                <span className="lowercase">team@yubbydubby.com</span>
                             </a>
                             <a href="https://www.instagram.com/yubby.dubby/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors text-brand-green" aria-label="Instagram">
                                 <Instagram size={20} />
