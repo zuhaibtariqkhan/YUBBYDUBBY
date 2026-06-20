@@ -19,7 +19,8 @@ const productsList = [
   { id: "p2", name: "VOID CARGO PANTS", price: 145, oldPrice: 145, image: "/prod-cargo.png", tag: "", category: "Mens" },
   { id: "p3", name: "NEBULA OVERSIZED TEE", price: 65, oldPrice: 80, image: "/prod-tee.png", tag: "BEST SELLER", category: "Womens" },
   { id: "p4", name: "STRUCTURAL JACKET", price: 210, oldPrice: 210, image: "/prod-jacket.png", tag: "LIMITED", category: "Mens" },
-  { id: "p5", name: "SYNTHETIC BEANIE", price: 35, oldPrice: 45, image: "/prod-hoodie.png", tag: "", category: "Accessories" }
+  { id: "p5", name: "SYNTHETIC BEANIE", price: 35, oldPrice: 45, image: "/prod-hoodie.png", tag: "", category: "Accessories" },
+  { id: "p13", name: "CYBERPUNK PHONE CASE", price: 40, oldPrice: 50, image: "/prod-phone-case.png", tag: "NEW", category: "Accessories" }
 ];
 
 // Helper to render gender specific icons on the profile dashboard

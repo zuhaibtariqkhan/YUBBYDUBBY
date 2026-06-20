@@ -25,7 +25,8 @@ const mockProductsByCategory = {
   ],
   accessories: [
     { id: "p5", name: "SYNTHETIC BEANIE", price: 35, image: "/prod-hoodie.png", tag: "" },
-    { id: "p7", name: "HEAVY METAL CHAIN", price: 55, image: "/prod-tee.png", tag: "" }
+    { id: "p7", name: "HEAVY METAL CHAIN", price: 55, image: "/prod-tee.png", tag: "" },
+    { id: "p13", name: "CYBERPUNK PHONE CASE", price: 40, image: "/prod-phone-case.png", tag: "NEW" }
   ]
 };
 

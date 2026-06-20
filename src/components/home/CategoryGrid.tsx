@@ -6,11 +6,11 @@ import Link from "next/link";
 import TextReveal from "../ui/TextReveal";
 
 const categories = [
-    { id: 1, name: "Men's Fashion", image: "/cat-mens.png", href: "/men", size: "large" },
-    { id: 2, name: "Women's Fashion", image: "/cat-womens.png", href: "/women", size: "small" },
-    { id: 3, name: "Kid's Fashion", image: "/cat-kids.png", href: "/kids", size: "small" },
-    { id: 4, name: "Home & Living", image: "/cat-home.png", href: "/home-living", size: "medium" },
-    { id: 5, name: "Accessories", image: "/cat-accessories.png", href: "/accessories", size: "medium" },
+    { id: 1, name: "Men's Fashion", image: "/cat-mens.png", href: "/shop#mens", size: "large" },
+    { id: 2, name: "Women's Fashion", image: "/cat-womens.png", href: "/shop#womens", size: "small" },
+    { id: 3, name: "Kid's Fashion", image: "/cat-kids.png", href: "/shop#kids", size: "small" },
+    { id: 4, name: "Home & Living", image: "/cat-home.png", href: "/shop#home-living", size: "medium" },
+    { id: 5, name: "Accessories", image: "/cat-accessories.png", href: "/shop#accessories", size: "medium" },
 ];
 
 export default function CategoryGrid() {

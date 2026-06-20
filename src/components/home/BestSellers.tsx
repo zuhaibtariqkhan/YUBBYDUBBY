@@ -77,6 +77,7 @@ const mockProducts = [
     { id: "p10", name: "NEO-CARGO SHORTS", price: 60, image: "/prod-cargo.png", tag: "", category: "Kids" },
     { id: "p11", name: "MINIMALIST RUG", price: 250, image: "/cat-home.png", tag: "BEST SELLER", category: "Home & Living" },
     { id: "p12", name: "STEEL DESK LAMP", price: 120, image: "/prod-jacket.png", tag: "LIMITED", category: "Home & Living" },
+    { id: "p13", name: "CYBERPUNK PHONE CASE", price: 40, image: "/prod-phone-case.png", tag: "NEW", category: "Accessories" },
 ];
 
 const categories = ["All", "Mens", "Womens", "Kids", "Home & Living", "Accessories"];
