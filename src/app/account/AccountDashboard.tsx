@@ -614,7 +614,7 @@ export default function AccountDashboard() {
                 <div className="text-center space-y-1">
                   <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-brand-green font-bold block">
                     {forgotPasswordStep !== "none"
-                      ? "Secure Recovery Node"
+                      ? "Secure Recovery Code"
                       : authMode === "login"
                       ? "Access Your World"
                       : "Join The Yubby Dubby Club"}

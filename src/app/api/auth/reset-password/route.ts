@@ -38,8 +38,11 @@ export async function POST(req: NextRequest) {
 
     console.log(`Locating WooCommerce customer ID for email: ${cleanEmail}...`);
 
-    // 1. Fetch customer details by email to find their ID
-    const customers: any = await fetchWooCommerce(`customers?email=${encodeURIComponent(cleanEmail)}`);
+    // 1. Fetch customer details by email to find their ID (bypass Next.js fetch caching)
+    const customers: any = await fetchWooCommerce(`customers?email=${encodeURIComponent(cleanEmail)}`, {
+      cache: "no-store",
+      next: { revalidate: 0 },
+    });
     
     if (!Array.isArray(customers) || customers.length === 0) {
       return NextResponse.json(
