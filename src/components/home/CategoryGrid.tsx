@@ -27,7 +27,7 @@ export default function CategoryGrid() {
                     <div className="flex flex-col items-center mb-4 w-full">
                         <span className="text-brand-green font-bold tracking-widest uppercase text-sm mb-2 block">Collections</span>
                         <TextReveal
-                            text="Shop By Category"
+                            text="Shop Collections"
                             className="font-heading text-5xl md:text-6xl font-black uppercase tracking-tighter justify-center w-full"
                         />
                     </div>

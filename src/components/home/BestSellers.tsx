@@ -163,7 +163,7 @@ export default function BestSellers({ initialProducts }: BestSellersProps) {
                 >
                     <div className="flex flex-col items-center md:items-start">
                         <TextReveal
-                            text="Best Sellers"
+                            text="Shop By Category"
                             className="font-heading text-5xl md:text-6xl font-black uppercase tracking-tighter"
                         />
                         <p className="text-gray-400 mt-4 max-w-md font-sans">
