@@ -55,7 +55,7 @@ export default async function ShopPage() {
         name: "Create Your Own",
         slug: "create-your-own",
         parent: 0,
-        description: "Streetwear Custom Design Studio Editor",
+        description: "Custom Design Studio",
         count: 0,
         customLink: "/create-your-own"
     } as any);
