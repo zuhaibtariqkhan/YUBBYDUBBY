@@ -24,11 +24,101 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
   const { addToCart } = useCart();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Helper mapping to group blank products dynamically
+  const mapProductCategory = (name: string, type: string) => {
+    const lowerName = name.toLowerCase();
+    
+    if (
+      lowerName.includes("hoodie") || 
+      lowerName.includes("jacket") || 
+      lowerName.includes("outerwear") || 
+      lowerName.includes("zip") ||
+      type === "hoodie"
+    ) {
+      return { parentCategory: "Clothing", subcategory: "Hoodies & Outerwear" };
+    }
+    if (
+      lowerName.includes("pants") || 
+      lowerName.includes("cargo") || 
+      lowerName.includes("jogger") || 
+      lowerName.includes("trouser") || 
+      lowerName.includes("shorts") || 
+      type === "pants"
+    ) {
+      return { parentCategory: "Clothing", subcategory: "Pants" };
+    }
+    if (
+      lowerName.includes("tee") || 
+      lowerName.includes("t-shirt") || 
+      lowerName.includes("shirt") || 
+      lowerName.includes("top") || 
+      lowerName.includes("tank") || 
+      type === "tshirt"
+    ) {
+      return { parentCategory: "Clothing", subcategory: "Tops" };
+    }
+    if (
+      lowerName.includes("phone") || 
+      lowerName.includes("case") || 
+      lowerName.includes("airpods") || 
+      lowerName.includes("cover") || 
+      lowerName.includes("sleeve") || 
+      type === "case"
+    ) {
+      return { parentCategory: "Accessories", subcategory: "Tech Cases" };
+    }
+    if (
+      lowerName.includes("cap") || 
+      lowerName.includes("hat") || 
+      lowerName.includes("beanie") || 
+      lowerName.includes("visor") || 
+      type === "hat"
+    ) {
+      return { parentCategory: "Accessories", subcategory: "Headwear" };
+    }
+    
+    return { parentCategory: "Accessories", subcategory: "Miscellaneous" };
+  };
+
   // Fallback products if none are fetched from WooCommerce
-  const products = initialProducts.length > 0 ? initialProducts : [
+  const products = (initialProducts.length > 0 ? initialProducts : [
     { id: "mock-tee", name: "Blank Designer Tee", price: 40, type: "tshirt", image: "/prod-tee.png", attributes: [] },
-    { id: "mock-hoodie", name: "Blank Heavy Hoodie", price: 75, type: "hoodie", image: "/prod-hoodie.png", attributes: [] }
-  ];
+    { id: "mock-oversized-tee", name: "Blank Oversized Tee", price: 45, type: "tshirt", image: "/prod-tee.png", attributes: [] },
+    { id: "mock-hoodie", name: "Blank Heavy Hoodie", price: 75, type: "hoodie", image: "/prod-hoodie.png", attributes: [] },
+    { id: "mock-zip-hoodie", name: "Blank Zip Hoodie", price: 80, type: "hoodie", image: "/prod-hoodie.png", attributes: [] },
+    { id: "mock-cargo", name: "Blank Cargo Pants", price: 90, type: "pants", image: "/prod-cargo.png", attributes: [] },
+    { id: "mock-phone-case", name: "Blank Phone Case", price: 25, type: "case", image: "/prod-phone-case.png", attributes: [] },
+    { id: "mock-airpods", name: "Blank AirPods Cover", price: 20, type: "case", image: "/prod-airpods-cover.png", attributes: [] },
+    { id: "mock-cap", name: "Blank Cap", price: 30, type: "hat", image: "/prod-cap.png", attributes: [] },
+    { id: "mock-sunglasses", name: "Blank Sunglasses", price: 35, type: "accessory", image: "/prod-sunglasses.png", attributes: [] },
+    { id: "mock-stickers", name: "Blank Stickers Pack", price: 10, type: "accessory", image: "/prod-stickers.png", attributes: [] }
+  ]).map((p) => {
+    const { parentCategory, subcategory } = mapProductCategory(p.name, p.type || "");
+    return {
+      ...p,
+      parentCategory,
+      subcategory,
+    };
+  });
+
+  // Customizer Category States
+  const parentCategories = ["Clothing", "Accessories"];
+  const [activeParent, setActiveParent] = useState("Clothing");
+  
+  const subcategoriesForParent: Record<string, string[]> = {
+    Clothing: ["Tops", "Hoodies & Outerwear", "Pants"],
+    Accessories: ["Tech Cases", "Headwear", "Miscellaneous"]
+  };
+  
+  const currentSubcategories = subcategoriesForParent[activeParent] || [];
+  const [activeSub, setActiveSub] = useState(currentSubcategories[0] || "");
+
+  // Sync subcategory selection when parent changes
+  useEffect(() => {
+    if (subcategoriesForParent[activeParent]?.length > 0) {
+      setActiveSub(subcategoriesForParent[activeParent][0]);
+    }
+  }, [activeParent]);
 
   // Customizer States
   const [selectedProduct, setSelectedProduct] = useState(products[0]);
@@ -94,11 +184,37 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
   // Pricing fetched directly from active WooCommerce product list
   const totalPrice = selectedProduct.price;
 
-  // Detect whether selected product acts like a hoodie or tshirt for SVG representation
-  const productType = selectedProduct.name.toLowerCase().includes("hoodie") || selectedProduct.type === "hoodie" ? "hoodie" : "tshirt";
+  // Determine product type key for image templates and vector silhouettes
+  const getProductTypeKey = (product: any) => {
+    const name = product.name.toLowerCase();
+    if (name.includes("hoodie") || product.type === "hoodie") return "hoodie";
+    if (name.includes("tee") || name.includes("t-shirt") || product.type === "tshirt") return "tshirt";
+    if (name.includes("cargo") || name.includes("pants") || name.includes("jogger") || product.type === "pants") return "pants";
+    if (name.includes("phone") || name.includes("case") || product.type === "case") return "phone-case";
+    if (name.includes("airpods") || product.type === "airpods") return "airpods-cover";
+    if (name.includes("cap") || name.includes("hat") || product.type === "hat") return "cap";
+    if (name.includes("sunglass") || product.type === "accessory") return "sunglasses";
+    if (name.includes("sticker") || product.type === "sticker") return "stickers";
+    return "tshirt"; // Default fallback
+  };
 
-  // Flat-lay PNG template matching the type (T-Shirt or Hoodie)
-  const templatePhoto = productType === "hoodie" ? "/prod-hoodie.png" : "/prod-tee.png";
+  const activeTypeKey = getProductTypeKey(selectedProduct);
+
+  // Flat-lay PNG template matching the active type key
+  const templatePhoto = 
+    activeTypeKey === "hoodie" ? "/prod-hoodie.png" :
+    activeTypeKey === "pants" ? "/prod-cargo.png" :
+    activeTypeKey === "phone-case" ? "/prod-phone-case.png" :
+    activeTypeKey === "airpods-cover" ? "/prod-airpods-cover.png" :
+    activeTypeKey === "cap" ? "/prod-cap.png" :
+    activeTypeKey === "sunglasses" ? "/prod-sunglasses.png" :
+    activeTypeKey === "stickers" ? "/prod-stickers.png" :
+    "/prod-tee.png";
+
+  // Filter products by selected categories
+  const filteredProducts = products.filter(
+    (p) => p.parentCategory === activeParent && p.subcategory === activeSub
+  );
 
   // Handle custom image uploads
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -191,13 +307,13 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={templatePhoto}
-                  alt={`${productType} flatlay shadow template`}
+                  alt={`${activeTypeKey} flatlay shadow template`}
                   className="w-full h-full object-contain absolute inset-0 mix-blend-multiply opacity-90 pointer-events-none select-none"
                 />
               </div>
             ) : (
               /* Minimalist SVG Silhouette View */
-              productType === "tshirt" ? (
+              activeTypeKey === "tshirt" ? (
                 <svg viewBox="0 0 300 300" className="w-full h-full drop-shadow-[0_10px_20px_rgba(0,0,0,0.6)]">
                   <path
                     d="M80,50 L110,40 C115,55 135,55 140,40 L170,50 L220,70 L200,110 L175,100 L175,260 C175,265 170,270 165,270 L85,270 C80,270 75,265 75,260 L75,100 L50,110 L30,70 Z"
@@ -219,7 +335,7 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
                     fill="none"
                   />
                 </svg>
-              ) : (
+              ) : activeTypeKey === "hoodie" ? (
                 <svg viewBox="0 0 300 300" className="w-full h-full drop-shadow-[0_10px_20px_rgba(0,0,0,0.6)]">
                   <path
                     d="M70,80 L110,70 L190,70 L230,80 L255,150 L225,160 L200,135 L200,260 C200,265 195,270 190,270 L110,270 C105,270 100,265 100,260 L100,135 L75,160 L45,150 Z"
@@ -250,6 +366,69 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
                     d="M100,260 L200,260 M100,265 L200,265 M100,270 L200,270"
                     stroke="rgba(0,0,0,0.3)"
                     strokeWidth="1.5"
+                  />
+                </svg>
+              ) : activeTypeKey === "pants" ? (
+                <svg viewBox="0 0 300 300" className="w-full h-full drop-shadow-[0_10px_20px_rgba(0,0,0,0.6)]">
+                  <path
+                    d="M90,50 L210,50 C215,50 220,55 220,60 L195,260 C195,265 190,270 185,270 L155,270 L155,140 L145,140 L145,270 L115,270 C110,270 105,265 105,260 L80,60 C80,55 85,50 90,50 Z"
+                    fill={selectedColor.hex}
+                    stroke="rgba(255,255,255,0.15)"
+                    strokeWidth="2"
+                    className="transition-colors duration-500"
+                  />
+                </svg>
+              ) : activeTypeKey === "phone-case" ? (
+                <svg viewBox="0 0 300 300" className="w-full h-full drop-shadow-[0_10px_20px_rgba(0,0,0,0.6)]">
+                  <rect
+                    x="90" y="40" width="120" height="220" rx="20" ry="20"
+                    fill={selectedColor.hex}
+                    stroke="rgba(255,255,255,0.15)"
+                    strokeWidth="2"
+                    className="transition-colors duration-500"
+                  />
+                  <rect
+                    x="105" y="55" width="30" height="55" rx="8" ry="8"
+                    fill="none"
+                    stroke="rgba(0,0,0,0.3)"
+                    strokeWidth="2.5"
+                  />
+                </svg>
+              ) : activeTypeKey === "airpods-cover" ? (
+                <svg viewBox="0 0 300 300" className="w-full h-full drop-shadow-[0_10px_20px_rgba(0,0,0,0.6)]">
+                  <rect
+                    x="90" y="70" width="120" height="160" rx="35" ry="35"
+                    fill={selectedColor.hex}
+                    stroke="rgba(255,255,255,0.15)"
+                    strokeWidth="2"
+                    className="transition-colors duration-500"
+                  />
+                </svg>
+              ) : activeTypeKey === "cap" ? (
+                <svg viewBox="0 0 300 300" className="w-full h-full drop-shadow-[0_10px_20px_rgba(0,0,0,0.6)]">
+                  <path
+                    d="M70,160 C70,100 110,80 150,80 C190,80 230,100 230,160 C230,170 220,175 200,175 L100,175 C80,175 70,170 70,160 Z"
+                    fill={selectedColor.hex}
+                    stroke="rgba(255,255,255,0.15)"
+                    strokeWidth="2"
+                    className="transition-colors duration-500"
+                  />
+                  <path
+                    d="M90,175 C60,175 40,195 50,210 C60,225 150,225 150,225 C150,225 240,225 250,210 C260,195 240,175 210,175"
+                    fill={selectedColor.hex}
+                    stroke="rgba(255,255,255,0.25)"
+                    strokeWidth="2"
+                  />
+                </svg>
+              ) : (
+                /* Generic Box/Accessory outline */
+                <svg viewBox="0 0 300 300" className="w-full h-full drop-shadow-[0_10px_20px_rgba(0,0,0,0.6)]">
+                  <rect
+                    x="80" y="80" width="140" height="140" rx="10" ry="10"
+                    fill={selectedColor.hex}
+                    stroke="rgba(255,255,255,0.15)"
+                    strokeWidth="2"
+                    className="transition-colors duration-500"
                   />
                 </svg>
               )
@@ -346,25 +525,106 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
                 className="space-y-5"
               >
                 {/* Product Option Selector */}
-                <div className="space-y-2">
-                  <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono flex items-center gap-1">
+                <div className="space-y-4">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400 font-mono flex items-center gap-1.5">
                     <Shirt size={12} className="text-brand-green" />
-                    Select Product Blank *
+                    Base Blank Product
                   </label>
-                  <select
-                    value={selectedProduct.id}
-                    onChange={(e) => {
-                      const found = products.find(p => p.id === e.target.value);
-                      if (found) setSelectedProduct(found);
-                    }}
-                    className="w-full h-12 px-4 bg-white/5 border border-white/10 rounded-[var(--radius-dropdown)] text-xs uppercase font-mono tracking-wider focus:outline-none focus:border-brand-green text-white cursor-pointer"
-                  >
-                    {products.map((prod) => (
-                      <option key={prod.id} value={prod.id} className="bg-[#090909] text-white">
-                        {prod.name.toUpperCase()}
-                      </option>
+
+                  {/* Parent Category Pills */}
+                  <div className="flex gap-2 border-b border-white/5 pb-2 overflow-x-auto scrollbar-none">
+                    {parentCategories.map((pCat) => (
+                      <button
+                        key={pCat}
+                        type="button"
+                        onClick={() => setActiveParent(pCat)}
+                        className={`px-4 py-1.5 rounded-full text-[10px] uppercase font-bold tracking-widest transition-all cursor-pointer ${
+                          activeParent === pCat
+                            ? "bg-brand-green text-brand-black shadow-[0_0_10px_rgba(177,243,16,0.2)]"
+                            : "bg-white/5 text-gray-400 hover:text-white border border-white/5"
+                        }`}
+                      >
+                        {pCat}
+                      </button>
                     ))}
-                  </select>
+                  </div>
+
+                  {/* Subcategory Pills Expansion */}
+                  <motion.div
+                    layout
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    className="flex flex-wrap gap-1.5 overflow-hidden"
+                  >
+                    {currentSubcategories.map((sub) => (
+                      <button
+                        key={sub}
+                        type="button"
+                        onClick={() => setActiveSub(sub)}
+                        className={`px-3 py-1 rounded-full text-[9px] uppercase font-semibold tracking-wider transition-all cursor-pointer ${
+                          activeSub === sub
+                            ? "bg-white/10 text-brand-green border border-brand-green/30"
+                            : "bg-transparent text-gray-500 hover:text-gray-300 border border-white/5"
+                        }`}
+                      >
+                        {sub}
+                      </button>
+                    ))}
+                  </motion.div>
+
+                  {/* Horizontal Scroll of product cards */}
+                  <div className="relative w-full">
+                    {filteredProducts.length === 0 ? (
+                      <div className="text-center py-6 text-xs text-gray-500 italic">
+                        No blank products available in this subcategory.
+                      </div>
+                    ) : (
+                      <div className="flex gap-3 overflow-x-auto pb-2 pt-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                        {filteredProducts.map((prod) => {
+                          const isSelected = selectedProduct.id === prod.id;
+                          return (
+                            <button
+                              key={prod.id}
+                              type="button"
+                              onClick={() => setSelectedProduct(prod)}
+                              className={`flex-none w-[110px] bg-white/[0.02] border rounded-xl p-2.5 transition-all text-left group relative ${
+                                isSelected
+                                  ? "border-brand-green shadow-[0_0_12px_rgba(177,243,16,0.15)] bg-white/5"
+                                  : "border-white/10 hover:border-white/20 hover:bg-white/[0.04]"
+                              }`}
+                            >
+                              {/* Selected Check Indicator */}
+                              {isSelected && (
+                                <div className="absolute top-1.5 right-1.5 bg-brand-green text-brand-black p-0.5 rounded-full z-10">
+                                  <Check size={8} strokeWidth={4} />
+                                </div>
+                              )}
+                              
+                              {/* Thumbnail image container */}
+                              <div className="aspect-square w-full rounded-lg bg-white/5 overflow-hidden mb-2 relative flex items-center justify-center">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  src={prod.image || "/prod-tee.png"}
+                                  alt={prod.name}
+                                  className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+                                />
+                              </div>
+
+                              {/* Title and pricing */}
+                              <div className="space-y-0.5">
+                                <h4 className="text-[9px] font-bold uppercase tracking-wide text-white font-sans truncate">
+                                  {prod.name.replace("Blank ", "")}
+                                </h4>
+                                <p className="text-[9px] font-mono text-brand-green font-bold">
+                                  ${prod.price}.00
+                                </p>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Color Swatch Selector */}
