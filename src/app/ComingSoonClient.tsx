@@ -5,8 +5,8 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, ShieldCheck, Zap, ShoppingBag, Mail, Check, Clock } from "lucide-react";
 
-// Countdown Target Date: Exactly 7 days from June 9, 2026 20:52:00
-const TARGET_DATE = new Date("2026-06-16T15:22:00Z").getTime();
+// Countdown Target Date: Exactly 15 days from June 9, 2026 20:52:00
+const TARGET_DATE = new Date("2026-06-24T15:22:00Z").getTime();
 
 interface TimeRemaining {
   days: number;
