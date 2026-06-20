@@ -5,7 +5,7 @@ import { useCart } from "@/context/CartContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Upload, ShoppingBag, RotateCcw, 
-  Sliders, Check, Info, Palette, Shirt, Type
+  Sliders, Check, Info, Palette, Shirt
 } from "lucide-react";
 
 const GARMENT_COLORS = [
@@ -14,29 +14,6 @@ const GARMENT_COLORS = [
   { name: "Cyber Green", hex: "#B1F310" },
   { name: "Acid Purple", hex: "#7c3aed" },
   { name: "Crimson Red", hex: "#dc2626" }
-];
-
-// Expanded list of premium designer fonts
-const DESIGNER_FONTS = [
-  { name: "Oswald (Futuristic Bold)", value: "font-heading", inlineStyle: {} },
-  { name: "Montserrat (Clean Minimalist)", value: "font-sans", inlineStyle: {} },
-  { name: "Impact (Streetwear Heavy)", value: "font-impact", inlineStyle: { fontFamily: "Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif" } },
-  { name: "Tech Monospace (Cyber Retro)", value: "font-mono", inlineStyle: { fontFamily: "'Courier New', Courier, monospace" } },
-  { name: "Playfair Display (Luxury Serif)", value: "font-serif", inlineStyle: { fontFamily: "'Playfair Display', Georgia, serif" } },
-  { name: "Georgia (Elegant)", value: "font-georgia", inlineStyle: { fontFamily: "Georgia, serif" } }
-];
-
-// Expanded text color choices
-const TEXT_COLORS = [
-  { name: "Ghost White", hex: "#ffffff" },
-  { name: "Pitch Black", hex: "#000000" },
-  { name: "Cyber Green", hex: "#B1F310" },
-  { name: "Electric Cyan", hex: "#22d3ee" },
-  { name: "Vibrant Purple", hex: "#a78bfa" },
-  { name: "Hot Pink", hex: "#f472b6" },
-  { name: "Inferno Red", hex: "#f87171" },
-  { name: "Sunset Orange", hex: "#fb923c" },
-  { name: "Aura Gold", hex: "#facc15" }
 ];
 
 interface CreateYourOwnInteractiveProps {
@@ -58,29 +35,19 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
   const [selectedColor, setSelectedColor] = useState(GARMENT_COLORS[0]);
   const [selectedSize, setSelectedSize] = useState("M");
   
-  // Customization Layers (Presets removed as requested, keeping only user upload option)
+  // Customization Layers (Keeping only user upload option as requested)
   const [decalType, setDecalType] = useState<"none" | "upload">("none");
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
-  
-  // Custom Text Layer
-  const [hasCustomText, setHasCustomText] = useState(false);
-  const [customText, setCustomText] = useState("CYBERSPACE");
-  const [selectedTextColor, setSelectedTextColor] = useState(TEXT_COLORS[2]); // Default brand green
-  const [selectedFont, setSelectedFont] = useState(DESIGNER_FONTS[0]);
   
   // Transform Sliders (Scales & Positions)
   const [graphicScale, setGraphicScale] = useState(100);
   const [graphicYPos, setGraphicYPos] = useState(40); // % from top
   const [graphicXPos, setGraphicXPos] = useState(50); // % from left
   
-  const [textYPos, setTextYPos] = useState(60); // % from top
-  const [textXPos, setTextXPos] = useState(50); // % from left
-  const [textSize, setTextSize] = useState(18); // px
-
   // UI state
   const [isAdding, setIsAdding] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [activeTab, setActiveTab] = useState<"garment" | "design" | "text">("garment");
+  const [activeTab, setActiveTab] = useState<"garment" | "design">("garment");
 
   // Stick with WooCommerce POD product price as requested (no additional fees)
   const totalPrice = selectedProduct.price;
@@ -104,13 +71,9 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
   const handleReset = () => {
     setDecalType("none");
     setUploadedImage(null);
-    setHasCustomText(false);
     setGraphicScale(100);
     setGraphicYPos(40);
     setGraphicXPos(50);
-    setTextYPos(60);
-    setTextXPos(50);
-    setTextSize(18);
   };
 
   const handleAddToBag = () => {
@@ -128,7 +91,7 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
       image: selectedProduct.image || "/prod-tee.png",
       // Custom print-on-demand metadata fields
       customImage: decalType === "upload" ? uploadedImage : "",
-      customText: hasCustomText ? customText : ""
+      customText: ""
     };
 
     setTimeout(() => {
@@ -235,23 +198,6 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
                     />
                   </div>
                 )}
-
-                {/* Render Custom Text Overlay */}
-                {hasCustomText && customText.trim() !== "" && (
-                  <div
-                    style={{
-                      top: `${textYPos}%`,
-                      left: `${textXPos}%`,
-                      transform: `translate(-50%, -50%)`,
-                      color: selectedTextColor.hex,
-                      fontSize: `${textSize}px`,
-                      ...selectedFont.inlineStyle
-                    }}
-                    className={`absolute font-black tracking-wider uppercase select-none text-center ${selectedFont.value}`}
-                  >
-                    {customText}
-                  </div>
-                )}
               </div>
             </div>
 
@@ -289,7 +235,7 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
           </div>
 
           {/* Category tabs */}
-          <div className="grid grid-cols-3 gap-1 bg-white/5 border border-white/5 p-1 rounded-full text-xs font-mono">
+          <div className="grid grid-cols-2 gap-1 bg-white/5 border border-white/5 p-1 rounded-full text-xs font-mono">
             <button
               onClick={() => setActiveTab("garment")}
               className={`py-2 rounded-full cursor-pointer transition-all uppercase tracking-wider font-bold ${
@@ -305,14 +251,6 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
               }`}
             >
               Graphic
-            </button>
-            <button
-              onClick={() => setActiveTab("text")}
-              className={`py-2 rounded-full cursor-pointer transition-all uppercase tracking-wider font-bold ${
-                activeTab === "text" ? "bg-brand-green text-brand-black" : "text-gray-400 hover:text-white"
-              }`}
-            >
-              Text
             </button>
           </div>
 
@@ -504,170 +442,36 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
                 )}
               </motion.div>
             )}
-
-            {activeTab === "text" && (
-              <motion.div
-                key="text-panel"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="space-y-6"
-              >
-                {/* Toggle Text Layer */}
-                <div className="flex items-center justify-between">
-                  <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono">Custom Text Layer</label>
-                  <button
-                    onClick={() => setHasCustomText(!hasCustomText)}
-                    className={`w-10 h-6 rounded-full p-1 transition-colors cursor-pointer ${
-                      hasCustomText ? "bg-brand-green" : "bg-white/10"
-                    }`}
-                  >
-                    <div className={`w-4 h-4 bg-black rounded-full transition-transform ${hasCustomText ? "translate-x-4" : "translate-x-0"}`} />
-                  </button>
-                </div>
-
-                {hasCustomText && (
-                  <div className="space-y-4 border-t border-white/5 pt-4">
-                    {/* Text Input */}
-                    <div className="space-y-1.5">
-                      <label className="text-[9px] font-bold uppercase tracking-wider text-gray-400 font-mono">Input Custom Text</label>
-                      <input
-                        type="text"
-                        maxLength={24}
-                        value={customText}
-                        onChange={(e) => setCustomText(e.target.value)}
-                        className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-xs font-mono uppercase tracking-widest focus:outline-none focus:border-brand-green text-white"
-                      />
-                    </div>
-
-                    {/* Expanded Font Selector */}
-                    <div className="space-y-2">
-                      <label className="text-[9px] font-bold uppercase tracking-wider text-gray-400 font-mono flex items-center gap-1">
-                        <Type size={11} className="text-brand-green" />
-                        Select Font Face
-                      </label>
-                      <select
-                        value={selectedFont.value}
-                        onChange={(e) => {
-                          const found = DESIGNER_FONTS.find(f => f.value === e.target.value);
-                          if (found) setSelectedFont(found);
-                        }}
-                        className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-xs font-mono tracking-wider focus:outline-none focus:border-brand-green text-white cursor-pointer"
-                      >
-                        {DESIGNER_FONTS.map((font) => (
-                          <option key={font.value} value={font.value} className="bg-[#090909] text-white">
-                            {font.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Expanded Color Selector */}
-                    <div className="space-y-2">
-                      <label className="text-[9px] font-bold uppercase tracking-wider text-gray-400 font-mono">Text Color</label>
-                      <div className="grid grid-cols-5 gap-2.5">
-                        {TEXT_COLORS.map((color) => (
-                          <button
-                            key={color.name}
-                            onClick={() => setSelectedTextColor(color)}
-                            style={{ backgroundColor: color.hex }}
-                            title={color.name}
-                            className={`w-7 h-7 rounded-full border transition-all cursor-pointer relative ${
-                              selectedTextColor.name === color.name ? "border-brand-green scale-110 shadow-[0_0_8px_rgba(177,243,16,0.5)]" : "border-white/20"
-                            }`}
-                          >
-                            {selectedTextColor.name === color.name && (
-                              <Check size={12} className={`absolute inset-0 m-auto ${color.hex === "#ffffff" ? "text-black" : "text-white"}`} />
-                            )}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Expanded Text Position Sliders */}
-                    <div className="space-y-3 pt-2">
-                      {/* Size */}
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-[9px] font-mono text-gray-400">
-                          <span>Font Size (Scale)</span>
-                          <span>{textSize}px</span>
-                        </div>
-                        <input
-                          type="range"
-                          min="8"
-                          max="48"
-                          value={textSize}
-                          onChange={(e) => setTextSize(Number(e.target.value))}
-                          className="w-full accent-brand-green"
-                        />
-                      </div>
-
-                      {/* Y-Position */}
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-[9px] font-mono text-gray-400">
-                          <span>Vertical Offset (Y)</span>
-                          <span>{textYPos}%</span>
-                        </div>
-                        <input
-                          type="range"
-                          min="20"
-                          max="80"
-                          value={textYPos}
-                          onChange={(e) => setTextYPos(Number(e.target.value))}
-                          className="w-full accent-brand-green"
-                        />
-                      </div>
-
-                      {/* X-Position */}
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-[9px] font-mono text-gray-400">
-                          <span>Horizontal Offset (X)</span>
-                          <span>{textXPos}%</span>
-                        </div>
-                        <input
-                          type="range"
-                          min="20"
-                          max="80"
-                          value={textXPos}
-                          onChange={(e) => setTextXPos(Number(e.target.value))}
-                          className="w-full accent-brand-green"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </AnimatePresence>
-
-            </div>
-
-            {/* Action Buttons Panel */}
-            <div className="glass-card p-6 rounded-[24px] border border-white/10 bg-white/[0.01] space-y-3">
-              <button
-                onClick={handleAddToBag}
-                disabled={isAdding}
-                className="w-full py-4 bg-brand-green text-brand-black font-heading font-black uppercase tracking-widest text-xs rounded-full hover:bg-white hover:shadow-[0_0_20px_rgba(177,243,16,0.3)] transition-all cursor-pointer flex items-center justify-center gap-2"
-              >
-                {isAdding ? (
-                  <span>GENERATING CUSTOM ORDER...</span>
-                ) : (
-                  <>
-                    <ShoppingBag size={14} />
-                    <span>ADD CUSTOM DESIGN TO BAG</span>
-                  </>
-                )}
-              </button>
-
-              <button
-                onClick={handleReset}
-                className="w-full py-2 bg-transparent text-gray-500 hover:text-white text-[10px] font-mono uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center gap-1.5"
-              >
-                <RotateCcw size={12} />
-                Reset customizations
-              </button>
-            </div>
-          </div>
+          </AnimatePresence>
 
         </div>
+
+        {/* Action Buttons Panel */}
+        <div className="glass-card p-6 rounded-[24px] border border-white/10 bg-white/[0.01] space-y-3">
+          <button
+            onClick={handleAddToBag}
+            disabled={isAdding}
+            className="w-full py-4 bg-brand-green text-brand-black font-heading font-black uppercase tracking-widest text-xs rounded-full hover:bg-white hover:shadow-[0_0_20px_rgba(177,243,16,0.3)] transition-all cursor-pointer flex items-center justify-center gap-2"
+          >
+            {isAdding ? (
+              <span>GENERATING CUSTOM ORDER...</span>
+            ) : (
+              <>
+                <ShoppingBag size={14} />
+                <span>ADD CUSTOM DESIGN TO BAG</span>
+              </>
+            )}
+          </button>
+
+          <button
+            onClick={handleReset}
+            className="w-full py-2 bg-transparent text-gray-500 hover:text-white text-[10px] font-mono uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+          >
+            <RotateCcw size={12} />
+            Reset customizations
+          </button>
+        </div>
+      </div>
 
       {/* Success Alert Banner Popup */}
       <AnimatePresence>
