@@ -1,36 +1,35 @@
 import Navbar from "@/components/layout/Navbar";
 import { Footer } from "@/components/home/HomeSections";
 import { getProducts, WooCommerceProduct } from "@/lib/woocommerce";
-import Image from "next/image";
-import Link from "next/link";
+import ShopSection from "@/components/shop/ShopSection";
 
 const mockProductsByCategory = {
   mens: [
-    { id: "p1", name: "0-GRAVITY HOODIE", price: 120, image: "/prod-hoodie.png", tag: "NEW" },
-    { id: "p2", name: "VOID CARGO PANTS", price: 145, image: "/prod-cargo.png", tag: "" },
-    { id: "p4", name: "STRUCTURAL JACKET", price: 210, image: "/prod-jacket.png", tag: "LIMITED" },
-    { id: "p8", name: "CYBERPUNK VEST", price: 180, image: "/prod-jacket.png", tag: "LIMITED" }
+    { id: "p1", name: "0-GRAVITY HOODIE", price: 120, image: "/prod-hoodie.png", tag: "NEW", subcategory: "Hoodies" },
+    { id: "p2", name: "VOID CARGO PANTS", price: 145, image: "/prod-cargo.png", tag: "", subcategory: "Bottoms" },
+    { id: "p4", name: "STRUCTURAL JACKET", price: 210, image: "/prod-jacket.png", tag: "LIMITED", subcategory: "Jackets" },
+    { id: "p8", name: "CYBERPUNK VEST", price: 180, image: "/prod-jacket.png", tag: "LIMITED", subcategory: "Vests" }
   ],
   womens: [
-    { id: "p3", name: "NEBULA OVERSIZED TEE", price: 65, image: "/prod-tee.png", tag: "BEST SELLER" },
-    { id: "p6", name: "TECH-WEAR SKIRT", price: 95, image: "/prod-cargo.png", tag: "NEW" }
+    { id: "p3", name: "NEBULA OVERSIZED TEE", price: 65, image: "/prod-tee.png", tag: "BEST SELLER", subcategory: "Tees" },
+    { id: "p6", name: "TECH-WEAR SKIRT", price: 95, image: "/prod-cargo.png", tag: "NEW", subcategory: "Skirts" }
   ],
   kids: [
-    { id: "p9", name: "FUTURE YOUTH HOODIE", price: 75, image: "/prod-hoodie.png", tag: "NEW" },
-    { id: "p10", name: "NEO-CARGO SHORTS", price: 60, image: "/prod-cargo.png", tag: "" }
+    { id: "p9", name: "FUTURE YOUTH HOODIE", price: 75, image: "/prod-hoodie.png", tag: "NEW", subcategory: "Hoodies" },
+    { id: "p10", name: "NEO-CARGO SHORTS", price: 60, image: "/prod-cargo.png", tag: "", subcategory: "Shorts" }
   ],
   homeLiving: [
-    { id: "p11", name: "MINIMALIST RUG", price: 250, image: "/cat-home.png", tag: "BEST SELLER" },
-    { id: "p12", name: "STEEL DESK LAMP", price: 120, image: "/prod-jacket.png", tag: "LIMITED" }
+    { id: "p11", name: "MINIMALIST RUG", price: 250, image: "/cat-home.png", tag: "BEST SELLER", subcategory: "Rugs" },
+    { id: "p12", name: "STEEL DESK LAMP", price: 120, image: "/prod-jacket.png", tag: "LIMITED", subcategory: "Lamps" }
   ],
   accessories: [
-    { id: "p5", name: "SYNTHETIC BEANIE", price: 35, image: "/prod-hoodie.png", tag: "" },
-    { id: "p7", name: "HEAVY METAL CHAIN", price: 55, image: "/prod-tee.png", tag: "" },
-    { id: "p13", name: "CYBERPUNK IPHONE CASE", price: 40, image: "/prod-phone-case.png", tag: "NEW" },
-    { id: "p14", name: "CYBERPUNK AIRPODS COVER", price: 30, image: "/prod-airpods-cover.png", tag: "NEW" },
-    { id: "p15", name: "STREETWEAR SNAPBACK CAP", price: 45, image: "/prod-cap.png", tag: "POPULAR" },
-    { id: "p16", name: "TECHWEAR SUNGLASSES", price: 60, image: "/prod-sunglasses.png", tag: "LIMITED" },
-    { id: "p17", name: "AESTHETIC STICKER PACK", price: 15, image: "/prod-stickers.png", tag: "BUDGET" }
+    { id: "p5", name: "SYNTHETIC BEANIE", price: 35, image: "/prod-hoodie.png", tag: "", subcategory: "Headwear" },
+    { id: "p7", name: "HEAVY METAL CHAIN", price: 55, image: "/prod-tee.png", tag: "", subcategory: "Jewelry" },
+    { id: "p13", name: "CYBERPUNK IPHONE CASE", price: 40, image: "/prod-phone-case.png", tag: "NEW", subcategory: "Tech Cases" },
+    { id: "p14", name: "CYBERPUNK AIRPODS COVER", price: 30, image: "/prod-airpods-cover.png", tag: "NEW", subcategory: "Tech Cases" },
+    { id: "p15", name: "STREETWEAR SNAPBACK CAP", price: 45, image: "/prod-cap.png", tag: "POPULAR", subcategory: "Headwear" },
+    { id: "p16", name: "TECHWEAR SUNGLASSES", price: 60, image: "/prod-sunglasses.png", tag: "LIMITED", subcategory: "Eyewear" },
+    { id: "p17", name: "AESTHETIC STICKER PACK", price: 15, image: "/prod-stickers.png", tag: "BUDGET", subcategory: "Stickers" }
   ]
 };
 
@@ -60,12 +59,46 @@ export default async function ShopPage() {
                     image = "/prod-stickers.png";
                 }
 
+                // Map standard category slugs
+                const categorySlugMapping: Record<string, string> = {
+                  mens: "mens",
+                  womens: "womens",
+                  kids: "kids",
+                  homeLiving: "home-living",
+                  accessories: "accessories"
+                };
+                const parentSlug = categorySlugMapping[categoryKey];
+                
+                // Find a subcategory slug that isn't the parent or 'shop'
+                const subCat = p.categories.find(
+                  c => c.slug !== parentSlug && c.slug !== 'shop' && c.slug !== 'uncategorized'
+                );
+
+                let subcategoryName = subCat ? subCat.name : "";
+                
+                if (!subcategoryName) {
+                  // Fallback classification based on product name
+                  if (lowerName.includes("hoodie")) subcategoryName = "Hoodies";
+                  else if (lowerName.includes("cargo") || lowerName.includes("pants") || lowerName.includes("skirt") || lowerName.includes("shorts")) subcategoryName = "Bottoms";
+                  else if (lowerName.includes("jacket") || lowerName.includes("vest") || lowerName.includes("overcoat")) subcategoryName = "Outerwear";
+                  else if (lowerName.includes("tee") || lowerName.includes("shirt")) subcategoryName = "Tops";
+                  else if (lowerName.includes("case") || lowerName.includes("cover")) subcategoryName = "Tech Cases";
+                  else if (lowerName.includes("cap") || lowerName.includes("beanie") || lowerName.includes("hat")) subcategoryName = "Headwear";
+                  else if (lowerName.includes("sunglass")) subcategoryName = "Eyewear";
+                  else if (lowerName.includes("chain") || lowerName.includes("jewelry")) subcategoryName = "Jewelry";
+                  else if (lowerName.includes("sticker")) subcategoryName = "Stickers";
+                  else if (lowerName.includes("rug")) subcategoryName = "Rugs";
+                  else if (lowerName.includes("lamp") || lowerName.includes("light")) subcategoryName = "Lamps";
+                  else subcategoryName = "Other";
+                }
+
                 return {
                     id: p.id.toString(),
                     name: p.name,
                     price: parseFloat(p.price) || 0,
                     image,
-                    tag: p.on_sale ? "SALE" : p.tags.some(t => t.slug.includes("new")) ? "NEW" : ""
+                    tag: p.on_sale ? "SALE" : p.tags.some(t => t.slug.includes("new")) ? "NEW" : "",
+                    subcategory: subcategoryName
                 };
             });
         }
@@ -95,53 +128,12 @@ export default async function ShopPage() {
 
                 <div className="space-y-16">
                     {sections.map((section) => (
-                        <section key={section.key} id={section.key} className="border-t border-white/10 pt-10">
-                            <h2 className="text-2xl font-heading uppercase tracking-widest mb-6 border-b border-white/5 pb-2">
-                                {section.title}
-                            </h2>
-                            {section.products.length === 0 ? (
-                                <p className="text-sm text-gray-500 italic">No products found in this category.</p>
-                            ) : (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                                    {section.products.map((product) => (
-                                        <div key={product.id} className="glass-card p-4 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(177,243,16,0.15)] group relative">
-                                            <div className="relative aspect-[3/4] bg-white/5 rounded-[var(--radius-img)] overflow-hidden mb-6 flex items-center justify-center">
-                                                <Link href={`/product/${product.id}`} className="absolute inset-0 w-full h-full block z-0">
-                                                    <Image
-                                                        src={product.image}
-                                                        alt={product.name}
-                                                        fill
-                                                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                                                        className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-                                                    />
-                                                </Link>
-                                                {product.tag && (
-                                                    <span className="absolute top-4 left-4 bg-brand-green text-brand-black text-xs font-bold px-3 py-1 uppercase tracking-widest z-10 pointer-events-none">
-                                                        {product.tag}
-                                                    </span>
-                                                )}
-                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10 pointer-events-none">
-                                                    <Link 
-                                                        href={`/product/${product.id}`}
-                                                        className="bg-brand-white text-brand-black font-bold uppercase tracking-widest px-6 py-3 rounded-[var(--radius-btn)] hover:bg-brand-green transition-colors transform translate-y-4 group-hover:translate-y-0 duration-300 text-xs text-center pointer-events-auto"
-                                                    >
-                                                        View Details
-                                                    </Link>
-                                                </div>
-                                            </div>
-                                            <div className="px-2">
-                                                <Link href={`/product/${product.id}`} className="block">
-                                                    <h3 className="font-bold text-lg hover:text-brand-green transition-colors uppercase font-heading truncate">{product.name}</h3>
-                                                </Link>
-                                                <div className="mt-2 text-brand-green font-bold tracking-widest">
-                                                    ${product.price}.00
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </section>
+                        <ShopSection 
+                            key={section.key}
+                            id={section.key}
+                            title={section.title}
+                            products={section.products as any}
+                        />
                     ))}
                 </div>
             </div>
