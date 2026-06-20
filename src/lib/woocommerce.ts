@@ -189,7 +189,34 @@ export async function getProductCategories(params: {
   queryParams.append('per_page', (params.per_page || 100).toString());
 
   try {
-    return await fetchWooCommerce<WooCommerceCategoryDetail[]>(`products/categories?${queryParams.toString()}`);
+    const categories = await fetchWooCommerce<WooCommerceCategoryDetail[]>(`products/categories?${queryParams.toString()}`);
+    return categories.map(c => {
+      let name = c.name;
+      let slug = c.slug;
+
+      if (
+        /home and amp livining/i.test(name) ||
+        /home &amp; living/i.test(name) ||
+        /home and living/i.test(name) ||
+        /home-and-amp-livining/i.test(slug)
+      ) {
+        name = "Home & Living";
+        slug = "home-living";
+      }
+
+      name = name
+        .replace(/&amp;amp;/g, '&')
+        .replace(/&amp;/g, '&')
+        .replace(/Men's Fashion/gi, 'Mens')
+        .replace(/Women's Fashion/gi, 'Womens')
+        .replace(/Kid's Fashion/gi, 'Kids');
+
+      return {
+        ...c,
+        name,
+        slug
+      };
+    });
   } catch (error) {
     console.error('Failed to get product categories from WooCommerce, returning empty list.', error);
     return [];
@@ -214,7 +241,34 @@ export async function getProductById(id: string): Promise<WooCommerceProduct | n
  */
 export async function getCategoriesBySlug(slug: string): Promise<WooCommerceCategory[]> {
   try {
-    return await fetchWooCommerce<WooCommerceCategory[]>(`products/categories?slug=${encodeURIComponent(slug)}`);
+    const categories = await fetchWooCommerce<WooCommerceCategory[]>(`products/categories?slug=${encodeURIComponent(slug)}`);
+    return categories.map(c => {
+      let name = c.name;
+      let s = c.slug;
+
+      if (
+        /home and amp livining/i.test(name) ||
+        /home &amp; living/i.test(name) ||
+        /home and living/i.test(name) ||
+        /home-and-amp-livining/i.test(s)
+      ) {
+        name = "Home & Living";
+        s = "home-living";
+      }
+
+      name = name
+        .replace(/&amp;amp;/g, '&')
+        .replace(/&amp;/g, '&')
+        .replace(/Men's Fashion/gi, 'Mens')
+        .replace(/Women's Fashion/gi, 'Womens')
+        .replace(/Kid's Fashion/gi, 'Kids');
+
+      return {
+        ...c,
+        name,
+        slug: s
+      };
+    });
   } catch (error) {
     console.error(`Failed to fetch category by slug: ${slug}`, error);
     return [];

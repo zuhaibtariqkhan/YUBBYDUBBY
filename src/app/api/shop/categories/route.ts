@@ -151,6 +151,17 @@ export async function GET(request: Request) {
         const excludeSlugs = ['uncategorized', 'shop', 'create-your-own', 'adidas', 'collab'];
         filtered = categories.filter(c => !excludeSlugs.includes(c.slug.toLowerCase()));
       }
+
+      // Format category names to clean HTML entities and typos
+      filtered = filtered.map(c => ({
+        ...c,
+        name: c.name
+          .replace(/&amp;amp;/g, '&')
+          .replace(/&amp;/g, '&')
+          .replace(/home and amp livining/gi, 'Home & Living')
+          .replace(/home &amp; living/gi, 'Home & Living')
+          .replace(/home and living/gi, 'Home & Living')
+      }));
       
       if (filtered && filtered.length > 0) {
         return NextResponse.json(filtered);

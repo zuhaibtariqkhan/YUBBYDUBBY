@@ -16,16 +16,10 @@ export default function CreateYourOwnPage() {
 
       <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-24 z-10 relative flex-1">
         {/* Header Title */}
-        <header className="mb-10 text-center space-y-2">
-          <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-brand-green font-bold block">
-            Custom Design Studio
-          </span>
+        <header className="mb-10 text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-black uppercase tracking-widest text-white">
-            DESIGN YOUR OWN
+            CUSTOM DESIGN STUDIO
           </h1>
-          <p className="text-gray-400 text-xs font-sans max-w-xl mx-auto">
-            Design premium high-fidelity custom streetwear. Select your base blank products and upload your custom artwork or add high-end typography.
-          </p>
         </header>
 
         {/* Interactive Customizer Interface */}
