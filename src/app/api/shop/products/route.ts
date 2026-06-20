@@ -53,6 +53,19 @@ const MOCK_PRODUCTS = [
   // Default fallback accessories
   { id: "p7", name: "HEAVY METAL CHAIN", price: 55, image: "/prod-tee.png", tag: "", categoryId: 0 },
 
+  // Accessories Tech Cases (551)
+  { id: "p13", name: "CYBERPUNK IPHONE CASE", price: 40, image: "/prod-phone-case.png", tag: "NEW", categoryId: 551 },
+  { id: "p14", name: "CYBERPUNK AIRPODS COVER", price: 30, image: "/prod-airpods-cover.png", tag: "NEW", categoryId: 551 },
+
+  // Accessories Headwear (552)
+  { id: "p5", name: "SYNTHETIC BEANIE", price: 35, image: "/prod-hoodie.png", tag: "", categoryId: 552 },
+  { id: "p15", name: "STREETWEAR SNAPBACK CAP", price: 45, image: "/prod-cap.png", tag: "POPULAR", categoryId: 552 },
+
+  // Accessories Miscellaneous (553)
+  { id: "p7-acc", name: "HEAVY METAL CHAIN", price: 55, image: "/prod-tee.png", tag: "", categoryId: 553 },
+  { id: "p16", name: "TECHWEAR SUNGLASSES", price: 60, image: "/prod-sunglasses.png", tag: "LIMITED", categoryId: 553 },
+  { id: "p17", name: "AESTHETIC STICKER PACK", price: 15, image: "/prod-stickers.png", tag: "BUDGET", categoryId: 553 },
+
   // Adidas Mens T-Shirts (1011)
   { id: "adidas-p1", name: "ADIDAS NEBULA COLLAB TEE", price: 80, image: "/prod-tee.png", tag: "LIMITED", categoryId: 1011 },
   // Adidas Mens Hoodies (1012)

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ChevronRight, ArrowLeft } from "lucide-react";
 
 export interface CategoryDetail {
@@ -19,6 +20,7 @@ export interface CategoryDetail {
     alt: string;
   } | null;
   count: number;
+  customLink?: string;
 }
 
 export interface ProductDetail {
@@ -35,6 +37,7 @@ interface ShopBrowserProps {
 }
 
 export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps) {
+  const router = useRouter();
   const [currentLevel, setCurrentLevel] = useState<"main-categories" | "subcategories" | "products">("main-categories");
   const [selectedMainCategory, setSelectedMainCategory] = useState<CategoryDetail | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<CategoryDetail | null>(null);
@@ -57,6 +60,8 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps)
     if (lowerName.includes("kid") || lowerSlug.includes("kid") || lowerName.includes("boy") || lowerName.includes("girl")) return "/cat-kids.png";
     if (lowerName.includes("home") || lowerSlug.includes("home") || lowerName.includes("living") || lowerName.includes("decor") || lowerName.includes("art") || lowerName.includes("mug")) return "/cat-home.png";
     if (lowerName.includes("accessory") || lowerSlug.includes("accessory") || lowerName.includes("tech") || lowerName.includes("case") || lowerName.includes("cap")) return "/cat-accessories.png";
+    if (lowerSlug.includes("adidas")) return "/cat-home.png";
+    if (lowerSlug.includes("create-your-own")) return "/create-your-own.png";
 
     return "/create-your-own.png";
   };
@@ -252,7 +257,13 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps)
                 <motion.div
                   key={cat.id}
                   variants={itemVariants}
-                  onClick={() => setSelectedMainCategory(cat)}
+                  onClick={() => {
+                    if (cat.customLink) {
+                      router.push(cat.customLink);
+                    } else {
+                      setSelectedMainCategory(cat);
+                    }
+                  }}
                   className="glass-card aspect-[4/3] relative rounded-[32px] border border-white/10 overflow-hidden cursor-pointer group shadow-[0_15px_30px_rgba(0,0,0,0.3)] transition-all duration-500 hover:shadow-[0_20px_40px_rgba(177,243,16,0.15)] flex flex-col justify-end p-8"
                 >
                   {/* Backdrop shading gradients */}

@@ -8,6 +8,7 @@ const MOCK_CATEGORIES = [
   { id: 22, name: "Womens", slug: "womens", parent: 0, description: "Women's Streetwear Collection", count: 8 },
   { id: 33, name: "Kids", slug: "kids", parent: 0, description: "Streetwear for Kids", count: 6 },
   { id: 44, name: "Home & Living", slug: "home-living", parent: 0, description: "Yubby Dubby Lifestyle & Home Decor", count: 10 },
+  { id: 55, name: "Accessories", slug: "accessories", parent: 0, description: "Tech cases, caps, bags, and lifestyle items", count: 7 },
 
   // Level 2: Mens Subcategories
   { id: 111, name: "T-Shirts", slug: "mens-t-shirts", parent: 11, description: "Street tees and graphics", count: 4 },
@@ -37,6 +38,11 @@ const MOCK_CATEGORIES = [
   { id: 444, name: "Cushions", slug: "home-cushions", parent: 44, description: "Designer throw cushions", count: 2 },
   { id: 445, name: "Bedding", slug: "home-bedding", parent: 44, description: "Duvet covers and pillow slips", count: 1 },
   { id: 446, name: "Decor", slug: "home-decor", parent: 44, description: "Lifestyle lights and display toys", count: 1 },
+
+  // Level 2: Accessories Subcategories
+  { id: 551, name: "Tech Cases", slug: "accessories-tech-cases", parent: 55, description: "Phone cases and AirPods covers", count: 2 },
+  { id: 552, name: "Headwear", slug: "accessories-headwear", parent: 55, description: "Caps and beanies", count: 2 },
+  { id: 553, name: "Miscellaneous", slug: "accessories-misc", parent: 55, description: "Sunglasses, stickers, and chains", count: 3 },
 
   // Level 1: Adidas main categories (parent: 100)
   { id: 101, name: "Mens", slug: "adidas-mens", parent: 100, description: "Adidas Men's Streetwear", count: 5 },
