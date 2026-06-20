@@ -1,46 +1,36 @@
 import Navbar from "@/components/layout/Navbar";
 import { Footer } from "@/components/home/HomeSections";
-import { getProducts } from "@/lib/woocommerce";
-import AdidasGrid from "@/components/adidas/AdidasGrid";
+import { fetchWooCommerce, getProductCategories, isWooCommerceConfigured } from "@/lib/woocommerce";
+import AdidasBrowser from "@/components/adidas/AdidasBrowser";
 
-const mockAdidasProducts = [
-  { id: "a1", name: "YUBBY DUBBY x ADIDAS ULTRA-BOOST CYBER", price: 220, image: "/prod-cargo.png", tag: "COLLAB", category: "Footwear" },
-  { id: "a2", name: "ADIDAS ZERO-G HOODIE GREEN", price: 160, image: "/prod-hoodie.png", tag: "NEW", category: "Mens" },
-  { id: "a3", name: "ADIDAS VOID TRACK PANTS", price: 140, image: "/prod-cargo.png", tag: "", category: "Mens" },
-  { id: "a4", name: "ADIDAS NEBULA COLLAB TEE", price: 80, image: "/prod-tee.png", tag: "LIMITED", category: "Womens" },
+export const revalidate = 0; // Force dynamic fetching for fresh category updates
+
+const fallbackMainCategories = [
+  { id: 101, name: "Mens", slug: "adidas-mens", parent: 100, description: "Adidas Men's Streetwear Collection", count: 5 },
+  { id: 102, name: "Womens", slug: "adidas-womens", parent: 100, description: "Adidas Women's Streetwear Collection", count: 5 },
+  { id: 103, name: "Footwear", slug: "adidas-footwear", parent: 100, description: "Adidas Premium Footwear Collection", count: 4 },
+  { id: 104, name: "Accessories", slug: "adidas-accessories", parent: 100, description: "Adidas Collab Accessories Collection", count: 4 }
 ];
 
 export default async function AdidasCollabPage() {
-    const wcProducts = await getProducts({ tag: "adidas", limit: 12 });
+    let adidasId = 100;
+    let mainCategories: any[] = [];
 
-    const displayProducts = wcProducts && wcProducts.length > 0
-        ? wcProducts.map(p => {
-            const lowerName = p.name.toLowerCase();
-            const cat = p.categories.find(c => c.slug !== 'adidas' && c.slug !== 'shop' && c.slug !== 'uncategorized');
-            
-            let categoryName = cat ? cat.name : "";
-            if (!categoryName) {
-              if (lowerName.includes("shoe") || lowerName.includes("boost") || lowerName.includes("sneaker")) {
-                categoryName = "Footwear";
-              } else if (lowerName.includes("women") || lowerName.includes("skirt")) {
-                categoryName = "Womens";
-              } else if (lowerName.includes("men") || lowerName.includes("pants") || lowerName.includes("hoodie") || lowerName.includes("jacket")) {
-                categoryName = "Mens";
-              } else {
-                categoryName = "Accessories";
-              }
+    if (isWooCommerceConfigured()) {
+        try {
+            const categories = await fetchWooCommerce<any[]>(`products/categories?slug=adidas`);
+            if (categories && categories.length > 0) {
+                adidasId = categories[0].id;
             }
+            mainCategories = await getProductCategories({ parent: adidasId });
+        } catch (error) {
+            console.error("Failed to load Adidas categories from WooCommerce, using mock fallbacks:", error);
+        }
+    }
 
-            return {
-              id: p.id.toString(),
-              name: p.name,
-              price: parseFloat(p.price) || 0,
-              image: p.images[0]?.src || "/prod-cargo.png",
-              tag: p.on_sale ? "SALE" : "COLLAB",
-              category: categoryName
-            };
-          })
-        : mockAdidasProducts;
+    const categoriesData = mainCategories && mainCategories.length > 0
+        ? mainCategories
+        : fallbackMainCategories;
 
     return (
         <main className="min-h-screen pt-24 pb-12 transition-colors duration-300 bg-brand-black text-brand-white">
@@ -55,7 +45,7 @@ export default async function AdidasCollabPage() {
                     </p>
                 </header>
 
-                <AdidasGrid products={displayProducts} />
+                <AdidasBrowser initialMainCategories={categoriesData} />
             </div>
             <Footer />
         </main>

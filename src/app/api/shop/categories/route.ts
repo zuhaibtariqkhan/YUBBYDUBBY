@@ -36,7 +36,39 @@ const MOCK_CATEGORIES = [
   { id: 443, name: "Mugs", slug: "home-mugs", parent: 44, description: "Ceramic signature mugs", count: 2 },
   { id: 444, name: "Cushions", slug: "home-cushions", parent: 44, description: "Designer throw cushions", count: 2 },
   { id: 445, name: "Bedding", slug: "home-bedding", parent: 44, description: "Duvet covers and pillow slips", count: 1 },
-  { id: 446, name: "Decor", slug: "home-decor", parent: 44, description: "Lifestyle lights and display toys", count: 1 }
+  { id: 446, name: "Decor", slug: "home-decor", parent: 44, description: "Lifestyle lights and display toys", count: 1 },
+
+  // Level 1: Adidas main categories (parent: 100)
+  { id: 101, name: "Mens", slug: "adidas-mens", parent: 100, description: "Adidas Men's Streetwear", count: 5 },
+  { id: 102, name: "Womens", slug: "adidas-womens", parent: 100, description: "Adidas Women's Streetwear", count: 5 },
+  { id: 103, name: "Footwear", slug: "adidas-footwear", parent: 100, description: "Adidas Collab Footwear", count: 4 },
+  { id: 104, name: "Accessories", slug: "adidas-accessories", parent: 100, description: "Adidas Collab Accessories", count: 4 },
+
+  // Level 2: Adidas Mens subcategories
+  { id: 1011, name: "T-Shirts", slug: "adidas-mens-t-shirts", parent: 101, description: "Adidas street graphic tees", count: 1 },
+  { id: 1012, name: "Hoodies", slug: "adidas-mens-hoodies", parent: 101, description: "Adidas heavy hoodies", count: 1 },
+  { id: 1013, name: "Jackets", slug: "adidas-mens-jackets", parent: 101, description: "Adidas collab jackets", count: 1 },
+  { id: 1014, name: "Tracksuits", slug: "adidas-mens-tracksuits", parent: 101, description: "Adidas dynamic tracksuits", count: 1 },
+  { id: 1015, name: "Shorts", slug: "adidas-mens-shorts", parent: 101, description: "Adidas sports shorts", count: 1 },
+
+  // Level 2: Adidas Womens subcategories
+  { id: 1021, name: "T-Shirts", slug: "adidas-womens-t-shirts", parent: 102, description: "Adidas crop tees", count: 1 },
+  { id: 1022, name: "Leggings", slug: "adidas-womens-leggings", parent: 102, description: "Adidas technical leggings", count: 1 },
+  { id: 1023, name: "Hoodies", slug: "adidas-womens-hoodies", parent: 102, description: "Adidas crop hoodies", count: 1 },
+  { id: 1024, name: "Jackets", slug: "adidas-womens-jackets", parent: 102, description: "Adidas windbreakers", count: 1 },
+  { id: 1025, name: "Sports Bras", slug: "adidas-womens-sports-bras", parent: 102, description: "Adidas compression support", count: 1 },
+
+  // Level 2: Adidas Footwear subcategories
+  { id: 1031, name: "Running Shoes", slug: "adidas-footwear-running", parent: 103, description: "Adidas performance running", count: 1 },
+  { id: 1032, name: "Lifestyle Shoes", slug: "adidas-footwear-lifestyle", parent: 103, description: "Adidas street lifestyle footwear", count: 1 },
+  { id: 1033, name: "Training Shoes", slug: "adidas-footwear-training", parent: 103, description: "Adidas gym training shoes", count: 1 },
+  { id: 1034, name: "Slides", slug: "adidas-footwear-slides", parent: 103, description: "Adidas classic comfort slides", count: 1 },
+
+  // Level 2: Adidas Accessories subcategories
+  { id: 1041, name: "Caps", slug: "adidas-accessories-caps", parent: 104, description: "Adidas snapbacks and beanies", count: 1 },
+  { id: 1042, name: "Bags", slug: "adidas-accessories-bags", parent: 104, description: "Adidas utility backpacks", count: 1 },
+  { id: 1043, name: "Socks", slug: "adidas-accessories-socks", parent: 104, description: "Adidas performance socks pack", count: 1 },
+  { id: 1044, name: "Water Bottles", slug: "adidas-accessories-bottles", parent: 104, description: "Adidas steel water bottles", count: 1 }
 ];
 
 export async function GET(request: Request) {

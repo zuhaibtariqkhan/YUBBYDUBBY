@@ -51,7 +51,20 @@ const MOCK_PRODUCTS = [
   { id: "p25", name: "NEON STREET THROW CUSHION", price: 45, image: "/cat-home.png", tag: "NEW", categoryId: 444 },
 
   // Default fallback accessories
-  { id: "p7", name: "HEAVY METAL CHAIN", price: 55, image: "/prod-tee.png", tag: "", categoryId: 0 }
+  { id: "p7", name: "HEAVY METAL CHAIN", price: 55, image: "/prod-tee.png", tag: "", categoryId: 0 },
+
+  // Adidas Mens T-Shirts (1011)
+  { id: "adidas-p1", name: "ADIDAS NEBULA COLLAB TEE", price: 80, image: "/prod-tee.png", tag: "LIMITED", categoryId: 1011 },
+  // Adidas Mens Hoodies (1012)
+  { id: "adidas-p2", name: "ADIDAS ZERO-G HOODIE GREEN", price: 160, image: "/prod-hoodie.png", tag: "NEW", categoryId: 1012 },
+  // Adidas Mens Jackets (1013)
+  { id: "adidas-p3", name: "ADIDAS VOID TRACK PANTS", price: 140, image: "/prod-cargo.png", tag: "", categoryId: 1013 },
+
+  // Adidas Womens T-Shirts (1021)
+  { id: "adidas-p4", name: "ADIDAS NEBULA COLLAB TEE", price: 80, image: "/prod-tee.png", tag: "LIMITED", categoryId: 1021 },
+
+  // Adidas Footwear Lifestyle (1032)
+  { id: "adidas-p5", name: "YUBBY DUBBY x ADIDAS ULTRA-BOOST CYBER", price: 220, image: "/prod-cargo.png", tag: "COLLAB", categoryId: 1032 }
 ];
 
 export async function GET(request: Request) {
