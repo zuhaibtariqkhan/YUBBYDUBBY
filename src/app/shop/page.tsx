@@ -45,13 +45,29 @@ export default async function ShopPage() {
 
     const getDisplayProducts = (wcProducts: WooCommerceProduct[], categoryKey: keyof typeof mockProductsByCategory) => {
         if (wcProducts && wcProducts.length > 0) {
-            return wcProducts.map(p => ({
-                id: p.id.toString(),
-                name: p.name,
-                price: parseFloat(p.price) || 0,
-                image: p.images[0]?.src || "/prod-hoodie.png",
-                tag: p.on_sale ? "SALE" : p.tags.some(t => t.slug.includes("new")) ? "NEW" : ""
-            }));
+            return wcProducts.map(p => {
+                let image = p.images[0]?.src || "/prod-hoodie.png";
+                const lowerName = p.name.toLowerCase();
+                if (lowerName.includes("iphone") || lowerName.includes("phone") || lowerName.includes("case")) {
+                    image = "/prod-phone-case.png";
+                } else if (lowerName.includes("airpod")) {
+                    image = "/prod-airpods-cover.png";
+                } else if (lowerName.includes("cap") || lowerName.includes("hat")) {
+                    image = "/prod-cap.png";
+                } else if (lowerName.includes("sunglass") || lowerName.includes("glasses")) {
+                    image = "/prod-sunglasses.png";
+                } else if (lowerName.includes("sticker")) {
+                    image = "/prod-stickers.png";
+                }
+
+                return {
+                    id: p.id.toString(),
+                    name: p.name,
+                    price: parseFloat(p.price) || 0,
+                    image,
+                    tag: p.on_sale ? "SALE" : p.tags.some(t => t.slug.includes("new")) ? "NEW" : ""
+                };
+            });
         }
         return mockProductsByCategory[categoryKey];
     };

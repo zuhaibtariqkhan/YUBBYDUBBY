@@ -46,12 +46,26 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const wcProduct = await getProductById(productId);
 
   if (wcProduct) {
+    let images = wcProduct.images.map(img => img.src).length > 0 ? wcProduct.images.map(img => img.src) : ["/prod-hoodie.png"];
+    const lowerName = wcProduct.name.toLowerCase();
+    if (lowerName.includes("iphone") || lowerName.includes("phone") || lowerName.includes("case")) {
+        images = ["/prod-phone-case.png"];
+    } else if (lowerName.includes("airpod")) {
+        images = ["/prod-airpods-cover.png"];
+    } else if (lowerName.includes("cap") || lowerName.includes("hat")) {
+        images = ["/prod-cap.png"];
+    } else if (lowerName.includes("sunglass") || lowerName.includes("glasses")) {
+        images = ["/prod-sunglasses.png"];
+    } else if (lowerName.includes("sticker")) {
+        images = ["/prod-stickers.png"];
+    }
+
     product = {
       id: wcProduct.id.toString(),
       name: wcProduct.name.toUpperCase(),
       price: parseFloat(wcProduct.price) || 0,
       description: wcProduct.description || wcProduct.short_description || "No description available.",
-      images: wcProduct.images.map(img => img.src).length > 0 ? wcProduct.images.map(img => img.src) : ["/prod-hoodie.png"],
+      images,
       sizes: wcProduct.attributes.find(attr => attr.name.toLowerCase() === "size")?.options || ["S", "M", "L", "XL"],
       inStock: wcProduct.stock_status === "instock",
       rating: parseFloat(wcProduct.average_rating) || 5.0,
@@ -66,13 +80,29 @@ export default async function ProductPage({ params }: ProductPageProps) {
       );
       relatedProducts = allRelated
         .filter((p): p is NonNullable<typeof p> => p !== null)
-        .map(p => ({
-          id: p.id.toString(),
-          name: p.name,
-          price: parseFloat(p.price) || 0,
-          image: p.images[0]?.src || "/prod-hoodie.png",
-          tag: p.on_sale ? "SALE" : ""
-        }));
+        .map(p => {
+          let image = p.images[0]?.src || "/prod-hoodie.png";
+          const relName = p.name.toLowerCase();
+          if (relName.includes("iphone") || relName.includes("phone") || relName.includes("case")) {
+              image = "/prod-phone-case.png";
+          } else if (relName.includes("airpod")) {
+              image = "/prod-airpods-cover.png";
+          } else if (relName.includes("cap") || relName.includes("hat")) {
+              image = "/prod-cap.png";
+          } else if (relName.includes("sunglass") || relName.includes("glasses")) {
+              image = "/prod-sunglasses.png";
+          } else if (relName.includes("sticker")) {
+              image = "/prod-stickers.png";
+          }
+
+          return {
+            id: p.id.toString(),
+            name: p.name,
+            price: parseFloat(p.price) || 0,
+            image,
+            tag: p.on_sale ? "SALE" : ""
+          };
+        });
     }
   } else {
     // 2. Fallback to mock data matching product ID
