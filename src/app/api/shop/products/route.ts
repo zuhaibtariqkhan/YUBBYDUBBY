@@ -77,7 +77,43 @@ const MOCK_PRODUCTS = [
   { id: "adidas-p4", name: "ADIDAS NEBULA COLLAB TEE", price: 80, image: "/prod-tee.png", tag: "LIMITED", categoryId: 1021 },
 
   // Adidas Footwear Lifestyle (1032)
-  { id: "adidas-p5", name: "YUBBY DUBBY x ADIDAS ULTRA-BOOST CYBER", price: 220, image: "/prod-cargo.png", tag: "COLLAB", categoryId: 1032 }
+  { id: "adidas-p5", name: "YUBBY DUBBY x ADIDAS ULTRA-BOOST CYBER", price: 220, image: "/prod-cargo.png", tag: "COLLAB", categoryId: 1032 },
+
+  // Customizer - Clothing subcategories
+  { id: "cust-tee-1", name: "Blank Designer Tee", price: 40, image: "/prod-tee.png", tag: "CUSTOMIZABLE", categoryId: 2011 },
+  { id: "cust-tee-2", name: "Blank Custom Classic Tee", price: 35, image: "/prod-tee.png", tag: "CUSTOMIZABLE", categoryId: 2011 },
+  { id: "cust-otee-1", name: "Blank Oversized Tee", price: 45, image: "/prod-tee.png", tag: "CUSTOMIZABLE", categoryId: 2012 },
+  { id: "cust-otee-2", name: "Blank Heavyweight Oversized Tee", price: 50, image: "/prod-tee.png", tag: "CUSTOMIZABLE", categoryId: 2012 },
+  { id: "cust-hood-1", name: "Blank Heavy Hoodie", price: 75, image: "/prod-hoodie.png", tag: "CUSTOMIZABLE", categoryId: 2013 },
+  { id: "cust-hood-2", name: "Blank Zip Hoodie", price: 80, image: "/prod-hoodie.png", tag: "CUSTOMIZABLE", categoryId: 2013 },
+  { id: "cust-sweat-1", name: "Blank Crewneck Sweatshirt", price: 65, image: "/prod-hoodie.png", tag: "CUSTOMIZABLE", categoryId: 2014 },
+  { id: "cust-jack-1", name: "Blank Windbreaker Jacket", price: 95, image: "/prod-jacket.png", tag: "CUSTOMIZABLE", categoryId: 2015 },
+  { id: "cust-jack-2", name: "Blank Coach Jacket", price: 90, image: "/prod-jacket.png", tag: "CUSTOMIZABLE", categoryId: 2015 },
+
+  // Customizer - Phone Accessories subcategories
+  { id: "cust-phone-1", name: "Blank Premium iPhone Case", price: 25, image: "/prod-phone-case.png", tag: "CUSTOMIZABLE", categoryId: 2041 },
+  { id: "cust-phone-2", name: "Blank Premium Samsung Case", price: 25, image: "/prod-phone-case.png", tag: "CUSTOMIZABLE", categoryId: 2042 },
+  { id: "cust-phone-3", name: "Blank Premium Pixel Case", price: 25, image: "/prod-phone-case.png", tag: "CUSTOMIZABLE", categoryId: 2043 },
+
+  // Customizer - Home & Living subcategories
+  { id: "cust-home-1", name: "Blank Custom Poster", price: 15, image: "/create-your-own.png", tag: "CUSTOMIZABLE", categoryId: 2031 },
+  { id: "cust-home-2", name: "Blank Custom Canvas Wall Art", price: 80, image: "/cat-home.png", tag: "CUSTOMIZABLE", categoryId: 2032 },
+  { id: "cust-home-3", name: "Blank Custom Designer Cushion", price: 35, image: "/cat-home.png", tag: "CUSTOMIZABLE", categoryId: 2033 },
+  { id: "cust-home-4", name: "Blank Custom Ceramic Mug", price: 20, image: "/cat-accessories.png", tag: "CUSTOMIZABLE", categoryId: 2034 },
+
+  // Customizer - Accessories subcategories
+  { id: "cust-acc-1", name: "Blank Premium Cap", price: 30, image: "/prod-cap.png", tag: "CUSTOMIZABLE", categoryId: 2021 },
+  { id: "cust-acc-2", name: "Blank Knit Beanie", price: 25, image: "/prod-hoodie.png", tag: "CUSTOMIZABLE", categoryId: 2022 },
+  { id: "cust-acc-3", name: "Blank Retro Sunglasses", price: 40, image: "/prod-sunglasses.png", tag: "CUSTOMIZABLE", categoryId: 2023 },
+  { id: "cust-acc-4", name: "Blank Cuban Link Chain", price: 45, image: "/prod-tee.png", tag: "CUSTOMIZABLE", categoryId: 2024 },
+
+  // Customizer - Wall Art subcategories
+  { id: "cust-art-1", name: "Blank Custom Poster", price: 20, image: "/create-your-own.png", tag: "CUSTOMIZABLE", categoryId: 2051 },
+  { id: "cust-art-2", name: "Blank Custom Framed Wall Art", price: 95, image: "/cat-home.png", tag: "CUSTOMIZABLE", categoryId: 2052 },
+
+  // Customizer - Bags subcategories
+  { id: "cust-bag-1", name: "Blank Utility Backpack", price: 85, image: "/cat-kids.png", tag: "CUSTOMIZABLE", categoryId: 2061 },
+  { id: "cust-bag-2", name: "Blank Heavy Tote Bag", price: 35, image: "/cat-accessories.png", tag: "CUSTOMIZABLE", categoryId: 2062 }
 ];
 
 export async function GET(request: Request) {
@@ -98,34 +134,36 @@ export async function GET(request: Request) {
     try {
       const wcProducts = await getProducts({ categoryId, limit: 20 });
       
-      const displayProducts = wcProducts.map(p => {
-        let image = p.images[0]?.src || "/prod-hoodie.png";
-        const lowerName = p.name.toLowerCase();
-        
-        // Dynamically apply visual fallbacks for empty WooCommerce image fields
-        if (lowerName.includes("iphone") || lowerName.includes("phone") || lowerName.includes("case")) {
-          image = "/prod-phone-case.png";
-        } else if (lowerName.includes("airpod")) {
-          image = "/prod-airpods-cover.png";
-        } else if (lowerName.includes("cap") || lowerName.includes("hat")) {
-          image = "/prod-cap.png";
-        } else if (lowerName.includes("sunglass") || lowerName.includes("glasses")) {
-          image = "/prod-sunglasses.png";
-        } else if (lowerName.includes("sticker")) {
-          image = "/prod-stickers.png";
-        }
+      if (wcProducts && wcProducts.length > 0) {
+        const displayProducts = wcProducts.map(p => {
+          let image = p.images[0]?.src || "/prod-hoodie.png";
+          const lowerName = p.name.toLowerCase();
+          
+          // Dynamically apply visual fallbacks for empty WooCommerce image fields
+          if (lowerName.includes("iphone") || lowerName.includes("phone") || lowerName.includes("case")) {
+            image = "/prod-phone-case.png";
+          } else if (lowerName.includes("airpod")) {
+            image = "/prod-airpods-cover.png";
+          } else if (lowerName.includes("cap") || lowerName.includes("hat")) {
+            image = "/prod-cap.png";
+          } else if (lowerName.includes("sunglass") || lowerName.includes("glasses")) {
+            image = "/prod-sunglasses.png";
+          } else if (lowerName.includes("sticker")) {
+            image = "/prod-stickers.png";
+          }
 
-        return {
-          id: p.id.toString(),
-          name: p.name,
-          price: parseFloat(p.price) || 0,
-          image,
-          tag: p.on_sale ? "SALE" : p.tags.some(t => t.slug.includes("new")) ? "NEW" : "",
-          subcategory: p.categories.find(c => c.id === categoryId)?.name || ""
-        };
-      });
+          return {
+            id: p.id.toString(),
+            name: p.name,
+            price: parseFloat(p.price) || 0,
+            image,
+            tag: p.on_sale ? "SALE" : p.tags.some(t => t.slug.includes("new")) ? "NEW" : "",
+            subcategory: p.categories.find(c => c.id === categoryId)?.name || ""
+          };
+        });
 
-      return NextResponse.json(displayProducts);
+        return NextResponse.json(displayProducts);
+      }
     } catch (error) {
       console.error(`Failed to load WooCommerce products for category ${categoryId}, using fallback:`, error);
     }

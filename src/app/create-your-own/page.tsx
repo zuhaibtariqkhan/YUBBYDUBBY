@@ -1,32 +1,11 @@
 import React from "react";
 import Navbar from "@/components/layout/Navbar";
 import { Footer } from "@/components/home/HomeSections";
-import { getProducts } from "@/lib/woocommerce";
 import CreateYourOwnInteractive from "./CreateYourOwnInteractive";
 
 export const revalidate = 0; // Bypass Next.js fetch caching for custom designs page
 
-export default async function CreateYourOwnPage() {
-  let initialProducts: any[] = [];
-  
-  try {
-    // Fetch live blank products from WooCommerce (under 'create-your-own' category slug)
-    const wcProducts = await getProducts({ category: "create-your-own", limit: 20 });
-    
-    if (wcProducts && wcProducts.length > 0) {
-      initialProducts = wcProducts.map(p => ({
-        id: p.id.toString(),
-        name: p.name,
-        price: parseFloat(p.price) || 0, // Dynamic base listing pricing from WooCommerce
-        image: p.images[0]?.src || "/prod-tee.png",
-        type: p.name.toLowerCase().includes("hoodie") ? "hoodie" : "tshirt",
-        attributes: p.attributes || []
-      }));
-    }
-  } catch (error) {
-    console.error("Failed to load blank products from WooCommerce, using local fallbacks:", error);
-  }
-
+export default function CreateYourOwnPage() {
   return (
     <div className="relative min-h-screen w-full bg-[#030303] text-white flex flex-col justify-between overflow-x-hidden font-sans z-10 selection:bg-brand-green selection:text-brand-black">
       <Navbar />
@@ -45,12 +24,12 @@ export default async function CreateYourOwnPage() {
             DESIGN YOUR OWN
           </h1>
           <p className="text-gray-400 text-xs font-sans max-w-xl mx-auto">
-            Design premium high-fidelity custom streetwear. Select your base blank products fetched live from your inventory, and upload your full HD PNG graphic.
+            Design premium high-fidelity custom streetwear. Select your base blank products and upload your custom artwork or add high-end typography.
           </p>
         </header>
 
         {/* Interactive Customizer Interface */}
-        <CreateYourOwnInteractive initialProducts={initialProducts} />
+        <CreateYourOwnInteractive />
 
       </main>
       <Footer />

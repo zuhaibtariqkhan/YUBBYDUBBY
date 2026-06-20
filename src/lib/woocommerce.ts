@@ -212,7 +212,7 @@ export async function getProductById(id: string): Promise<WooCommerceProduct | n
 /**
  * Fetch categories by slug
  */
-async function getCategoriesBySlug(slug: string): Promise<WooCommerceCategory[]> {
+export async function getCategoriesBySlug(slug: string): Promise<WooCommerceCategory[]> {
   try {
     return await fetchWooCommerce<WooCommerceCategory[]>(`products/categories?slug=${encodeURIComponent(slug)}`);
   } catch (error) {
