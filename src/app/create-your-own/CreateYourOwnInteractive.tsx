@@ -5,16 +5,8 @@ import { useCart } from "@/context/CartContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Upload, ShoppingBag, RotateCcw, 
-  Sliders, Check, Info, Palette, Shirt
+  Sliders, Check, Info, Palette, Shirt, Type
 } from "lucide-react";
-
-// Pre-made premium cyber-punk theme decals
-const PRESET_DECALS = [
-  { id: "cyber-logo", name: "Cyber Logo", text: "YUBBY DUBBY", style: "font-black tracking-[0.25em] text-[#B1F310]" },
-  { id: "gravity-icon", name: "0-Gravity", text: "0-GRAVITY", style: "font-mono font-bold tracking-widest text-white border border-white/20 px-2 py-0.5" },
-  { id: "void-emblem", name: "Void Concept", text: "VOID CONCEPT", style: "font-serif italic text-purple-400" },
-  { id: "nebula-flame", name: "Nebula Flame", text: "🔥 NEBULA", style: "font-bold text-red-500 animate-pulse" }
-];
 
 const GARMENT_COLORS = [
   { name: "Void Black", hex: "#080808" },
@@ -22,6 +14,29 @@ const GARMENT_COLORS = [
   { name: "Cyber Green", hex: "#B1F310" },
   { name: "Acid Purple", hex: "#7c3aed" },
   { name: "Crimson Red", hex: "#dc2626" }
+];
+
+// Expanded list of premium designer fonts
+const DESIGNER_FONTS = [
+  { name: "Oswald (Futuristic Bold)", value: "font-heading", inlineStyle: {} },
+  { name: "Montserrat (Clean Minimalist)", value: "font-sans", inlineStyle: {} },
+  { name: "Impact (Streetwear Heavy)", value: "font-impact", inlineStyle: { fontFamily: "Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif" } },
+  { name: "Tech Monospace (Cyber Retro)", value: "font-mono", inlineStyle: { fontFamily: "'Courier New', Courier, monospace" } },
+  { name: "Playfair Display (Luxury Serif)", value: "font-serif", inlineStyle: { fontFamily: "'Playfair Display', Georgia, serif" } },
+  { name: "Georgia (Elegant)", value: "font-georgia", inlineStyle: { fontFamily: "Georgia, serif" } }
+];
+
+// Expanded text color choices
+const TEXT_COLORS = [
+  { name: "Ghost White", hex: "#ffffff" },
+  { name: "Pitch Black", hex: "#000000" },
+  { name: "Cyber Green", hex: "#B1F310" },
+  { name: "Electric Cyan", hex: "#22d3ee" },
+  { name: "Vibrant Purple", hex: "#a78bfa" },
+  { name: "Hot Pink", hex: "#f472b6" },
+  { name: "Inferno Red", hex: "#f87171" },
+  { name: "Sunset Orange", hex: "#fb923c" },
+  { name: "Aura Gold", hex: "#facc15" }
 ];
 
 interface CreateYourOwnInteractiveProps {
@@ -34,8 +49,8 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
 
   // Fallback products if none are fetched from WooCommerce
   const products = initialProducts.length > 0 ? initialProducts : [
-    { id: "mock-tee", name: "Blank Designer Tee", price: 1000, type: "tshirt", image: "/prod-tee.png" },
-    { id: "mock-hoodie", name: "Blank Heavy Hoodie", price: 1000, type: "hoodie", image: "/prod-hoodie.png" }
+    { id: "mock-tee", name: "Blank Designer Tee", price: 3000, type: "tshirt", image: "/prod-tee.png" },
+    { id: "mock-hoodie", name: "Blank Heavy Hoodie", price: 4500, type: "hoodie", image: "/prod-hoodie.png" }
   ];
 
   // Customizer States
@@ -43,16 +58,15 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
   const [selectedColor, setSelectedColor] = useState(GARMENT_COLORS[0]);
   const [selectedSize, setSelectedSize] = useState("M");
   
-  // Customization Layers
-  const [decalType, setDecalType] = useState<"none" | "preset" | "upload">("none");
-  const [selectedDecal, setSelectedDecal] = useState(PRESET_DECALS[0]);
+  // Customization Layers (Presets removed as requested, keeping only user upload option)
+  const [decalType, setDecalType] = useState<"none" | "upload">("none");
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   
   // Custom Text Layer
   const [hasCustomText, setHasCustomText] = useState(false);
   const [customText, setCustomText] = useState("CYBERSPACE");
-  const [textColor, setTextColor] = useState("#ffffff");
-  const [textFont, setTextFont] = useState("font-heading"); // font-heading is Oswald, font-sans is Montserrat
+  const [selectedTextColor, setSelectedTextColor] = useState(TEXT_COLORS[2]); // Default brand green
+  const [selectedFont, setSelectedFont] = useState(DESIGNER_FONTS[0]);
   
   // Transform Sliders (Scales & Positions)
   const [graphicScale, setGraphicScale] = useState(100);
@@ -61,15 +75,15 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
   
   const [textYPos, setTextYPos] = useState(60); // % from top
   const [textXPos, setTextXPos] = useState(50); // % from left
-  const [textSize, setTextSize] = useState(16); // px
+  const [textSize, setTextSize] = useState(18); // px
 
   // UI state
   const [isAdding, setIsAdding] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [activeTab, setActiveTab] = useState<"garment" | "design" | "text">("garment");
 
-  // Price is fixed to 1000 Rupees as requested
-  const totalPrice = 1000;
+  // Stick with WooCommerce POD product price as requested (no additional fees)
+  const totalPrice = selectedProduct.price;
 
   // Detect whether selected product acts like a hoodie or tshirt for SVG representation
   const productType = selectedProduct.name.toLowerCase().includes("hoodie") || selectedProduct.type === "hoodie" ? "hoodie" : "tshirt";
@@ -96,7 +110,7 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
     setGraphicXPos(50);
     setTextYPos(60);
     setTextXPos(50);
-    setTextSize(16);
+    setTextSize(18);
   };
 
   const handleAddToBag = () => {
@@ -109,11 +123,11 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
     const itemPayload = {
       id: selectedProduct.id,
       name: customConfigName,
-      price: totalPrice, // Set to exactly 1000 Rupees
+      price: totalPrice,
       size: selectedSize,
       image: selectedProduct.image || "/prod-tee.png",
       // Custom print-on-demand metadata fields
-      customImage: decalType === "upload" ? uploadedImage : decalType === "preset" ? `Preset Decal: ${selectedDecal.text}` : "",
+      customImage: decalType === "upload" ? uploadedImage : "",
       customText: hasCustomText ? customText : ""
     };
 
@@ -201,21 +215,7 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
             <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
               <div className="w-[120px] h-[150px] relative mt-[-20px]">
                 
-                {/* Render Selected Decal / Graphic */}
-                {decalType === "preset" && (
-                  <div 
-                    style={{
-                      top: `${graphicYPos}%`,
-                      left: `${graphicXPos}%`,
-                      transform: `translate(-50%, -50%) scale(${graphicScale / 100})`,
-                      maxWidth: "100%",
-                    }}
-                    className={`absolute text-center select-none font-sans text-[10px] ${selectedDecal.style}`}
-                  >
-                    {selectedDecal.text}
-                  </div>
-                )}
-
+                {/* Render Uploaded Graphic */}
                 {decalType === "upload" && uploadedImage && (
                   <div
                     style={{
@@ -243,10 +243,11 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
                       top: `${textYPos}%`,
                       left: `${textXPos}%`,
                       transform: `translate(-50%, -50%)`,
-                      color: textColor,
+                      color: selectedTextColor.hex,
                       fontSize: `${textSize}px`,
+                      ...selectedFont.inlineStyle
                     }}
-                    className={`absolute font-black tracking-wider uppercase select-none text-center ${textFont}`}
+                    className={`absolute font-black tracking-wider uppercase select-none text-center ${selectedFont.value}`}
                   >
                     {customText}
                   </div>
@@ -266,7 +267,7 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
         {/* Quick Helper Banner */}
         <div className="mt-4 flex items-start gap-2 bg-white/5 border border-white/5 rounded-xl p-3 w-full text-[11px] text-gray-400 font-sans leading-relaxed">
           <Info size={14} className="text-brand-green shrink-0 mt-0.5" />
-          <span>Upload your full HD PNG graphic to design the front chest segment of your custom streetwear apparel.</span>
+          <span>Upload your design and align it on the product layout. Custom print pricing will match the base product listing costs.</span>
         </div>
       </div>
 
@@ -277,12 +278,12 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
           {/* Pricing & Cart Status Summary */}
           <div className="flex justify-between items-center border-b border-white/10 pb-4">
             <div>
-              <h3 className="text-xs font-mono uppercase text-gray-500 tracking-wider">Estimated Total</h3>
-              <div className="text-3xl font-heading font-black text-brand-green mt-1 tracking-wider">₹1,000.00</div>
+              <h3 className="text-xs font-mono uppercase text-gray-500 tracking-wider">Product Price</h3>
+              <div className="text-3xl font-heading font-black text-brand-green mt-1 tracking-wider">₹{totalPrice.toLocaleString("en-IN")}.00</div>
             </div>
             <div className="text-right">
-              <span className="text-[10px] font-mono bg-white/5 px-2.5 py-1 rounded text-brand-green border border-brand-green/20 uppercase font-bold tracking-widest">
-                FLAT PRICE
+              <span className="text-[10px] font-mono bg-white/5 px-2.5 py-1 rounded text-gray-400 border border-white/5 uppercase font-bold tracking-widest">
+                BASE PRICE
               </span>
             </div>
           </div>
@@ -341,7 +342,7 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
                   >
                     {products.map((prod) => (
                       <option key={prod.id} value={prod.id} className="bg-[#090909] text-white">
-                        {prod.name.toUpperCase()} (₹1,000)
+                        {prod.name.toUpperCase()} (₹{prod.price.toLocaleString("en-IN")})
                       </option>
                     ))}
                   </select>
@@ -403,97 +404,59 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
                 exit={{ opacity: 0, y: -10 }}
                 className="space-y-6"
               >
-                {/* Decal Option Selector */}
-                <div className="space-y-2">
-                  <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono">Graphic Layer</label>
-                  <div className="grid grid-cols-3 gap-2 text-[10px] font-mono">
-                    <button
-                      onClick={() => setDecalType("none")}
-                      className={`py-2.5 border rounded-xl cursor-pointer ${
-                        decalType === "none" ? "border-brand-green bg-brand-green/10 text-white" : "border-white/10 text-gray-400 hover:text-white"
-                      }`}
-                    >
-                      None
-                    </button>
-                    <button
-                      onClick={() => setDecalType("preset")}
-                      className={`py-2.5 border rounded-xl cursor-pointer ${
-                        decalType === "preset" ? "border-brand-green bg-brand-green/10 text-white" : "border-white/10 text-gray-400 hover:text-white"
-                      }`}
-                    >
-                      Presets
-                    </button>
+                {/* Upload-only graphic configuration */}
+                <div className="space-y-4">
+                  <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono block">Upload Design Layer</label>
+                  
+                  {decalType === "none" ? (
                     <button
                       onClick={() => {
                         if (fileInputRef.current) fileInputRef.current.click();
                       }}
-                      className={`py-2.5 border rounded-xl cursor-pointer flex items-center justify-center gap-1.5 ${
-                        decalType === "upload" ? "border-brand-green bg-brand-green/10 text-white" : "border-white/10 text-gray-400 hover:text-white"
-                      }`}
+                      className="w-full py-8 border border-dashed border-white/20 rounded-2xl flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-brand-green/50 bg-white/5 transition-all text-gray-400 hover:text-white"
                     >
-                      <Upload size={10} />
-                      Upload Design
+                      <Upload size={24} className="text-brand-green animate-pulse" />
+                      <span className="text-xs font-bold uppercase tracking-wider">Upload PNG Image File</span>
+                      <span className="text-[9px] text-gray-500 font-mono">HD files supported</span>
                     </button>
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      onChange={handleImageUpload}
-                      accept="image/*"
-                      className="hidden"
-                    />
-                  </div>
+                  ) : (
+                    <div className="p-4 bg-white/5 border border-brand-green/20 rounded-xl space-y-3">
+                      <div className="flex justify-between items-center text-[10px] font-mono font-bold text-brand-green">
+                        <span>✓ High Quality PNG Active</span>
+                        <button 
+                          onClick={() => { if (fileInputRef.current) fileInputRef.current.click(); }}
+                          className="text-white hover:text-brand-green underline cursor-pointer"
+                        >
+                          Replace File
+                        </button>
+                      </div>
+                      <p className="text-[9px] text-gray-400 leading-normal">
+                        Verify design details on the preview pane. You can align, position, or scale your graphics below.
+                      </p>
+                    </div>
+                  )}
+                  
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleImageUpload}
+                    accept="image/*"
+                    className="hidden"
+                  />
                 </div>
 
-                {/* Preset decal selection */}
-                {decalType === "preset" && (
-                  <div className="space-y-2">
-                    <label className="text-[9px] font-bold uppercase tracking-wider text-gray-500 font-mono">Select Preset decal</label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {PRESET_DECALS.map((preset) => (
-                        <button
-                          key={preset.id}
-                          onClick={() => setSelectedDecal(preset)}
-                          className={`p-3 border rounded-xl text-left cursor-pointer transition-all ${
-                            selectedDecal.id === preset.id ? "border-brand-green bg-brand-green/10 text-brand-green" : "border-white/10 hover:bg-white/5"
-                          }`}
-                        >
-                          <span className="text-[10px] font-mono tracking-widest font-black uppercase">{preset.name}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* HD PNG Upload Helper */}
+                {/* Graphic Alignment Sliders Control */}
                 {decalType === "upload" && (
-                  <div className="p-3 bg-white/5 border border-white/5 rounded-xl space-y-1.5">
-                    <div className="flex justify-between items-center text-[10px] font-mono font-bold text-brand-green">
-                      <span>✓ High Quality PNG Enabled</span>
-                      <button 
-                        onClick={() => { if (fileInputRef.current) fileInputRef.current.click(); }}
-                        className="text-white hover:text-brand-green underline"
-                      >
-                        Change Image
-                      </button>
-                    </div>
-                    <p className="text-[9px] text-gray-400 leading-normal">
-                      For print-on-demand requirements, upload transparent, high-definition PNG files (300 DPI recommended).
-                    </p>
-                  </div>
-                )}
-
-                {/* Graphic Sliders Control */}
-                {decalType !== "none" && (
-                  <div className="space-y-4 border-t border-white/5 pt-4">
+                  <div className="space-y-4 border-t border-white/5 pt-4 animate-fade-in">
                     <h4 className="text-[10px] font-bold uppercase tracking-wider text-brand-green font-mono flex items-center gap-1">
                       <Sliders size={12} />
-                      Adjust Design Layout
+                      Align Graphics On Product
                     </h4>
                     
                     {/* Scale Slider */}
                     <div className="space-y-1">
                       <div className="flex justify-between text-[9px] font-mono text-gray-400">
-                        <span>Graphic Scale</span>
+                        <span>Graphic Size (Scale)</span>
                         <span>{graphicScale}%</span>
                       </div>
                       <input
@@ -570,65 +533,69 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
                       <label className="text-[9px] font-bold uppercase tracking-wider text-gray-400 font-mono">Input Custom Text</label>
                       <input
                         type="text"
-                        maxLength={16}
+                        maxLength={24}
                         value={customText}
                         onChange={(e) => setCustomText(e.target.value)}
                         className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-xs font-mono uppercase tracking-widest focus:outline-none focus:border-brand-green text-white"
                       />
                     </div>
 
-                    {/* Font Selector */}
+                    {/* Expanded Font Selector */}
                     <div className="space-y-2">
-                      <label className="text-[9px] font-bold uppercase tracking-wider text-gray-400 font-mono">Futuristic Font Style</label>
-                      <div className="grid grid-cols-2 gap-2 text-[10px] font-mono">
-                        <button
-                          onClick={() => setTextFont("font-heading")}
-                          className={`py-2 border rounded-xl cursor-pointer ${
-                            textFont === "font-heading" ? "border-brand-green bg-brand-green/10" : "border-white/10 text-gray-400 hover:text-white"
-                          }`}
-                        >
-                          Oswald
-                        </button>
-                        <button
-                          onClick={() => setTextFont("font-sans")}
-                          className={`py-2 border rounded-xl cursor-pointer ${
-                            textFont === "font-sans" ? "border-brand-green bg-brand-green/10" : "border-white/10 text-gray-400 hover:text-white"
-                          }`}
-                        >
-                          Montserrat
-                        </button>
-                      </div>
+                      <label className="text-[9px] font-bold uppercase tracking-wider text-gray-400 font-mono flex items-center gap-1">
+                        <Type size={11} className="text-brand-green" />
+                        Select Font Face
+                      </label>
+                      <select
+                        value={selectedFont.value}
+                        onChange={(e) => {
+                          const found = DESIGNER_FONTS.find(f => f.value === e.target.value);
+                          if (found) setSelectedFont(found);
+                        }}
+                        className="w-full h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-xs font-mono tracking-wider focus:outline-none focus:border-brand-green text-white cursor-pointer"
+                      >
+                        {DESIGNER_FONTS.map((font) => (
+                          <option key={font.value} value={font.value} className="bg-[#090909] text-white">
+                            {font.name}
+                          </option>
+                        ))}
+                      </select>
                     </div>
 
-                    {/* Color Selector */}
+                    {/* Expanded Color Selector */}
                     <div className="space-y-2">
                       <label className="text-[9px] font-bold uppercase tracking-wider text-gray-400 font-mono">Text Color</label>
-                      <div className="flex gap-2">
-                        {["#ffffff", "#B1F310", "#a78bfa", "#f87171"].map((color) => (
+                      <div className="grid grid-cols-5 gap-2.5">
+                        {TEXT_COLORS.map((color) => (
                           <button
-                            key={color}
-                            onClick={() => setTextColor(color)}
-                            style={{ backgroundColor: color }}
-                            className={`w-6 h-6 rounded-full border transition-all cursor-pointer ${
-                              textColor === color ? "border-brand-green scale-110" : "border-white/20"
+                            key={color.name}
+                            onClick={() => setSelectedTextColor(color)}
+                            style={{ backgroundColor: color.hex }}
+                            title={color.name}
+                            className={`w-7 h-7 rounded-full border transition-all cursor-pointer relative ${
+                              selectedTextColor.name === color.name ? "border-brand-green scale-110 shadow-[0_0_8px_rgba(177,243,16,0.5)]" : "border-white/20"
                             }`}
-                          />
+                          >
+                            {selectedTextColor.name === color.name && (
+                              <Check size={12} className={`absolute inset-0 m-auto ${color.hex === "#ffffff" ? "text-black" : "text-white"}`} />
+                            )}
+                          </button>
                         ))}
                       </div>
                     </div>
 
-                    {/* Text Position Sliders */}
+                    {/* Expanded Text Position Sliders */}
                     <div className="space-y-3 pt-2">
                       {/* Size */}
                       <div className="space-y-1">
                         <div className="flex justify-between text-[9px] font-mono text-gray-400">
-                          <span>Font Size</span>
+                          <span>Font Size (Scale)</span>
                           <span>{textSize}px</span>
                         </div>
                         <input
                           type="range"
-                          min="10"
-                          max="24"
+                          min="8"
+                          max="48"
                           value={textSize}
                           onChange={(e) => setTextSize(Number(e.target.value))}
                           className="w-full accent-brand-green"
@@ -659,8 +626,8 @@ export default function CreateYourOwnInteractive({ initialProducts }: CreateYour
                         </div>
                         <input
                           type="range"
-                          min="35"
-                          max="65"
+                          min="20"
+                          max="80"
                           value={textXPos}
                           onChange={(e) => setTextXPos(Number(e.target.value))}
                           className="w-full accent-brand-green"

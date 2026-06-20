@@ -17,7 +17,7 @@ export default async function CreateYourOwnPage() {
       initialProducts = wcProducts.map(p => ({
         id: p.id.toString(),
         name: p.name,
-        price: 1000, // Enforce flat 1000 Rupees
+        price: parseFloat(p.price) || 1000, // Dynamic base listing pricing from WooCommerce
         image: p.images[0]?.src || "/prod-tee.png",
         type: p.name.toLowerCase().includes("hoodie") ? "hoodie" : "tshirt"
       }));
