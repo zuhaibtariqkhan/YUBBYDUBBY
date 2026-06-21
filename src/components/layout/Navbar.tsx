@@ -16,6 +16,61 @@ const navLinks = [
     { name: "About", mobileName: "About Us", href: "/about" },
 ];
 
+const hamburgerLineVariants: any = {
+    top: {
+        closed: { rotate: 0, y: -6, backgroundColor: "#FFFFFF" },
+        open: { rotate: 45, y: 0, backgroundColor: "#B1F310" },
+    },
+    middle: {
+        closed: { opacity: 1, scale: 1, backgroundColor: "#FFFFFF" },
+        open: { opacity: 0, scale: 0 },
+    },
+    bottom: {
+        closed: { rotate: 0, y: 6, backgroundColor: "#FFFFFF" },
+        open: { rotate: -45, y: 0, backgroundColor: "#B1F310" },
+    }
+};
+
+const menuContainerVariants: any = {
+    closed: {
+        opacity: 0,
+        y: 15,
+        scale: 0.95,
+        transition: {
+            duration: 0.25,
+            ease: [0.16, 1, 0.3, 1], // easeOutExpo
+            staggerChildren: 0.05,
+            staggerDirection: -1
+        }
+    },
+    open: {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        transition: {
+            type: "spring",
+            stiffness: 280,
+            damping: 26,
+            staggerChildren: 0.08,
+            delayChildren: 0.05
+        }
+    }
+};
+
+const menuItemVariants: any = {
+    closed: { opacity: 0, y: 10, x: -5 },
+    open: {
+        opacity: 1,
+        y: 0,
+        x: 0,
+        transition: {
+            type: "spring",
+            stiffness: 300,
+            damping: 22
+        }
+    }
+};
+
 export default function Navbar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isCartOpen, setIsCartOpen] = useState(false);
@@ -91,6 +146,35 @@ export default function Navbar() {
 
                     {/* Left Section Navigation Links */}
                     <div className="flex items-center relative z-20">
+                        <motion.button
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 1.08 }}
+                            transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                            className="md:hidden flex flex-col justify-center items-center w-10 h-10 rounded-full border border-white/10 bg-black/60 backdrop-blur-xl cursor-pointer group focus:outline-none relative z-[70] mr-3 sm:mr-4 shadow-[0_4px_12px_rgba(0,0,0,0.5)] hover:border-brand-green/35 hover:shadow-[0_0_18px_rgba(177,243,16,0.22)] transition-shadow duration-300"
+                            aria-label="Toggle Menu"
+                        >
+                            <div className="w-5 h-4 flex flex-col justify-between items-center relative">
+                                <motion.span 
+                                    variants={hamburgerLineVariants.top}
+                                    animate={isMobileMenuOpen ? "open" : "closed"}
+                                    transition={{ type: "spring", stiffness: 350, damping: 20 }}
+                                    className="w-5 h-0.5 bg-white absolute" 
+                                />
+                                <motion.span 
+                                    variants={hamburgerLineVariants.middle}
+                                    animate={isMobileMenuOpen ? "open" : "closed"}
+                                    transition={{ type: "spring", stiffness: 350, damping: 20 }}
+                                    className="w-5 h-0.5 bg-white absolute" 
+                                />
+                                <motion.span 
+                                    variants={hamburgerLineVariants.bottom}
+                                    animate={isMobileMenuOpen ? "open" : "closed"}
+                                    transition={{ type: "spring", stiffness: 350, damping: 20 }}
+                                    className="w-5 h-0.5 bg-white absolute" 
+                                />
+                            </div>
+                        </motion.button>
                         <div className="hidden md:flex items-center space-x-6">
                             {navLinks.map((link) => {
                                 const active = isLinkActive(link.href);
@@ -151,49 +235,117 @@ export default function Navbar() {
                                 </span>
                             )}
                         </button>
-                        <button
-                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="md:hidden flex flex-col justify-center items-center w-6 h-6 cursor-pointer group focus:outline-none relative z-[70]"
-                            aria-label="Toggle Menu"
-                        >
-                            <span className={`w-6 h-0.5 bg-white transition-all duration-300 ease-in-out absolute ${isMobileMenuOpen ? 'rotate-45 !bg-brand-green' : '-translate-y-1.5 group-hover:bg-brand-green'}`} />
-                            <span className={`w-6 h-0.5 bg-white transition-all duration-300 ease-in-out absolute ${isMobileMenuOpen ? 'opacity-0' : 'group-hover:bg-brand-green'}`} />
-                            <span className={`w-6 h-0.5 bg-white transition-all duration-300 ease-in-out absolute ${isMobileMenuOpen ? '-rotate-45 !bg-brand-green' : 'translate-y-1.5 group-hover:bg-brand-green'}`} />
-                        </button>
                     </div>
                 </div>
                 {/* Mobile Menu Overlay */}
                 <AnimatePresence>
                     {isMobileMenuOpen && (
                         <motion.div
-                            initial={{ opacity: 0, y: -15, scale: 0.95 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: -15, scale: 0.95 }}
-                            transition={{ duration: 0.25, ease: "easeOut" }}
-                            className="absolute top-[88px] left-4 right-4 bg-black/95 backdrop-blur-2xl border border-white/10 p-6 rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.8),0_0_30px_rgba(177,243,16,0.05)] md:hidden flex flex-col space-y-4"
+                            variants={menuContainerVariants}
+                            initial="closed"
+                            animate="open"
+                            exit="closed"
+                            className="absolute top-[88px] left-4 right-4 bg-black/95 backdrop-blur-3xl border border-white/10 p-6 rounded-[24px] shadow-[0_25px_60px_rgba(0,0,0,0.85),0_0_35px_rgba(177,243,16,0.04)] md:hidden flex flex-col space-y-4 overflow-hidden"
                         >
-                            <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-brand-green font-bold border-b border-white/5 pb-2">
+                            {/* Inject keyframes for premium organic animated grain */}
+                            <style dangerouslySetInnerHTML={{ __html: `
+                                @keyframes noise-grain {
+                                    0%, 100% { transform: translate(0, 0); }
+                                    10% { transform: translate(-1%, -1%); }
+                                    20% { transform: translate(-2%, 1%); }
+                                    30% { transform: translate(1%, -2%); }
+                                    40% { transform: translate(-1%, 2%); }
+                                    50% { transform: translate(-2%, 1%); }
+                                    60% { transform: translate(2%, 0); }
+                                    70% { transform: translate(1%, 1%); }
+                                    80% { transform: translate(1%, -2%); }
+                                    90% { transform: translate(-1%, 2%); }
+                                }
+                                .noise-grain-animate {
+                                    animation: noise-grain 0.6s steps(6) infinite;
+                                }
+                            ` }} />
+
+                            {/* Subtle animated grain texture overlay */}
+                            <div className="absolute inset-0 pointer-events-none opacity-[0.045] mix-blend-overlay rounded-[24px] overflow-hidden z-0">
+                                <div 
+                                    className="absolute -inset-[50%] w-[200%] h-[200%] noise-grain-animate"
+                                    style={{
+                                        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+                                        backgroundRepeat: 'repeat',
+                                    }}
+                                />
+                            </div>
+
+                            {/* Floating Ambient Glow Orb */}
+                            <motion.div 
+                                animate={{ 
+                                    scale: [1, 1.12, 1],
+                                    opacity: [0.35, 0.5, 0.35],
+                                    x: [-8, 8, -8],
+                                    y: [-8, 8, -8]
+                                }}
+                                transition={{ 
+                                    duration: 8, 
+                                    repeat: Infinity, 
+                                    ease: "easeInOut" 
+                                }}
+                                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] h-[280px] pointer-events-none z-0 blur-[60px]"
+                                style={{
+                                    background: 'radial-gradient(circle, rgba(177, 243, 16, 0.07) 0%, rgba(177, 243, 16, 0) 70%)'
+                                }}
+                            />
+
+                            <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-brand-green font-bold border-b border-white/5 pb-2 relative z-10">
                                 Navigation Shortcuts
                             </span>
-                            {navLinks.map((link) => {
-                                const active = isLinkActive(link.href);
-                                return (
-                                    <Link
-                                        key={link.href}
-                                        href={link.href}
-                                        prefetch={false}
-                                        onClick={() => setIsMobileMenuOpen(false)}
-                                        className={`flex items-center justify-between py-3 px-4 rounded-xl transition-all duration-200 active:scale-98 hover:bg-white/5 group ${
-                                            active ? "bg-brand-green/10 text-brand-green font-bold" : "text-white"
-                                        }`}
-                                    >
-                                        <span className="text-sm font-heading tracking-wider uppercase">
-                                            {link.mobileName}
-                                        </span>
-                                        <ChevronRight size={14} className="text-gray-500 group-hover:text-brand-green group-hover:translate-x-0.5 transition-all" />
-                                    </Link>
-                                );
-                            })}
+                            
+                            <div className="flex flex-col space-y-3 relative z-10">
+                                {navLinks.map((link) => {
+                                    const active = isLinkActive(link.href);
+                                    return (
+                                        <motion.div
+                                            key={link.href}
+                                            variants={menuItemVariants}
+                                            className="w-full"
+                                        >
+                                            <Link
+                                                href={link.href}
+                                                prefetch={false}
+                                                onClick={() => setIsMobileMenuOpen(false)}
+                                                className={`flex items-center justify-between py-3.5 px-5 rounded-xl transition-all duration-300 relative overflow-hidden border group ${
+                                                    active 
+                                                        ? "bg-white/[0.08] border-brand-green/35 text-brand-green font-bold shadow-[0_0_15px_rgba(177,243,16,0.08)] backdrop-blur-md" 
+                                                        : "bg-transparent border-white/0 hover:border-white/5 hover:bg-white/[0.03] text-white/70 hover:text-white"
+                                                }`}
+                                            >
+                                                {/* Tap Glow Overlay */}
+                                                <motion.span
+                                                    className="absolute inset-0 bg-brand-green/10 opacity-0 pointer-events-none rounded-xl"
+                                                    whileTap={{ opacity: 1, scale: 1.02 }}
+                                                    transition={{ duration: 0.15 }}
+                                                />
+
+                                                {/* Neon green left accent line indicator */}
+                                                {active && (
+                                                    <motion.span 
+                                                        layoutId="activeIndicator"
+                                                        className="absolute left-0 top-1/4 bottom-1/4 w-[3px] rounded-r bg-brand-green shadow-[0_0_8px_#B1F310]" 
+                                                    />
+                                                )}
+
+                                                {/* Background hover gradient glow */}
+                                                <span className="absolute inset-0 bg-gradient-to-r from-brand-green/0 via-brand-green/[0.02] to-brand-green/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                                
+                                                <span className="text-sm font-heading tracking-wider uppercase relative z-10 transition-transform duration-300 group-hover:translate-x-1">
+                                                    {link.mobileName}
+                                                </span>
+                                                <ChevronRight size={14} className="text-gray-500 group-hover:text-brand-green group-hover:translate-x-1.5 transition-all duration-300 relative z-10" />
+                                            </Link>
+                                        </motion.div>
+                                    );
+                                })}
+                            </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
