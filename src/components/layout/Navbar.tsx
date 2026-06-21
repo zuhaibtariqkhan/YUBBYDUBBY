@@ -170,9 +170,9 @@ export default function Navbar() {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -20 }}
                             transition={{ duration: 0.35, ease: "easeInOut" }}
-                            className="fixed inset-0 z-[60] bg-black/90 backdrop-blur-2xl flex flex-col items-center justify-center md:hidden"
+                            className="fixed inset-0 z-[60] bg-black/95 backdrop-blur-2xl flex flex-col items-center justify-start pt-32 pb-16 overflow-y-auto md:hidden"
                         >
-                            <div className="flex flex-col items-center space-y-10 text-3xl font-heading tracking-[0.15em] uppercase text-center px-4 font-black">
+                            <div className="flex flex-col items-center space-y-10 text-xl sm:text-2xl md:text-3xl font-heading tracking-[0.15em] uppercase text-center px-4 font-black w-full max-w-md mx-auto">
                                 {navLinks.map((link, idx) => {
                                     const active = isLinkActive(link.href);
                                     return (
