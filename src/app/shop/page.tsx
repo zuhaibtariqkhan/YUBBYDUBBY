@@ -23,7 +23,7 @@ export default async function ShopPage() {
     }
 
     const categoriesData = mainCategories && mainCategories.length > 0
-        ? mainCategories.filter(c => !['uncategorized', 'shop', 'create-your-own', 'adidas', 'collab'].includes(c.slug.toLowerCase()))
+        ? mainCategories.filter(c => !['uncategorized', 'shop', 'create-your-own', 'create', 'adidas', 'collab'].includes(c.slug.toLowerCase()))
         : fallbackMainCategories;
 
     // Define the custom sort order for standard main categories

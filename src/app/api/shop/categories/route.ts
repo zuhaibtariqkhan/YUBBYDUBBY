@@ -133,13 +133,15 @@ export async function GET(request: Request) {
       
       // If we are looking for the customizer root, resolve the slug first
       if (parentId === 200) {
-        const rootCats = await getCategoriesBySlug('create-your-own');
+        let rootCats = await getCategoriesBySlug('create');
+        if (!rootCats || rootCats.length === 0) {
+          rootCats = await getCategoriesBySlug('create-your-own');
+        }
         if (rootCats && rootCats.length > 0) {
           queryParentId = rootCats[0].id;
         } else {
-          // If the slug is not found, fallback immediately to local parent: 200 categories
-          const fallbackCategories = MOCK_CATEGORIES.filter(c => c.parent === 200);
-          return NextResponse.json(fallbackCategories);
+          // If WooCommerce is configured but root category slug is not found, return empty array to prevent local fallback
+          return NextResponse.json([]);
         }
       }
 
@@ -148,13 +150,11 @@ export async function GET(request: Request) {
       // Exclude admin categories or internal ones from Level 1
       let filtered = categories;
       if (queryParentId === 0) {
-        const excludeSlugs = ['uncategorized', 'shop', 'create-your-own', 'adidas', 'collab'];
+        const excludeSlugs = ['uncategorized', 'shop', 'create-your-own', 'create', 'adidas', 'collab'];
         filtered = categories.filter(c => !excludeSlugs.includes(c.slug.toLowerCase()));
       }
       
-      if (filtered && filtered.length > 0) {
-        return NextResponse.json(filtered);
-      }
+      return NextResponse.json(filtered || []);
     } catch (error) {
       console.error('WooCommerce categories fetch failed, using fallback:', error);
     }

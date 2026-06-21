@@ -200,6 +200,28 @@ export default function CreateYourOwnInteractive() {
     loadRootCategories();
   }, []);
 
+  const fetchProductsForCategory = async (catId: number) => {
+    setLoadingProducts(true);
+    try {
+      const res = await fetch(`/api/shop/products?category=${catId}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.length > 0) {
+          setProducts(data);
+        } else {
+          setProducts(FALLBACK_PRODUCTS[catId] || []);
+        }
+      } else {
+        setProducts(FALLBACK_PRODUCTS[catId] || []);
+      }
+    } catch (err) {
+      console.error("Products fetch failed, fallback applied:", err);
+      setProducts(FALLBACK_PRODUCTS[catId] || []);
+    } finally {
+      setLoadingProducts(false);
+    }
+  };
+
   // Fetch Level 2 Subcategories & Scroll
   const handleSelectCategory = async (cat: any) => {
     if (selectedCategory?.id === cat.id) {
@@ -226,14 +248,36 @@ export default function CreateYourOwnInteractive() {
         if (data && data.length > 0) {
           setSubcategories(data);
         } else {
-          setSubcategories(FALLBACK_SUBCATEGORIES[cat.id] || []);
+          const fallbacks = FALLBACK_SUBCATEGORIES[cat.id] || [];
+          if (fallbacks.length > 0) {
+            setSubcategories(fallbacks);
+          } else {
+            // Leaf category, fetch products directly
+            setSubcategories([]);
+            setSelectedSubcategory({ id: cat.id, name: cat.name, isVirtual: true });
+            await fetchProductsForCategory(cat.id);
+          }
         }
       } else {
-        setSubcategories(FALLBACK_SUBCATEGORIES[cat.id] || []);
+        const fallbacks = FALLBACK_SUBCATEGORIES[cat.id] || [];
+        if (fallbacks.length > 0) {
+          setSubcategories(fallbacks);
+        } else {
+          setSubcategories([]);
+          setSelectedSubcategory({ id: cat.id, name: cat.name, isVirtual: true });
+          await fetchProductsForCategory(cat.id);
+        }
       }
     } catch (err) {
       console.error("Subcategories fetch failed, fallback applied:", err);
-      setSubcategories(FALLBACK_SUBCATEGORIES[cat.id] || []);
+      const fallbacks = FALLBACK_SUBCATEGORIES[cat.id] || [];
+      if (fallbacks.length > 0) {
+        setSubcategories(fallbacks);
+      } else {
+        setSubcategories([]);
+        setSelectedSubcategory({ id: cat.id, name: cat.name, isVirtual: true });
+        await fetchProductsForCategory(cat.id);
+      }
     } finally {
       setLoadingSubcategories(false);
       setTimeout(() => {
@@ -428,14 +472,14 @@ export default function CreateYourOwnInteractive() {
               <span className="text-gray-700">›</span>
               <button 
                 onClick={() => handleBreadcrumbClick(2)}
-                className={`hover:text-brand-green transition-colors cursor-pointer font-medium ${selectedCategory && !selectedSubcategory ? "text-white" : ""}`}
+                className={`hover:text-brand-green transition-colors cursor-pointer font-medium ${selectedCategory && (!selectedSubcategory || selectedSubcategory.isVirtual) ? "text-white" : ""}`}
               >
                 {selectedCategory.name}
               </button>
             </>
           )}
 
-          {selectedSubcategory && (
+          {selectedSubcategory && !selectedSubcategory.isVirtual && (
             <>
               <span className="text-gray-700">›</span>
               <button 
@@ -463,19 +507,26 @@ export default function CreateYourOwnInteractive() {
             <span className={`${selectedCategory ? "text-brand-green" : "text-white"}`}>{selectedCategory ? "✓" : "01"}</span>
             <span className={`${!selectedCategory ? "text-white" : "text-gray-500"}`}>CATEGORY</span>
           </div>
+          
+          {!selectedSubcategory?.isVirtual && (
+            <>
+              <span className="text-gray-700">|</span>
+              <div className="flex items-center space-x-1.5">
+                <span className={`${selectedSubcategory ? "text-brand-green" : selectedCategory ? "text-white" : "text-gray-600"}`}>{selectedSubcategory ? "✓" : "02"}</span>
+                <span className={`${selectedCategory && !selectedSubcategory ? "text-white" : "text-gray-500"}`}>TYPE</span>
+              </div>
+            </>
+          )}
+
           <span className="text-gray-700">|</span>
           <div className="flex items-center space-x-1.5">
-            <span className={`${selectedSubcategory ? "text-brand-green" : selectedCategory ? "text-white" : "text-gray-600"}`}>{selectedSubcategory ? "✓" : "02"}</span>
-            <span className={`${selectedCategory && !selectedSubcategory ? "text-white" : "text-gray-500"}`}>TYPE</span>
-          </div>
-          <span className="text-gray-700">|</span>
-          <div className="flex items-center space-x-1.5">
-            <span className={`${selectedProduct ? "text-brand-green" : selectedSubcategory ? "text-white" : "text-gray-600"}`}>{selectedProduct ? "✓" : "03"}</span>
+            <span className={`${selectedProduct ? "text-brand-green" : selectedSubcategory ? "text-white" : "text-gray-600"}`}>{selectedProduct ? "✓" : selectedSubcategory?.isVirtual ? "02" : "03"}</span>
             <span className={`${selectedSubcategory && !selectedProduct ? "text-white" : "text-gray-500"}`}>PRODUCT</span>
           </div>
+          
           <span className="text-gray-700">|</span>
           <div className="flex items-center space-x-1.5">
-            <span className={`${selectedProduct ? "text-brand-green animate-pulse" : "text-gray-600"}`}>04</span>
+            <span className={`${selectedProduct ? "text-brand-green animate-pulse" : "text-gray-600"}`}>{selectedSubcategory?.isVirtual ? "03" : "04"}</span>
             <span className={`${selectedProduct ? "text-white font-bold" : "text-gray-500"}`}>CUSTOMIZE</span>
           </div>
         </div>
@@ -488,7 +539,7 @@ export default function CreateYourOwnInteractive() {
           <div className="space-y-6">
             <div className="space-y-1">
               <h2 className="text-xs font-mono uppercase tracking-widest text-brand-green">Step 1: Choose Product Category</h2>
-              <p className="text-gray-400 text-xs">Select your main streetwear canvas category.</p>
+              <p className="text-gray-400 text-xs">Select your product.</p>
             </div>
 
             {loadingCategories ? (
@@ -537,7 +588,7 @@ export default function CreateYourOwnInteractive() {
           {/* SUBCATEGORIES EXPANSION */}
           <div ref={subcategoriesRef}>
             <AnimatePresence mode="wait">
-              {selectedCategory && (
+              {selectedCategory && !selectedSubcategory?.isVirtual && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
@@ -602,7 +653,9 @@ export default function CreateYourOwnInteractive() {
                   className="border-t border-white/5 pt-12 space-y-6 overflow-hidden"
                 >
                   <div className="space-y-1">
-                    <h2 className="text-xs font-mono uppercase tracking-widest text-brand-green">Step 3: Choose Product</h2>
+                    <h2 className="text-xs font-mono uppercase tracking-widest text-brand-green">
+                      {selectedSubcategory?.isVirtual ? "Step 2: Choose Product" : "Step 3: Choose Product"}
+                    </h2>
                     <p className="text-gray-400 text-xs">Select your blank customize canvas under {selectedSubcategory.name}.</p>
                   </div>
 
