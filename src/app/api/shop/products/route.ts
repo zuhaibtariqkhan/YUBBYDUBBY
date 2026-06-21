@@ -119,20 +119,28 @@ const MOCK_PRODUCTS = [
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const categoryStr = searchParams.get('category');
+  const searchStr = searchParams.get('search');
   
-  if (!categoryStr) {
-    return NextResponse.json({ error: 'Category ID parameter is required' }, { status: 400 });
+  if (!categoryStr && !searchStr) {
+    return NextResponse.json({ error: 'Category ID or search query parameter is required' }, { status: 400 });
   }
 
-  const categoryId = parseInt(categoryStr, 10);
-  if (isNaN(categoryId)) {
-    return NextResponse.json({ error: 'Invalid category ID' }, { status: 400 });
+  let categoryId: number | undefined = undefined;
+  if (categoryStr) {
+    categoryId = parseInt(categoryStr, 10);
+    if (isNaN(categoryId)) {
+      return NextResponse.json({ error: 'Invalid category ID' }, { status: 400 });
+    }
   }
 
-  // If WooCommerce is configured, load products live under the requested category
+  // If WooCommerce is configured, load products live under the requested category / search query
   if (isWooCommerceConfigured()) {
     try {
-      const wcProducts = await getProducts({ categoryId, limit: 20 });
+      const queryParams: any = { limit: 20 };
+      if (categoryId !== undefined) queryParams.categoryId = categoryId;
+      if (searchStr) queryParams.search = searchStr;
+
+      const wcProducts = await getProducts(queryParams);
       
       if (wcProducts && wcProducts.length > 0) {
         const displayProducts = wcProducts.map(p => {
@@ -158,22 +166,29 @@ export async function GET(request: Request) {
             price: parseFloat(p.price) || 0,
             image,
             tag: p.on_sale ? "SALE" : p.tags.some(t => t.slug.includes("new")) ? "NEW" : "",
-            subcategory: p.categories.find(c => c.id === categoryId)?.name || ""
+            subcategory: (categoryId ? p.categories.find(c => c.id === categoryId)?.name : p.categories[0]?.name) || ""
           };
         });
 
         return NextResponse.json(displayProducts);
       }
     } catch (error) {
-      console.error(`Failed to load WooCommerce products for category ${categoryId}, using fallback:`, error);
+      console.error(`Failed to load WooCommerce products, using fallback:`, error);
     }
   }
 
   // Fallback to local structured mock products
-  let filteredFallback = MOCK_PRODUCTS.filter(p => p.categoryId === categoryId);
+  let filteredFallback = MOCK_PRODUCTS;
+  if (categoryId !== undefined) {
+    filteredFallback = filteredFallback.filter(p => p.categoryId === categoryId);
+  }
+  if (searchStr) {
+    const query = searchStr.toLowerCase();
+    filteredFallback = filteredFallback.filter(p => p.name.toLowerCase().includes(query));
+  }
   
   // If subcategory has no mapped fallback items, return a default selection
-  if (filteredFallback.length === 0) {
+  if (filteredFallback.length === 0 && categoryId !== undefined) {
     filteredFallback = MOCK_PRODUCTS.slice(0, 4);
   }
 

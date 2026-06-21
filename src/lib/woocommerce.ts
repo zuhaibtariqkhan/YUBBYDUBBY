@@ -161,6 +161,7 @@ export async function getProducts(params: {
   limit?: number;
   featured?: boolean;
   status?: string;
+  search?: string;
 } = {}): Promise<WooCommerceProduct[]> {
   if (!isWooCommerceConfigured()) {
     return [];
@@ -170,6 +171,7 @@ export async function getProducts(params: {
   queryParams.append('status', params.status || 'publish');
   if (params.limit) queryParams.append('per_page', params.limit.toString());
   if (params.featured !== undefined) queryParams.append('featured', params.featured ? 'true' : 'false');
+  if (params.search) queryParams.append('search', params.search);
   
   // Note: WooCommerce API uses category and tag IDs, but we can search for categories/tags by slug first if needed
   if (params.categoryId !== undefined) {
