@@ -65,6 +65,17 @@ export default function Navbar() {
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [isSearchOpen]);
 
+    useEffect(() => {
+        if (isMobileMenuOpen) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "";
+        }
+        return () => {
+            document.body.style.overflow = "";
+        };
+    }, [isMobileMenuOpen]);
+
     const isLinkActive = (href: string) => {
         if (href === "/") return pathname === "/";
         if (href === "/shop") {
@@ -81,10 +92,13 @@ export default function Navbar() {
                     {/* Left Section Navigation Links */}
                     <div className="flex items-center relative z-20">
                         <button
-                            className="md:hidden hover:text-brand-green transition-colors mr-3 sm:mr-4"
-                            onClick={() => setIsMobileMenuOpen(true)}
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            className="md:hidden flex flex-col justify-center items-center w-6 h-6 cursor-pointer group focus:outline-none relative z-[70] mr-3 sm:mr-4"
+                            aria-label="Toggle Menu"
                         >
-                            <Menu size={24} />
+                            <span className={`w-6 h-0.5 bg-white transition-all duration-300 ease-in-out absolute ${isMobileMenuOpen ? 'rotate-45 !bg-brand-green' : '-translate-y-1.5 group-hover:bg-brand-green'}`} />
+                            <span className={`w-6 h-0.5 bg-white transition-all duration-300 ease-in-out absolute ${isMobileMenuOpen ? 'opacity-0' : 'group-hover:bg-brand-green'}`} />
+                            <span className={`w-6 h-0.5 bg-white transition-all duration-300 ease-in-out absolute ${isMobileMenuOpen ? '-rotate-45 !bg-brand-green' : 'translate-y-1.5 group-hover:bg-brand-green'}`} />
                         </button>
                         <div className="hidden md:flex items-center space-x-6">
                             {navLinks.map((link) => {
@@ -149,34 +163,42 @@ export default function Navbar() {
                     </div>
                 </div>
                 {/* Mobile Menu Overlay */}
-                {isMobileMenuOpen && (
-                    <div className="fixed inset-0 z-[60] bg-brand-black/95 backdrop-blur-md flex flex-col items-center justify-center md:hidden">
-                        <button
-                            className="absolute top-6 right-6 text-white hover:text-brand-green transition-colors"
-                            onClick={() => setIsMobileMenuOpen(false)}
+                <AnimatePresence>
+                    {isMobileMenuOpen && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.35, ease: "easeInOut" }}
+                            className="fixed inset-0 z-[60] bg-black/90 backdrop-blur-2xl flex flex-col items-center justify-center md:hidden"
                         >
-                            <X size={32} />
-                        </button>
-                        <div className="flex flex-col items-center space-y-8 text-2xl font-oswald tracking-widest uppercase text-center px-4">
-                            {navLinks.map((link) => {
-                                const active = isLinkActive(link.href);
-                                return (
-                                    <Link
-                                        key={link.href}
-                                        href={link.href}
-                                        prefetch={false}
-                                        onClick={() => setIsMobileMenuOpen(false)}
-                                        className={`transition-colors ${
-                                            active ? "text-brand-green" : "text-white hover:text-brand-green"
-                                        }`}
-                                    >
-                                        {link.mobileName}
-                                    </Link>
-                                );
-                            })}
-                        </div>
-                    </div>
-                )}
+                            <div className="flex flex-col items-center space-y-10 text-3xl font-heading tracking-[0.15em] uppercase text-center px-4 font-black">
+                                {navLinks.map((link, idx) => {
+                                    const active = isLinkActive(link.href);
+                                    return (
+                                        <motion.div
+                                            key={link.href}
+                                            initial={{ opacity: 0, y: 25 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.1 + idx * 0.05, duration: 0.3, ease: "easeOut" }}
+                                        >
+                                            <Link
+                                                href={link.href}
+                                                prefetch={false}
+                                                onClick={() => setIsMobileMenuOpen(false)}
+                                                className={`transition-all duration-300 hover:scale-105 active:scale-95 block hover:text-brand-green ${
+                                                    active ? "text-brand-green" : "text-white"
+                                                }`}
+                                            >
+                                                {link.mobileName}
+                                            </Link>
+                                        </motion.div>
+                                    );
+                                })}
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </nav>
 
             {/* Search Overlay */}
