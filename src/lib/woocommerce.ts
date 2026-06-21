@@ -79,6 +79,38 @@ export function isWooCommerceConfigured(): boolean {
   return !!(CONSUMER_KEY && CONSUMER_SECRET);
 }
 
+function decodeHtmlEntities(str: string): string {
+  if (!str) return '';
+  return str
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#039;/gi, "'")
+    .replace(/&#39;/gi, "'")
+    .replace(/&#038;/gi, '&');
+}
+
+function decodeObjectHtmlEntities<T>(obj: T): T {
+  if (obj === null || obj === undefined) return obj;
+  if (typeof obj === 'string') {
+    return decodeHtmlEntities(obj) as any;
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(item => decodeObjectHtmlEntities(item)) as any;
+  }
+  if (typeof obj === 'object') {
+    const newObj: any = {};
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        newObj[key] = decodeObjectHtmlEntities(obj[key]);
+      }
+    }
+    return newObj as T;
+  }
+  return obj;
+}
+
 /**
  * Helper to make authenticated requests to WooCommerce REST API.
  */
@@ -111,7 +143,8 @@ export async function fetchWooCommerce<T>(endpoint: string, options: RequestInit
       throw new Error(friendlyMsg);
     }
 
-    return (await res.json()) as T;
+    const data = await res.json();
+    return decodeObjectHtmlEntities(data) as T;
   } catch (error) {
     console.error(`Error fetching WooCommerce endpoint "${endpoint}":`, error);
     throw error;
