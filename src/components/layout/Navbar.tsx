@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { ShoppingCart, Search, Menu, User, X } from "lucide-react";
+import { ShoppingCart, Search, Menu, User, X, ChevronRight } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { motion, AnimatePresence } from "framer-motion";
 import CartDrawer from "./CartDrawer";
@@ -91,15 +91,6 @@ export default function Navbar() {
 
                     {/* Left Section Navigation Links */}
                     <div className="flex items-center relative z-20">
-                        <button
-                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="md:hidden flex flex-col justify-center items-center w-6 h-6 cursor-pointer group focus:outline-none relative z-[70] mr-3 sm:mr-4"
-                            aria-label="Toggle Menu"
-                        >
-                            <span className={`w-6 h-0.5 bg-white transition-all duration-300 ease-in-out absolute ${isMobileMenuOpen ? 'rotate-45 !bg-brand-green' : '-translate-y-1.5 group-hover:bg-brand-green'}`} />
-                            <span className={`w-6 h-0.5 bg-white transition-all duration-300 ease-in-out absolute ${isMobileMenuOpen ? 'opacity-0' : 'group-hover:bg-brand-green'}`} />
-                            <span className={`w-6 h-0.5 bg-white transition-all duration-300 ease-in-out absolute ${isMobileMenuOpen ? '-rotate-45 !bg-brand-green' : 'translate-y-1.5 group-hover:bg-brand-green'}`} />
-                        </button>
                         <div className="hidden md:flex items-center space-x-6">
                             {navLinks.map((link) => {
                                 const active = isLinkActive(link.href);
@@ -160,42 +151,49 @@ export default function Navbar() {
                                 </span>
                             )}
                         </button>
+                        <button
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            className="md:hidden flex flex-col justify-center items-center w-6 h-6 cursor-pointer group focus:outline-none relative z-[70]"
+                            aria-label="Toggle Menu"
+                        >
+                            <span className={`w-6 h-0.5 bg-white transition-all duration-300 ease-in-out absolute ${isMobileMenuOpen ? 'rotate-45 !bg-brand-green' : '-translate-y-1.5 group-hover:bg-brand-green'}`} />
+                            <span className={`w-6 h-0.5 bg-white transition-all duration-300 ease-in-out absolute ${isMobileMenuOpen ? 'opacity-0' : 'group-hover:bg-brand-green'}`} />
+                            <span className={`w-6 h-0.5 bg-white transition-all duration-300 ease-in-out absolute ${isMobileMenuOpen ? '-rotate-45 !bg-brand-green' : 'translate-y-1.5 group-hover:bg-brand-green'}`} />
+                        </button>
                     </div>
                 </div>
                 {/* Mobile Menu Overlay */}
                 <AnimatePresence>
                     {isMobileMenuOpen && (
                         <motion.div
-                            initial={{ opacity: 0, y: -20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            transition={{ duration: 0.35, ease: "easeInOut" }}
-                            className="fixed inset-0 z-[60] bg-black/95 backdrop-blur-2xl flex flex-col items-center justify-start pt-32 pb-16 overflow-y-auto md:hidden"
+                            initial={{ opacity: 0, y: -15, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: -15, scale: 0.95 }}
+                            transition={{ duration: 0.25, ease: "easeOut" }}
+                            className="absolute top-[88px] left-4 right-4 bg-black/95 backdrop-blur-2xl border border-white/10 p-6 rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.8),0_0_30px_rgba(177,243,16,0.05)] md:hidden flex flex-col space-y-4"
                         >
-                            <div className="flex flex-col items-center space-y-10 text-xl sm:text-2xl md:text-3xl font-heading tracking-[0.15em] uppercase text-center px-4 font-black w-full max-w-md mx-auto">
-                                {navLinks.map((link, idx) => {
-                                    const active = isLinkActive(link.href);
-                                    return (
-                                        <motion.div
-                                            key={link.href}
-                                            initial={{ opacity: 0, y: 25 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.1 + idx * 0.05, duration: 0.3, ease: "easeOut" }}
-                                        >
-                                            <Link
-                                                href={link.href}
-                                                prefetch={false}
-                                                onClick={() => setIsMobileMenuOpen(false)}
-                                                className={`transition-all duration-300 hover:scale-105 active:scale-95 block hover:text-brand-green ${
-                                                    active ? "text-brand-green" : "text-white"
-                                                }`}
-                                            >
-                                                {link.mobileName}
-                                            </Link>
-                                        </motion.div>
-                                    );
-                                })}
-                            </div>
+                            <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-brand-green font-bold border-b border-white/5 pb-2">
+                                Navigation Shortcuts
+                            </span>
+                            {navLinks.map((link) => {
+                                const active = isLinkActive(link.href);
+                                return (
+                                    <Link
+                                        key={link.href}
+                                        href={link.href}
+                                        prefetch={false}
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        className={`flex items-center justify-between py-3 px-4 rounded-xl transition-all duration-200 active:scale-98 hover:bg-white/5 group ${
+                                            active ? "bg-brand-green/10 text-brand-green font-bold" : "text-white"
+                                        }`}
+                                    >
+                                        <span className="text-sm font-heading tracking-wider uppercase">
+                                            {link.mobileName}
+                                        </span>
+                                        <ChevronRight size={14} className="text-gray-500 group-hover:text-brand-green group-hover:translate-x-0.5 transition-all" />
+                                    </Link>
+                                );
+                            })}
                         </motion.div>
                     )}
                 </AnimatePresence>
