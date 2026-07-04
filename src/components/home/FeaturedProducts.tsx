@@ -75,7 +75,7 @@ export default function FeaturedProducts({ initialProducts }: FeaturedProductsPr
                 </div>
 
                 {/* Grid */}
-                <div className="grid grid-cols-3 lg:grid-cols-4 gap-2 md:gap-8">
+                <div className="grid grid-cols-4 gap-1.5 md:gap-8">
                     {displayProducts.map((product, idx) => (
                         <motion.div
                             key={product.id}
@@ -92,7 +92,7 @@ export default function FeaturedProducts({ initialProducts }: FeaturedProductsPr
                                             src={product.image}
                                             alt={product.name}
                                             fill
-                                            sizes="(max-width: 640px) 33vw, 25vw"
+                                            sizes="(max-width: 640px) 25vw, 25vw"
                                             className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                                         />
                                     </Link>
