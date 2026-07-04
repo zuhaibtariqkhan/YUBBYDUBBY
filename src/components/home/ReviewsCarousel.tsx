@@ -90,7 +90,7 @@ export default function ReviewsCarousel() {
     const review = reviews[activeIndex];
 
     return (
-        <section className="bg-brand-black text-brand-white py-12 sm:py-16 md:py-28 px-4 sm:px-6 border-t border-white/10 overflow-hidden">
+        <section className="bg-brand-black text-brand-white py-8 sm:py-16 md:py-28 px-4 sm:px-6 border-t border-white/10 overflow-hidden">
             <div className="max-w-5xl mx-auto">
                 {/* Header */}
                 <motion.div
@@ -131,7 +131,7 @@ export default function ReviewsCarousel() {
                     </button>
 
                     {/* Review card */}
-                    <div className="relative min-h-[220px] md:min-h-[240px] flex items-center justify-center px-4 sm:px-16 md:px-20">
+                    <div className="relative min-h-[160px] md:min-h-[240px] flex items-center justify-center px-4 sm:px-16 md:px-20">
                         <AnimatePresence custom={direction} mode="wait">
                             <motion.div
                                 key={review.id}
@@ -166,7 +166,7 @@ export default function ReviewsCarousel() {
                                 </div>
 
                                 {/* Review text */}
-                                <p className="text-base sm:text-lg md:text-xl text-gray-200 leading-relaxed max-w-3xl mx-auto font-sans mb-6 md:mb-8 italic px-2 sm:px-0">
+                                <p className="text-xs sm:text-lg md:text-xl text-gray-200 leading-relaxed max-w-3xl mx-auto font-sans mb-4 md:mb-8 italic px-2 sm:px-0">
                                     &ldquo;{review.text}&rdquo;
                                 </p>
 

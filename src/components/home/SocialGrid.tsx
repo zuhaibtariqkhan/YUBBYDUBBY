@@ -41,13 +41,13 @@ export default function SocialGrid() {
     }, []);
 
     return (
-        <section className="py-20 bg-brand-black border-t border-white/10">
-            <div className="max-w-7xl mx-auto px-6 mb-12 text-center md:text-left flex flex-col md:flex-row justify-between items-center md:items-end gap-6">
+        <section className="py-10 md:py-20 bg-brand-black border-t border-white/10">
+            <div className="max-w-7xl mx-auto px-6 mb-6 md:mb-12 text-center md:text-left flex flex-col md:flex-row justify-between items-center md:items-end gap-6">
                 <div>
-                    <h2 className="font-heading text-4xl md:text-5xl font-black uppercase tracking-tighter text-brand-white">
+                    <h2 className="font-heading text-3xl md:text-5xl font-black uppercase tracking-tighter text-brand-white">
                         Join The <span className="text-brand-green italic drop-shadow-[0_0_15px_rgba(177,243,16,0.5)]">Syndicate</span>
                     </h2>
-                    <p className="text-gray-400 mt-4 max-w-md font-sans text-sm md:text-base">
+                    <p className="text-gray-400 mt-3 max-w-md font-sans text-xs sm:text-sm md:text-base mx-auto md:mx-0">
                         Tag @yubby.dubby to be featured on our official grid.
                     </p>
                 </div>
@@ -55,9 +55,9 @@ export default function SocialGrid() {
                     href="https://instagram.com/yubby.dubby"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-brand-black bg-brand-green font-bold uppercase tracking-widest px-6 py-3 rounded-[var(--radius-btn)] hover:bg-white hover:shadow-[0_0_20px_rgba(177,243,16,0.4)] transition-all duration-300 text-sm"
+                    className="flex items-center gap-2 text-brand-black bg-brand-green font-bold uppercase tracking-widest px-5 py-2.5 md:px-6 md:py-3 rounded-[var(--radius-btn)] hover:bg-white hover:shadow-[0_0_20px_rgba(177,243,16,0.4)] transition-all duration-300 text-xs md:text-sm"
                 >
-                    <Instagram size={18} />
+                    <Instagram size={16} className="md:w-[18px] md:h-[18px]" />
                     Follow Us
                 </a>
             </div>

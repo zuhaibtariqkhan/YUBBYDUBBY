@@ -91,24 +91,24 @@ function NewsletterSubscribe() {
 
 export function LimitedDrop() {
     return (
-        <section className="bg-brand-white text-brand-black py-20 px-6 mt-10">
-            <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12">
+        <section className="bg-brand-white text-brand-black py-10 md:py-20 px-6 mt-5 md:mt-10">
+            <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12">
                 <div className="md:w-1/2 text-center md:text-left flex flex-col items-center md:items-start">
-                    <span className="text-brand-green font-bold tracking-widest uppercase text-sm mb-4 block">Print On Demand</span>
-                    <h2 className="font-heading text-5xl md:text-7xl font-black uppercase tracking-tighter leading-[0.9]">
+                    <span className="text-brand-green font-bold tracking-widest uppercase text-xs md:text-sm mb-2 md:mb-4 block">Print On Demand</span>
+                    <h2 className="font-heading text-3xl md:text-7xl font-black uppercase tracking-tighter leading-[0.9]">
                         Create Your<br />Own
                     </h2>
-                    <p className="mt-6 text-gray-600 max-w-md font-sans">
+                    <p className="mt-4 md:mt-6 text-gray-600 max-w-md font-sans text-xs sm:text-sm md:text-base">
                         Upload your design, choose your product, and we craft it with premium precision.
                     </p>
                     <Link href="/create-your-own">
-                        <button className="relative mt-8 overflow-hidden bg-brand-black text-brand-white font-bold uppercase tracking-widest px-10 py-4 rounded-[var(--radius-btn)] hover:shadow-[0_0_30px_rgba(124,255,103,0.3)] hover:scale-105 transition-all duration-300 group cursor-pointer">
+                        <button className="relative mt-5 md:mt-8 overflow-hidden bg-brand-black text-brand-white font-bold uppercase tracking-widest px-6 py-3 text-xs sm:px-10 sm:py-4 sm:text-sm rounded-[var(--radius-btn)] hover:shadow-[0_0_30px_rgba(124,255,103,0.3)] hover:scale-105 transition-all duration-300 group cursor-pointer">
                             <Aurora colorStops={["#1a1a1a", "#050505", "#7cff67"]} blend={0.8} amplitude={1.0} speed={1.0} />
                             <span className="relative z-10 group-hover:text-brand-white transition-colors">Create Now</span>
                         </button>
                     </Link>
                 </div>
-                <div className="md:w-1/2 relative min-h-[400px] w-full rounded-[var(--radius-card)] overflow-hidden flex items-center justify-center">
+                <div className="md:w-1/2 relative min-h-[250px] md:min-h-[400px] w-full rounded-[var(--radius-card)] overflow-hidden flex items-center justify-center">
                     <Image
                         src="/create-your-own.png"
                         alt="Create Your Own Design"
@@ -135,7 +135,7 @@ export function EditorialMessage() {
     return (
         <section
             ref={sectionRef}
-            className="relative text-brand-white py-40 px-6 flex items-center justify-center text-center overflow-hidden min-h-[60vh]"
+            className="relative text-brand-white py-20 md:py-40 px-6 flex items-center justify-center text-center overflow-hidden min-h-[40vh] md:min-h-[60vh]"
         >
             <motion.div
                 style={{ y: videoY }}
@@ -162,9 +162,9 @@ export function EditorialMessage() {
             >
                 <TextReveal
                     text="&quot;We do not follow trends. We dictate the aesthetic of tomorrow's urban landscape.&quot;"
-                    className="font-heading text-3xl md:text-5xl lg:text-6xl uppercase tracking-widest leading-relaxed drop-shadow-lg justify-center md:justify-start"
+                    className="font-heading text-xl md:text-5xl lg:text-6xl uppercase tracking-widest leading-relaxed drop-shadow-lg justify-center md:justify-start"
                 />
-                <p className="mt-8 md:mt-12 text-brand-green font-bold tracking-widest uppercase text-sm md:text-base drop-shadow-md">
+                <p className="mt-4 md:mt-12 text-brand-green font-bold tracking-widest uppercase text-xs md:text-base drop-shadow-md">
                     - YUBBY DUBBY STUDIO
                 </p>
             </motion.div>
@@ -174,8 +174,8 @@ export function EditorialMessage() {
 
 export function TrustStrip() {
     return (
-        <section className="border-y border-white/10 bg-brand-black py-12 px-6">
-            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center text-brand-white">
+        <section className="border-y border-white/10 bg-brand-black py-6 md:py-12 px-6">
+            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 text-center text-brand-white">
                 <div className="flex flex-col items-center justify-center">
                     <Truck size={32} className="text-brand-green mb-4" />
                     <h4 className="font-bold uppercase tracking-widest text-sm mb-2">Global Shipping</h4>
@@ -198,8 +198,8 @@ export function TrustStrip() {
 
 export function Footer() {
     return (
-        <footer className="bg-brand-black text-brand-white pt-16 md:pt-24 pb-8 md:pb-12 px-6">
-            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 border-b border-white/10 pb-10 md:pb-16">
+        <footer className="bg-brand-black text-brand-white pt-10 md:pt-24 pb-6 md:pb-12 px-6">
+            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-12 border-b border-white/10 pb-6 md:pb-16">
 
                 {/* Brand / Newsletter */}
                 <div className="md:col-span-2 text-center md:text-left flex flex-col items-center md:items-start">

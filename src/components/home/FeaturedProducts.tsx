@@ -50,24 +50,24 @@ export default function FeaturedProducts({ initialProducts }: FeaturedProductsPr
         : mockFeatured;
 
     return (
-        <section className="bg-brand-white text-brand-black py-24 px-6 md:px-12 lg:px-24">
+        <section className="bg-brand-white text-brand-black py-12 md:py-24 px-6 md:px-12 lg:px-24">
             <div className="max-w-7xl mx-auto">
                 
                 {/* Header */}
-                <div className="flex flex-col md:flex-row justify-between items-center md:items-end mb-16 gap-6 text-center md:text-left">
-                    <div className="flex flex-col items-center md:items-start">
-                        <span className="text-brand-green font-bold tracking-widest uppercase text-sm mb-2 block">Studio Curation</span>
+                <div className="flex flex-col items-center mb-8 md:mb-16 gap-4 text-center w-full">
+                    <div className="flex flex-col items-center w-full">
+                        <span className="text-brand-green font-bold tracking-widest uppercase text-xs md:text-sm mb-1 md:mb-2 block">Studio Curation</span>
                         <TextReveal
                             text="Featured Products"
-                            className="font-heading text-5xl md:text-6xl font-black uppercase tracking-tighter"
+                            className="font-heading text-3xl md:text-6xl font-black uppercase tracking-tighter justify-center w-full"
                         />
-                        <p className="text-gray-500 mt-4 max-w-md font-sans">
+                        <p className="text-gray-500 mt-4 max-w-md font-sans text-center text-xs md:text-base mx-auto">
                             Handpicked structural coordinates demonstrating elite street aesthetics.
                         </p>
                     </div>
                     <Link 
                         href="/shop" 
-                        className="group inline-flex items-center gap-3 font-bold uppercase tracking-widest text-sm hover:text-brand-green transition-colors border-b-2 border-brand-black hover:border-brand-green pb-2"
+                        className="group inline-flex items-center gap-3 font-bold uppercase tracking-widest text-sm hover:text-brand-green transition-colors border-b-2 border-brand-black hover:border-brand-green pb-1"
                     >
                         Explore Entire Shop
                         <ArrowRight size={18} className="transform group-hover:translate-x-1.5 transition-transform" />
@@ -75,7 +75,7 @@ export default function FeaturedProducts({ initialProducts }: FeaturedProductsPr
                 </div>
 
                 {/* Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-8">
                     {displayProducts.map((product, idx) => (
                         <motion.div
                             key={product.id}
@@ -83,25 +83,25 @@ export default function FeaturedProducts({ initialProducts }: FeaturedProductsPr
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true, margin: "-50px" }}
                             transition={{ delay: idx * 0.15, duration: 0.6, ease: "easeOut" }}
-                            className="bg-black/5 border border-black/5 rounded-[var(--radius-card)] p-4 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-all duration-300 group flex flex-col justify-between"
+                            className="bg-transparent border-0 md:bg-black/5 md:border md:border-black/5 md:rounded-[var(--radius-card)] p-0 md:p-4 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-all duration-300 group flex flex-col justify-between"
                         >
                             <div>
-                                <div className="relative aspect-[3/4] bg-black/5 rounded-[var(--radius-img)] overflow-hidden mb-6 flex items-center justify-center">
+                                <div className="relative aspect-[3/4] bg-black/5 rounded-[12px] sm:rounded-[var(--radius-img)] overflow-hidden mb-3 sm:mb-6 flex items-center justify-center">
                                     <Link href={`/product/${product.id}`} className="absolute inset-0 w-full h-full block z-0">
                                         <Image
                                             src={product.image}
                                             alt={product.name}
                                             fill
-                                            sizes="(max-width: 640px) 100vw, 25vw"
+                                            sizes="(max-width: 640px) 50vw, 25vw"
                                             className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                                         />
                                     </Link>
                                     {product.tag && (
-                                        <span className="absolute top-4 left-4 bg-brand-black text-brand-white text-[10px] font-bold px-3 py-1 uppercase tracking-widest border border-white/10 z-10 pointer-events-none">
+                                        <span className="absolute top-2 left-2 bg-brand-black text-brand-white text-[8px] sm:text-[10px] font-bold px-2 py-0.5 sm:px-3 sm:py-1 uppercase tracking-widest border border-white/10 z-10 pointer-events-none">
                                             {product.tag}
                                         </span>
                                     )}
-                                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10 pointer-events-none">
+                                    <div className="hidden md:flex absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 items-center justify-center z-10 pointer-events-none">
                                         <button 
                                             onClick={() => addToCart({
                                                 id: product.id,
@@ -117,22 +117,22 @@ export default function FeaturedProducts({ initialProducts }: FeaturedProductsPr
                                     </div>
                                 </div>
 
-                                <div className="px-2">
-                                    <div className="flex items-center gap-1 mb-2">
+                                <div className="px-0 sm:px-2">
+                                    <div className="flex items-center gap-0.5 sm:gap-1 mb-1.5 sm:mb-2">
                                         {[...Array(5)].map((_, i) => (
-                                            <Star key={i} size={13} className="fill-brand-green text-brand-green" />
+                                            <Star key={i} size={10} className="fill-brand-green text-brand-green sm:w-3 sm:h-3" />
                                         ))}
-                                        <span className="text-[10px] text-gray-400 ml-1 font-mono">(98)</span>
+                                        <span className="text-[9px] sm:text-[10px] text-gray-400 ml-1 font-mono">(98)</span>
                                     </div>
                                     <Link href={`/product/${product.id}`} className="block">
-                                        <h3 className="font-bold text-lg hover:text-brand-green transition-colors uppercase font-heading truncate text-brand-black">{product.name}</h3>
+                                        <h3 className="font-bold text-xs sm:text-base md:text-lg hover:text-brand-green transition-colors uppercase font-heading truncate text-brand-black">{product.name}</h3>
                                     </Link>
                                 </div>
                             </div>
-                            <div className="px-2 mt-4 pt-4 border-t border-black/5 flex justify-between items-center">
-                                <span className="text-gray-400 text-xs font-mono uppercase">{product.category}</span>
-                                <span className="text-brand-black font-bold tracking-widest">
-                                    ${product.price}.00
+                            <div className="px-0 sm:px-2 mt-2 pt-2 sm:mt-4 sm:pt-4 border-t border-black/5 flex justify-between items-center">
+                                <span className="text-gray-400 text-[9px] sm:text-xs font-mono uppercase">{product.category}</span>
+                                <span className="text-brand-black font-bold tracking-widest text-xs sm:text-sm md:text-base">
+                                    $ {product.price}.00
                                 </span>
                             </div>
                         </motion.div>

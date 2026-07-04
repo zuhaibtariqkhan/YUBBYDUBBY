@@ -51,7 +51,7 @@ function TiltCard({ children }: { children: React.ReactNode }) {
                     transform: "translateZ(30px)",
                     transformStyle: "preserve-3d",
                 }}
-                className="w-full h-full glass-card p-4 transition-shadow duration-300 group-hover:shadow-[0_20px_40px_rgba(177,243,16,0.15)]"
+                className="w-full h-full bg-transparent border-none md:glass-card p-0 md:p-4 transition-shadow duration-300 group-hover:shadow-[0_20px_40px_rgba(177,243,16,0.15)]"
             >
                 {children}
             </div>
@@ -152,32 +152,32 @@ export default function BestSellers({ initialProducts }: BestSellersProps) {
         (product) => activeCategory === "All" || product.category === activeCategory
     );
     return (
-        <section className="bg-brand-black text-brand-white py-24 px-6 md:px-12 lg:px-24 border-t border-white/10">
+        <section className="bg-brand-black text-brand-white py-12 md:py-24 px-6 md:px-12 lg:px-24 border-t border-white/10">
             <div className="max-w-7xl mx-auto">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-100px" }}
                     transition={{ duration: 0.6 }}
-                    className="flex flex-col md:flex-row justify-between items-center md:items-end mb-16 text-center md:text-left"
+                    className="flex flex-col items-center mb-8 md:mb-16 text-center w-full"
                 >
-                    <div className="flex flex-col items-center md:items-start">
+                    <div className="flex flex-col items-center w-full">
                         <TextReveal
                             text="Shop By Category"
-                            className="font-heading text-5xl md:text-6xl font-black uppercase tracking-tighter"
+                            className="font-heading text-3xl md:text-6xl font-black uppercase tracking-tighter justify-center w-full"
                         />
-                        <p className="text-gray-400 mt-4 max-w-md font-sans">
+                        <p className="text-gray-400 mt-4 max-w-md font-sans text-center text-xs md:text-base mx-auto">
                             Curated selection of our highest performing aesthetic structures.
                         </p>
                     </div>
                 </motion.div>
 
-                <div className="flex flex-wrap gap-4 mb-12 justify-center md:justify-start">
+                <div className="flex overflow-x-auto whitespace-nowrap scrollbar-hide gap-3 mb-8 md:mb-12 justify-start pb-3 -mx-6 px-6 snap-x">
                     {categories.map((cat) => (
                         <button
                             key={cat}
                             onClick={() => setActiveCategory(cat)}
-                            className={`relative px-6 py-2 rounded-[var(--radius-btn)] font-bold uppercase tracking-widest text-sm transition-colors duration-300 ${activeCategory === cat ? "text-brand-black" : "text-gray-400 hover:text-white"
+                            className={`relative px-4 py-1.5 rounded-[var(--radius-btn)] font-bold uppercase tracking-widest text-xs transition-colors duration-300 shrink-0 snap-start ${activeCategory === cat ? "text-brand-black" : "text-gray-400 hover:text-white"
                                 }`}
                         >
                             {activeCategory === cat && (
@@ -192,7 +192,7 @@ export default function BestSellers({ initialProducts }: BestSellersProps) {
                     ))}
                 </div>
 
-                <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 min-h-[400px]">
+                <motion.div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-8 min-h-[300px] md:min-h-[400px]">
                     <AnimatePresence mode="wait">
                         {filteredProducts.map((product) => (
                             <motion.div
@@ -205,25 +205,25 @@ export default function BestSellers({ initialProducts }: BestSellersProps) {
                                 className="perspective-1000"
                             >
                                 <TiltCard>
-                                    <div className="relative aspect-[3/4] bg-white/5 rounded-[var(--radius-img)] overflow-hidden mb-6 flex items-center justify-center">
+                                    <div className="relative aspect-[3/4] bg-white/5 rounded-[12px] sm:rounded-[var(--radius-img)] overflow-hidden mb-3 sm:mb-6 flex items-center justify-center">
                                         {/* Product Image Link */}
                                         <Link href={`/product/${product.id}`} className="absolute inset-0 w-full h-full block z-0">
                                             <Image
                                                 src={product.image}
                                                 alt={product.name}
                                                 fill
-                                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                                                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
                                                 className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                                             />
                                         </Link>
 
                                         {product.tag && (
-                                            <span className="absolute top-4 left-4 bg-brand-green text-brand-black text-xs font-bold px-3 py-1 uppercase tracking-widest z-10 pointer-events-none">
+                                            <span className="absolute top-2 left-2 bg-brand-green text-brand-black text-[9px] sm:text-xs font-bold px-2 py-0.5 sm:px-3 sm:py-1 uppercase tracking-widest z-10 pointer-events-none">
                                                 {product.tag}
                                             </span>
                                         )}
 
-                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10 pointer-events-none">
+                                        <div className="hidden md:flex absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 items-center justify-center z-10 pointer-events-none">
                                             <button 
                                                 onClick={(e) => {
                                                     e.stopPropagation();
@@ -243,17 +243,17 @@ export default function BestSellers({ initialProducts }: BestSellersProps) {
                                     </div>
 
 
-                                    <div className="px-2">
-                                        <div className="flex items-center gap-1 mb-2">
+                                    <div className="px-0 sm:px-2">
+                                        <div className="flex items-center gap-0.5 sm:gap-1 mb-1.5 sm:mb-2">
                                             {[...Array(5)].map((_, i) => (
-                                                <Star key={i} size={14} className="fill-brand-green text-brand-green" />
+                                                <Star key={i} size={10} className="fill-brand-green text-brand-green sm:w-3.5 sm:h-3.5" />
                                             ))}
-                                            <span className="text-xs text-gray-400 ml-2">(124)</span>
+                                            <span className="text-[10px] sm:text-xs text-gray-400 ml-1.5 sm:ml-2">(124)</span>
                                         </div>
                                         <Link href={`/product/${product.id}`} className="block">
-                                            <h3 className="font-bold text-lg hover:text-brand-green transition-colors uppercase font-heading">{product.name}</h3>
+                                            <h3 className="font-bold text-xs sm:text-base md:text-lg hover:text-brand-green transition-colors uppercase font-heading truncate">{product.name}</h3>
                                         </Link>
-                                        <div className="mt-2 text-brand-green font-bold tracking-widest">
+                                        <div className="mt-1 sm:mt-2 text-brand-green font-bold tracking-widest text-xs sm:text-base">
                                             ${product.price}.00
                                         </div>
                                     </div>

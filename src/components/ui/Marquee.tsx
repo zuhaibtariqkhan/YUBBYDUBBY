@@ -13,11 +13,11 @@ export default function Marquee() {
     const repeated = [...items, ...items, ...items, ...items];
 
     return (
-        <section className="relative bg-brand-green text-brand-black py-4 overflow-hidden select-none">
+        <section className="relative bg-brand-green text-brand-black py-2 md:py-4 overflow-hidden select-none">
             <div className="marquee-track flex items-center gap-8 whitespace-nowrap">
                 {repeated.map((text, i) => (
                     <span key={i} className="flex items-center gap-8">
-                        <span className="font-heading text-sm md:text-base font-black uppercase tracking-[0.3em]">
+                        <span className="font-heading text-xs md:text-base font-black uppercase tracking-[0.3em]">
                             {text}
                         </span>
                         <span className="text-black/40 text-lg">✦</span>

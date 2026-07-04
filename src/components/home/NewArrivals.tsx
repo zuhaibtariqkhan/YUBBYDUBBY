@@ -54,7 +54,7 @@ export default function NewArrivals({ initialProducts }: NewArrivalsProps) {
     const secondaryProducts = displayProducts.slice(1);
 
     return (
-        <section className="bg-brand-black text-brand-white py-24 px-6 md:px-12 lg:px-24 border-t border-white/10 relative overflow-hidden">
+        <section className="bg-brand-black text-brand-white py-12 md:py-24 px-6 md:px-12 lg:px-24 border-t border-white/10 relative overflow-hidden">
             
             {/* Ambient glow */}
             <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[400px] h-[400px] bg-radial from-[#B1F310]/3 via-transparent to-transparent blur-[120px] pointer-events-none z-0" />
@@ -62,14 +62,14 @@ export default function NewArrivals({ initialProducts }: NewArrivalsProps) {
             <div className="max-w-7xl mx-auto relative z-10">
                 
                 {/* Header */}
-                <div className="flex flex-col md:flex-row justify-between items-center md:items-end mb-16 gap-6 text-center md:text-left">
-                    <div className="flex flex-col items-center md:items-start">
-                        <span className="text-brand-green font-bold tracking-widest uppercase text-sm mb-2 block">Latest Drops</span>
+                <div className="flex flex-col items-center mb-8 md:mb-16 gap-4 text-center w-full">
+                    <div className="flex flex-col items-center w-full">
+                        <span className="text-brand-green font-bold tracking-widest uppercase text-xs md:text-sm mb-1 md:mb-2 block">Latest Drops</span>
                         <TextReveal
                             text="New Arrivals"
-                            className="font-heading text-5xl md:text-6xl font-black uppercase tracking-tighter"
+                            className="font-heading text-3xl md:text-6xl font-black uppercase tracking-tighter justify-center w-full"
                         />
-                        <p className="text-gray-400 mt-4 max-w-md font-sans">
+                        <p className="text-gray-400 mt-4 max-w-md font-sans text-center text-xs md:text-base mx-auto">
                             Freshly synthesized coordinates constructed for immediate deployment.
                         </p>
                     </div>
@@ -92,12 +92,12 @@ export default function NewArrivals({ initialProducts }: NewArrivalsProps) {
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true, margin: "-50px" }}
                             transition={{ duration: 0.6, ease: "easeOut" }}
-                            className="lg:col-span-7 glass-card p-6 md:p-8 flex flex-col justify-between group relative overflow-hidden min-h-[500px]"
+                            className="lg:col-span-7 glass-card p-4 md:p-8 flex flex-col justify-between group relative overflow-hidden min-h-[350px] md:min-h-[500px]"
                         >
                             <div className="absolute top-0 left-0 w-8 h-8 border-t border-l border-white/10 group-hover:border-brand-green/30 rounded-tl-[var(--radius-card)] transition-colors" />
                             <div className="absolute bottom-0 right-0 w-8 h-8 border-b border-r border-white/10 group-hover:border-brand-green/30 rounded-br-[var(--radius-card)] transition-colors" />
 
-                            <div className="relative aspect-[4/3] w-full bg-white/5 rounded-[var(--radius-img)] overflow-hidden mb-6 flex items-center justify-center">
+                            <div className="relative aspect-[4/3] w-full bg-white/5 rounded-[12px] sm:rounded-[var(--radius-img)] overflow-hidden mb-4 md:mb-6 flex items-center justify-center">
                                 <Link href={`/product/${featuredProduct.id}`} className="absolute inset-0 w-full h-full block z-0">
                                     <Image
                                         src={featuredProduct.image}
@@ -107,34 +107,34 @@ export default function NewArrivals({ initialProducts }: NewArrivalsProps) {
                                         className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                                     />
                                 </Link>
-                                <span className="absolute top-4 left-4 bg-brand-green text-brand-black text-xs font-bold px-3 py-1 uppercase tracking-widest z-10 pointer-events-none">
+                                <span className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-brand-green text-brand-black text-[9px] sm:text-xs font-bold px-2 py-0.5 sm:px-3 sm:py-1 uppercase tracking-widest z-10 pointer-events-none">
                                     {featuredProduct.tag}
                                 </span>
                             </div>
 
-                            <div className="space-y-4">
+                            <div className="space-y-3 md:space-y-4">
                                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                                    <span className="text-brand-green text-xs font-mono uppercase tracking-widest">{featuredProduct.category}</span>
+                                    <span className="text-brand-green text-[10px] sm:text-xs font-mono uppercase tracking-widest">{featuredProduct.category}</span>
                                     <div className="flex items-center gap-1">
                                         {[...Array(5)].map((_, i) => (
-                                            <Star key={i} size={14} className="fill-brand-green text-brand-green" />
+                                            <Star key={i} size={10} className="fill-brand-green text-brand-green sm:w-3.5 sm:h-3.5" />
                                         ))}
-                                        <span className="text-xs text-gray-400 ml-1 font-mono">(14)</span>
+                                        <span className="text-[10px] sm:text-xs text-gray-400 ml-1 font-mono">(14)</span>
                                     </div>
                                 </div>
                                 
                                 <Link href={`/product/${featuredProduct.id}`} className="block">
-                                    <h3 className="font-heading text-3xl font-black tracking-widest uppercase hover:text-brand-green transition-colors leading-none">
+                                    <h3 className="font-heading text-xl md:text-3xl font-black tracking-widest uppercase hover:text-brand-green transition-colors leading-none">
                                         {featuredProduct.name}
                                     </h3>
                                 </Link>
                                 
-                                <p className="text-gray-400 text-sm font-sans line-clamp-2 max-w-xl">
+                                <p className="text-gray-400 text-xs sm:text-sm font-sans line-clamp-2 max-w-xl">
                                     {featuredProduct.desc}
                                 </p>
                                 
-                                <div className="pt-4 border-t border-white/5 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
-                                    <span className="text-brand-green text-2xl font-bold tracking-widest">${featuredProduct.price}.00</span>
+                                <div className="pt-3 md:pt-4 border-t border-white/5 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
+                                    <span className="text-brand-green text-xl md:text-2xl font-bold tracking-widest">${featuredProduct.price}.00</span>
                                     <button
                                         onClick={() => addToCart({
                                             id: featuredProduct.id,
@@ -143,9 +143,9 @@ export default function NewArrivals({ initialProducts }: NewArrivalsProps) {
                                             size: "M",
                                             image: featuredProduct.image
                                         }, 1)}
-                                        className="bg-brand-white text-brand-black font-bold uppercase tracking-widest text-xs px-6 py-4 rounded-[var(--radius-btn)] hover:bg-brand-green hover:shadow-[0_0_20px_rgba(177,243,16,0.3)] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                                        className="bg-brand-white text-brand-black font-bold uppercase tracking-widest text-[10px] sm:text-xs px-4 py-2.5 sm:px-6 sm:py-4 rounded-[var(--radius-btn)] hover:bg-brand-green hover:shadow-[0_0_20px_rgba(177,243,16,0.3)] transition-all flex items-center justify-center gap-2 cursor-pointer"
                                     >
-                                        <ShoppingBag size={16} />
+                                        <ShoppingBag size={14} />
                                         Add to Bag
                                     </button>
                                 </div>
@@ -154,7 +154,7 @@ export default function NewArrivals({ initialProducts }: NewArrivalsProps) {
                     )}
 
                     {/* Right: Stack of 3 secondary items */}
-                    <div className="lg:col-span-5 flex flex-col justify-between gap-6">
+                    <div className="lg:col-span-5 flex flex-col justify-between gap-4 md:gap-6">
                         {secondaryProducts.map((product, idx) => (
                             <motion.div
                                 key={product.id}
@@ -162,13 +162,13 @@ export default function NewArrivals({ initialProducts }: NewArrivalsProps) {
                                 whileInView={{ opacity: 1, x: 0 }}
                                 viewport={{ once: true, margin: "-50px" }}
                                 transition={{ delay: idx * 0.15, duration: 0.6, ease: "easeOut" }}
-                                className="glass-card p-4 flex gap-4 items-center group relative overflow-hidden flex-grow"
+                                className="glass-card p-3 md:p-4 flex gap-4 items-center group relative overflow-hidden flex-grow"
                             >
                                 <div className="absolute top-0 left-0 w-4 h-4 border-t border-l border-white/10 group-hover:border-brand-green/20 rounded-tl-[var(--radius-card)] transition-colors" />
                                 <div className="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-white/10 group-hover:border-brand-green/20 rounded-br-[var(--radius-card)] transition-colors" />
 
                                 {/* Product Image Thumbnail */}
-                                <div className="relative h-28 w-24 shrink-0 bg-white/5 rounded-[var(--radius-img)] overflow-hidden flex items-center justify-center">
+                                <div className="relative h-20 w-16 sm:h-28 sm:w-24 shrink-0 bg-white/5 rounded-[12px] sm:rounded-[var(--radius-img)] overflow-hidden flex items-center justify-center">
                                     <Link href={`/product/${product.id}`} className="absolute inset-0 w-full h-full block z-0">
                                         <Image
                                             src={product.image}
@@ -182,20 +182,20 @@ export default function NewArrivals({ initialProducts }: NewArrivalsProps) {
 
                                 {/* Details */}
                                 <div className="flex-grow flex flex-col justify-between h-full min-w-0">
-                                    <div className="space-y-1">
+                                    <div className="space-y-0.5 sm:space-y-1">
                                         <div className="flex justify-between items-start gap-2">
-                                            <span className="text-gray-400 text-[10px] font-mono uppercase tracking-widest">{product.category}</span>
-                                            <span className="bg-brand-green/10 text-brand-green text-[9px] font-bold px-2 py-0.5 rounded font-mono">NEW</span>
+                                            <span className="text-gray-400 text-[9px] sm:text-[10px] font-mono uppercase tracking-widest">{product.category}</span>
+                                            <span className="bg-brand-green/10 text-brand-green text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded font-mono">NEW</span>
                                         </div>
                                         <Link href={`/product/${product.id}`} className="block">
-                                            <h4 className="font-heading font-black text-base tracking-widest uppercase hover:text-brand-green transition-colors truncate">
+                                            <h4 className="font-heading font-black text-xs sm:text-base tracking-widest uppercase hover:text-brand-green transition-colors truncate">
                                                 {product.name}
                                             </h4>
                                         </Link>
-                                        <span className="text-brand-green text-sm font-bold tracking-widest">${product.price}.00</span>
+                                        <span className="text-brand-green text-xs sm:text-sm font-bold tracking-widest">${product.price}.00</span>
                                     </div>
                                     
-                                    <div className="mt-2 pt-2 border-t border-white/5 flex justify-end">
+                                    <div className="mt-1 sm:mt-2 pt-1 sm:pt-2 border-t border-white/5 flex justify-end">
                                         <button
                                             onClick={() => addToCart({
                                                 id: product.id,
@@ -204,7 +204,7 @@ export default function NewArrivals({ initialProducts }: NewArrivalsProps) {
                                                 size: "M",
                                                 image: product.image
                                             }, 1)}
-                                            className="text-[10px] font-bold uppercase tracking-widest text-white hover:text-brand-green transition-colors flex items-center gap-1 cursor-pointer"
+                                            className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-white hover:text-brand-green transition-colors flex items-center gap-1 cursor-pointer"
                                         >
                                             Quick Add +
                                         </button>
