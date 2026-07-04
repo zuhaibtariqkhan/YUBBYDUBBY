@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, Variants } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -66,10 +66,39 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps)
     return "/create-your-own.png";
   };
 
+  // Handle hash selection on mount or when hash changes
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.toLowerCase().replace("#", "");
+      if (hash && initialMainCategories.length > 0) {
+        const found = initialMainCategories.find((cat) => {
+          const slug = cat.slug.toLowerCase();
+          const name = cat.name.toLowerCase();
+          return (
+            slug === hash ||
+            hash.startsWith(slug) ||
+            slug.startsWith(hash) ||
+            name.includes(hash) ||
+            hash.includes(name)
+          );
+        });
+        if (found) {
+          setSelectedMainCategory(found);
+        }
+      }
+    };
+
+    handleHashChange();
+
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, [initialMainCategories]);
+
   // Fetch subcategories when a main category is clicked
   useEffect(() => {
     if (!selectedMainCategory) return;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     setError(null);
     setSubcategories([]);
@@ -96,6 +125,7 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps)
   useEffect(() => {
     if (!selectedSubcategory) return;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     setError(null);
     setProducts([]);
@@ -125,6 +155,10 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps)
     } else if (currentLevel === "subcategories") {
       setSelectedMainCategory(null);
       setCurrentLevel("main-categories");
+      // Clear URL hash cleanly without forcing reload
+      if (typeof window !== "undefined") {
+        window.history.pushState("", document.title, window.location.pathname + window.location.search);
+      }
     }
   };
 
@@ -132,6 +166,10 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps)
     setSelectedSubcategory(null);
     setSelectedMainCategory(null);
     setCurrentLevel("main-categories");
+    // Clear URL hash cleanly without forcing reload
+    if (typeof window !== "undefined") {
+      window.history.pushState("", document.title, window.location.pathname + window.location.search);
+    }
   };
 
   const selectMainCategoryFromBreadcrumb = () => {
@@ -140,7 +178,7 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps)
   };
 
   // Stagger animation container bounds
-  const containerVariants: any = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -150,7 +188,7 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps)
     }
   };
 
-  const itemVariants: any = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 15 },
     show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }
   };
