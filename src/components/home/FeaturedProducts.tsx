@@ -75,7 +75,7 @@ export default function FeaturedProducts({ initialProducts }: FeaturedProductsPr
                 </div>
 
                 {/* Grid */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-8">
+                <div className="grid grid-cols-3 lg:grid-cols-4 gap-2 md:gap-8">
                     {displayProducts.map((product, idx) => (
                         <motion.div
                             key={product.id}
@@ -86,18 +86,18 @@ export default function FeaturedProducts({ initialProducts }: FeaturedProductsPr
                             className="bg-transparent border-0 md:bg-black/5 md:border md:border-black/5 md:rounded-[var(--radius-card)] p-0 md:p-4 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-all duration-300 group flex flex-col justify-between"
                         >
                             <div>
-                                <div className="relative aspect-[3/4] bg-black/5 rounded-[12px] sm:rounded-[var(--radius-img)] overflow-hidden mb-3 sm:mb-6 flex items-center justify-center">
+                                <div className="relative aspect-[3/4] bg-black/5 rounded-[12px] sm:rounded-[var(--radius-img)] overflow-hidden mb-2 sm:mb-6 flex items-center justify-center">
                                     <Link href={`/product/${product.id}`} className="absolute inset-0 w-full h-full block z-0">
                                         <Image
                                             src={product.image}
                                             alt={product.name}
                                             fill
-                                            sizes="(max-width: 640px) 50vw, 25vw"
+                                            sizes="(max-width: 640px) 33vw, 25vw"
                                             className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                                         />
                                     </Link>
                                     {product.tag && (
-                                        <span className="absolute top-2 left-2 bg-brand-black text-brand-white text-[8px] sm:text-[10px] font-bold px-2 py-0.5 sm:px-3 sm:py-1 uppercase tracking-widest border border-white/10 z-10 pointer-events-none">
+                                        <span className="absolute top-1.5 left-1.5 bg-brand-black text-brand-white text-[7px] sm:text-[10px] font-bold px-1.5 py-0.5 sm:px-3 sm:py-1 uppercase tracking-widest border border-white/10 z-10 pointer-events-none">
                                             {product.tag}
                                         </span>
                                     )}
@@ -118,20 +118,20 @@ export default function FeaturedProducts({ initialProducts }: FeaturedProductsPr
                                 </div>
 
                                 <div className="px-0 sm:px-2">
-                                    <div className="flex items-center gap-0.5 sm:gap-1 mb-1.5 sm:mb-2">
+                                    <div className="hidden sm:flex items-center gap-0.5 sm:gap-1 mb-1.5 sm:mb-2">
                                         {[...Array(5)].map((_, i) => (
                                             <Star key={i} size={10} className="fill-brand-green text-brand-green sm:w-3 sm:h-3" />
                                         ))}
                                         <span className="text-[9px] sm:text-[10px] text-gray-400 ml-1 font-mono">(98)</span>
                                     </div>
                                     <Link href={`/product/${product.id}`} className="block">
-                                        <h3 className="font-bold text-xs sm:text-base md:text-lg hover:text-brand-green transition-colors uppercase font-heading truncate text-brand-black">{product.name}</h3>
+                                        <h3 className="font-bold text-[10px] sm:text-base md:text-lg hover:text-brand-green transition-colors uppercase font-heading truncate text-brand-black">{product.name}</h3>
                                     </Link>
                                 </div>
                             </div>
-                            <div className="px-0 sm:px-2 mt-2 pt-2 sm:mt-4 sm:pt-4 border-t border-black/5 flex justify-between items-center">
-                                <span className="text-gray-400 text-[9px] sm:text-xs font-mono uppercase">{product.category}</span>
-                                <span className="text-brand-black font-bold tracking-widest text-xs sm:text-sm md:text-base">
+                            <div className="px-0 sm:px-2 mt-1.5 pt-1.5 sm:mt-4 sm:pt-4 border-t border-black/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-0.5 sm:gap-2">
+                                <span className="text-gray-400 text-[8px] sm:text-xs font-mono uppercase">{product.category}</span>
+                                <span className="text-brand-black font-bold tracking-widest text-[10px] sm:text-sm md:text-base">
                                     $ {product.price}.00
                                 </span>
                             </div>
