@@ -172,7 +172,7 @@ export default function BestSellers({ initialProducts }: BestSellersProps) {
                     </div>
                 </motion.div>
 
-                <div className="flex overflow-x-auto whitespace-nowrap scrollbar-hide gap-3 mb-8 md:mb-12 justify-start pb-3 -mx-6 px-6 snap-x">
+                <div className="flex overflow-x-auto whitespace-nowrap scrollbar-hide gap-3 mb-8 md:mb-12 justify-start md:justify-center pb-3 -mx-6 px-6 snap-x">
                     {categories.map((cat) => (
                         <button
                             key={cat}
