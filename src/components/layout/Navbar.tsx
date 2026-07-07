@@ -11,8 +11,6 @@ import CartDrawer from "./CartDrawer";
 
 const navLinks = [
     { name: "Shop", mobileName: "Shop", href: "/shop" },
-    { name: "Yubby Dubby X Adidas", mobileName: "Yubby Dubby X Adidas", href: "/yubbydubby-x-adidas" },
-    { name: "Create", mobileName: "Create Your Own", href: "/create-your-own" },
     { name: "About", mobileName: "About Us", href: "/about" },
 ];
 

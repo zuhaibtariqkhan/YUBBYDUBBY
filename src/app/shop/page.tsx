@@ -38,28 +38,7 @@ export default async function ShopPage() {
             return indexA - indexB;
         });
 
-    // Append Yubby Dubby x Adidas redirect card
-    sortedCategories.push({
-        id: -1,
-        name: "Yubby Dubby × Adidas",
-        slug: "yubbydubby-x-adidas",
-        parent: 0,
-        description: "Exclusive Branded Collaboration Collection",
-        count: 0,
-        customLink: "/yubbydubby-x-adidas"
-    } as any);
-
-    // Append Create Your Own customizer redirect card
-    sortedCategories.push({
-        id: -2,
-        name: "Create Your Own",
-        slug: "create-your-own",
-        parent: 0,
-        description: "Custom Design Studio",
-        count: 0,
-        customLink: "/create-your-own"
-    } as any);
-
+    // Return the sorted standard categories
     return (
         <main className="min-h-screen pt-24 pb-12 transition-colors duration-300 bg-brand-black text-brand-white">
             <Navbar />

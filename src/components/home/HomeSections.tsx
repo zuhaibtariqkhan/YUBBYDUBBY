@@ -4,7 +4,6 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import Aurora from "../ui/Aurora";
 import TextReveal from "../ui/TextReveal";
 import { Truck, ShieldCheck, Lock, ArrowRight, Instagram, Mail, Check, Loader2 } from "lucide-react";
 import { FaCcVisa, FaCcMastercard, FaGooglePay, FaApplePay } from "react-icons/fa";
@@ -89,38 +88,6 @@ function NewsletterSubscribe() {
     );
 }
 
-export function LimitedDrop() {
-    return (
-        <section className="bg-brand-white text-brand-black py-10 md:py-20 px-6 mt-5 md:mt-10">
-            <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12">
-                <div className="md:w-1/2 text-center md:text-left flex flex-col items-center md:items-start">
-                    <span className="text-brand-green font-bold tracking-widest uppercase text-xs md:text-sm mb-2 md:mb-4 block">Print On Demand</span>
-                    <h2 className="font-heading text-3xl md:text-7xl font-black uppercase tracking-tighter leading-[0.9]">
-                        Create Your<br />Own
-                    </h2>
-                    <p className="mt-4 md:mt-6 text-gray-600 max-w-md font-sans text-xs sm:text-sm md:text-base">
-                        Upload your design, choose your product, and we craft it with premium precision.
-                    </p>
-                    <Link href="/create-your-own">
-                        <button className="relative mt-5 md:mt-8 overflow-hidden bg-brand-black text-brand-white font-bold uppercase tracking-widest px-6 py-3 text-xs sm:px-10 sm:py-4 sm:text-sm rounded-[var(--radius-btn)] hover:shadow-[0_0_30px_rgba(124,255,103,0.3)] hover:scale-105 transition-all duration-300 group cursor-pointer">
-                            <Aurora colorStops={["#1a1a1a", "#050505", "#7cff67"]} blend={0.8} amplitude={1.0} speed={1.0} />
-                            <span className="relative z-10 group-hover:text-brand-white transition-colors">Create Now</span>
-                        </button>
-                    </Link>
-                </div>
-                <div className="md:w-1/2 relative min-h-[250px] md:min-h-[400px] w-full rounded-[var(--radius-card)] overflow-hidden flex items-center justify-center">
-                    <Image
-                        src="/create-your-own.png"
-                        alt="Create Your Own Design"
-                        fill
-                        sizes="(max-width: 768px) 100vw, 50vw"
-                        className="object-cover"
-                    />
-                </div>
-            </div>
-        </section>
-    );
-}
 
 export function EditorialMessage() {
     const sectionRef = useRef<HTMLElement>(null);

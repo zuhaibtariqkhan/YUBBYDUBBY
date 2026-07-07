@@ -6,7 +6,7 @@ import BestSellers from "@/components/home/BestSellers";
 import NewArrivals from "@/components/home/NewArrivals";
 import FeaturedProducts from "@/components/home/FeaturedProducts";
 import ReviewsCarousel from "@/components/home/ReviewsCarousel";
-import { LimitedDrop, EditorialMessage, TrustStrip, Footer } from "@/components/home/HomeSections";
+import { EditorialMessage, TrustStrip, Footer } from "@/components/home/HomeSections";
 import SocialGrid from "@/components/home/SocialGrid";
 import { getProducts } from "@/lib/woocommerce";
 
@@ -26,7 +26,6 @@ export default async function Home() {
       <BestSellers initialProducts={bestSellers} />
       <NewArrivals initialProducts={newArrivals} />
       <FeaturedProducts initialProducts={featuredProducts} />
-      <LimitedDrop />
       <EditorialMessage />
       <ReviewsCarousel />
       <TrustStrip />
