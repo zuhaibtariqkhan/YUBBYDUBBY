@@ -65,8 +65,13 @@ export async function GET(request: Request) {
       // Exclude admin categories or internal ones from Level 1
       let filtered = categories;
       if (queryParentId === 0) {
-        const excludeSlugs = ['uncategorized', 'shop', 'create-your-own', 'create', 'adidas', 'collab'];
-        filtered = categories.filter(c => !excludeSlugs.includes(c.slug.toLowerCase()));
+        filtered = categories.filter(c => {
+          const slug = c.slug.toLowerCase();
+          return !['uncategorized', 'shop'].includes(slug) && 
+                 !slug.includes('adidas') && 
+                 !slug.includes('create') && 
+                 !slug.includes('collab');
+        });
       }
       
       return NextResponse.json(filtered || []);
