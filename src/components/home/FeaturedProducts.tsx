@@ -1,12 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
 import Link from "next/link";
-import { Star, ArrowRight } from "lucide-react";
-import { useCart } from "@/context/CartContext";
+import { ArrowRight } from "lucide-react";
 import { WooCommerceProduct } from "@/lib/woocommerce";
 import TextReveal from "../ui/TextReveal";
+import ProductCard from "../ui/ProductCard";
 
 interface FeaturedProductsProps {
     initialProducts?: WooCommerceProduct[];
@@ -20,8 +19,6 @@ const mockFeatured = [
 ];
 
 export default function FeaturedProducts({ initialProducts }: FeaturedProductsProps) {
-    const { addToCart } = useCart();
-
     const displayProducts = initialProducts && initialProducts.length > 0
         ? initialProducts.slice(0, 4).map(prod => {
             let image = prod.images[0]?.src || "/prod-hoodie.png";
@@ -54,7 +51,7 @@ export default function FeaturedProducts({ initialProducts }: FeaturedProductsPr
             <div className="max-w-7xl mx-auto">
                 
                 {/* Header */}
-                <div className="flex flex-col items-center mb-8 md:mb-16 gap-4 text-center w-full">
+                <div className="flex flex-col items-center mb-10 md:mb-16 gap-4 text-center w-full">
                     <div className="flex flex-col items-center w-full">
                         <span className="text-brand-green font-bold tracking-widest uppercase text-xs md:text-sm mb-1 md:mb-2 block">Studio Curation</span>
                         <TextReveal
@@ -75,7 +72,7 @@ export default function FeaturedProducts({ initialProducts }: FeaturedProductsPr
                 </div>
 
                 {/* Grid */}
-                <div className="grid grid-cols-4 gap-1.5 md:gap-8">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
                     {displayProducts.map((product, idx) => (
                         <motion.div
                             key={product.id}
@@ -83,58 +80,15 @@ export default function FeaturedProducts({ initialProducts }: FeaturedProductsPr
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true, margin: "-50px" }}
                             transition={{ delay: idx * 0.15, duration: 0.6, ease: "easeOut" }}
-                            className="bg-transparent border-0 md:bg-black/5 md:border md:border-black/5 md:rounded-[var(--radius-card)] p-0 md:p-4 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-all duration-300 group flex flex-col justify-between"
                         >
-                            <div>
-                                <div className="relative aspect-[3/4] bg-black/5 rounded-[12px] sm:rounded-[var(--radius-img)] overflow-hidden mb-2 sm:mb-6 flex items-center justify-center">
-                                    <Link href={`/product/${product.id}`} className="absolute inset-0 w-full h-full block z-0">
-                                        <Image
-                                            src={product.image}
-                                            alt={product.name}
-                                            fill
-                                            sizes="(max-width: 640px) 25vw, 25vw"
-                                            className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                                        />
-                                    </Link>
-                                    {product.tag && (
-                                        <span className="absolute top-1.5 left-1.5 bg-brand-black text-brand-white text-[7px] sm:text-[10px] font-bold px-1.5 py-0.5 sm:px-3 sm:py-1 uppercase tracking-widest border border-white/10 z-10 pointer-events-none">
-                                            {product.tag}
-                                        </span>
-                                    )}
-                                    <div className="hidden md:flex absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 items-center justify-center z-10 pointer-events-none">
-                                        <button 
-                                            onClick={() => addToCart({
-                                                id: product.id,
-                                                name: product.name,
-                                                price: product.price,
-                                                size: "M",
-                                                image: product.image
-                                            }, 1)}
-                                            className="bg-brand-green text-brand-black font-bold uppercase tracking-widest px-6 py-3 rounded-[var(--radius-btn)] hover:bg-white hover:text-black transition-colors transform translate-y-4 group-hover:translate-y-0 duration-300 cursor-pointer pointer-events-auto"
-                                        >
-                                            Quick Add
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="px-0 sm:px-2">
-                                    <div className="hidden sm:flex items-center gap-0.5 sm:gap-1 mb-1.5 sm:mb-2">
-                                        {[...Array(5)].map((_, i) => (
-                                            <Star key={i} size={10} className="fill-brand-green text-brand-green sm:w-3 sm:h-3" />
-                                        ))}
-                                        <span className="text-[9px] sm:text-[10px] text-gray-400 ml-1 font-mono">(98)</span>
-                                    </div>
-                                    <Link href={`/product/${product.id}`} className="block">
-                                        <h3 className="font-bold text-[10px] sm:text-base md:text-lg hover:text-brand-green transition-colors uppercase font-heading truncate text-brand-black">{product.name}</h3>
-                                    </Link>
-                                </div>
-                            </div>
-                            <div className="px-0 sm:px-2 mt-1.5 pt-1.5 sm:mt-4 sm:pt-4 border-t border-black/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-0.5 sm:gap-2">
-                                <span className="text-gray-400 text-[8px] sm:text-xs font-mono uppercase">{product.category}</span>
-                                <span className="text-brand-black font-bold tracking-widest text-[10px] sm:text-sm md:text-base">
-                                    $ {product.price}.00
-                                </span>
-                            </div>
+                            <ProductCard
+                                id={product.id}
+                                name={product.name}
+                                price={product.price}
+                                image={product.image}
+                                tag={product.tag}
+                                category={product.category}
+                            />
                         </motion.div>
                     ))}
                 </div>
@@ -142,3 +96,4 @@ export default function FeaturedProducts({ initialProducts }: FeaturedProductsPr
         </section>
     );
 }
+

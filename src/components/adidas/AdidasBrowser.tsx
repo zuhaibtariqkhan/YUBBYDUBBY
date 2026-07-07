@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight, ArrowLeft } from "lucide-react";
+import ProductCard from "../ui/ProductCard";
+import CategoryCard from "../ui/CategoryCard";
 
 export interface CategoryDetail {
   id: number;
@@ -223,15 +225,16 @@ export default function AdidasBrowser({ initialMainCategories }: AdidasBrowserPr
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8"
           >
             {Array.from({ length: 4 }).map((_, idx) => (
               <div
                 key={idx}
-                className="glass-card aspect-[4/3] sm:aspect-[3/4] border border-white/5 bg-white/[0.01] p-6 rounded-3xl animate-pulse flex flex-col justify-end space-y-4"
+                className="w-full flex flex-col space-y-3.5 animate-pulse"
               >
-                <div className="w-1/2 h-4.5 bg-white/10 rounded" />
-                <div className="w-3/4 h-3 bg-white/5 rounded" />
+                <div className="aspect-[4/5] w-full bg-white/5 rounded-[var(--radius-img)]" />
+                <div className="h-4 bg-white/10 rounded w-2/3" />
+                <div className="h-3 bg-white/5 rounded w-1/3" />
               </div>
             ))}
           </motion.div>
@@ -244,7 +247,7 @@ export default function AdidasBrowser({ initialMainCategories }: AdidasBrowserPr
             initial="hidden"
             animate="show"
             exit="hidden"
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8"
           >
             {initialMainCategories.map((cat) => {
               const imageUrl = getCategoryImageUrl(cat.name, cat.slug, cat.image?.src);
@@ -252,34 +255,15 @@ export default function AdidasBrowser({ initialMainCategories }: AdidasBrowserPr
                 <motion.div
                   key={cat.id}
                   variants={itemVariants}
-                  onClick={() => setSelectedMainCategory(cat)}
-                  className="glass-card aspect-[4/3] relative rounded-[32px] border border-white/10 overflow-hidden cursor-pointer group shadow-[0_15px_30px_rgba(0,0,0,0.3)] transition-all duration-500 hover:shadow-[0_20px_40px_rgba(177,243,16,0.15)] flex flex-col justify-end p-8"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/5 group-hover:via-black/10 transition-colors duration-500 z-10" />
-                  
-                  <Image
-                    src={imageUrl}
-                    alt={cat.name}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    className="object-cover group-hover:scale-105 transition-transform duration-700 z-0 opacity-80"
+                  <CategoryCard
+                    name={cat.name}
+                    image={imageUrl}
+                    href="#"
+                    description={cat.description}
+                    countText={cat.count > 0 ? `${cat.count} collections` : "Browse Lineup"}
+                    onClick={() => setSelectedMainCategory(cat)}
                   />
-
-                  <div className="absolute inset-0 border border-white/5 rounded-[32px] z-20 pointer-events-none group-hover:border-brand-green/30 transition-colors duration-500" />
-
-                  <div className="relative z-20 space-y-2 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                    <h3 className="font-heading font-black text-2xl uppercase tracking-widest text-white group-hover:text-brand-green transition-colors">
-                      {cat.name}
-                    </h3>
-                    {cat.description && (
-                      <p className="text-[10px] text-gray-400 font-sans tracking-wide uppercase line-clamp-2">
-                        {cat.description}
-                      </p>
-                    )}
-                    <span className="text-[9px] font-mono text-brand-green font-bold block pt-1 uppercase tracking-widest">
-                      {cat.count > 0 ? `${cat.count} collections` : "Browse Lineup"}
-                    </span>
-                  </div>
                 </motion.div>
               );
             })}
@@ -293,7 +277,7 @@ export default function AdidasBrowser({ initialMainCategories }: AdidasBrowserPr
             initial="hidden"
             animate="show"
             exit="hidden"
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8"
           >
             {subcategories.length === 0 ? (
               <div className="col-span-full text-center py-16 text-sm text-gray-500 italic uppercase tracking-wider font-mono">
@@ -306,34 +290,15 @@ export default function AdidasBrowser({ initialMainCategories }: AdidasBrowserPr
                   <motion.div
                     key={sub.id}
                     variants={itemVariants}
-                    onClick={() => setSelectedSubcategory(sub)}
-                    className="glass-card aspect-[4/3] relative rounded-[32px] border border-white/10 overflow-hidden cursor-pointer group shadow-[0_15px_30px_rgba(0,0,0,0.3)] transition-all duration-500 hover:shadow-[0_20px_40px_rgba(177,243,16,0.15)] flex flex-col justify-end p-8"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent group-hover:via-black/15 transition-colors duration-500 z-10" />
-                    
-                    <Image
-                      src={imageUrl}
-                      alt={sub.name}
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-700 z-0 opacity-70"
+                    <CategoryCard
+                      name={sub.name}
+                      image={imageUrl}
+                      href="#"
+                      description={sub.description}
+                      countText="Browse items"
+                      onClick={() => setSelectedSubcategory(sub)}
                     />
-
-                    <div className="absolute inset-0 border border-white/5 rounded-[32px] z-20 pointer-events-none group-hover:border-brand-green/30 transition-colors duration-500" />
-
-                    <div className="relative z-20 space-y-2 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                      <h3 className="font-heading font-black text-xl uppercase tracking-widest text-white group-hover:text-brand-green transition-colors">
-                        {sub.name}
-                      </h3>
-                      {sub.description && (
-                        <p className="text-[10px] text-gray-400 font-sans tracking-wide uppercase">
-                          {sub.description}
-                        </p>
-                      )}
-                      <span className="text-[9px] font-mono text-brand-green font-bold block pt-1 uppercase tracking-widest">
-                        Browse items
-                      </span>
-                    </div>
                   </motion.div>
                 );
               })
@@ -348,7 +313,7 @@ export default function AdidasBrowser({ initialMainCategories }: AdidasBrowserPr
             initial="hidden"
             animate="show"
             exit="hidden"
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8"
           >
             {products.length === 0 ? (
               <div className="col-span-full text-center py-20 text-sm text-gray-500 italic uppercase tracking-wider font-mono">
@@ -359,49 +324,14 @@ export default function AdidasBrowser({ initialMainCategories }: AdidasBrowserPr
                 <motion.div
                   key={product.id}
                   variants={itemVariants}
-                  className="glass-card p-4 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(177,243,16,0.15)] group relative flex flex-col justify-between"
                 >
-                  <div>
-                    {/* Visual Media with overlays */}
-                    <div className="relative aspect-[3/4] bg-white/5 rounded-[var(--radius-img)] overflow-hidden mb-6 flex items-center justify-center">
-                      <Link href={`/product/${product.id}`} className="absolute inset-0 w-full h-full block z-0">
-                        <Image
-                          src={product.image}
-                          alt={product.name}
-                          fill
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                          className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-                        />
-                      </Link>
-                      
-                      {product.tag && (
-                        <span className="absolute top-4 left-4 bg-brand-green text-brand-black text-xs font-bold px-3 py-1 uppercase tracking-widest z-10 pointer-events-none">
-                          {product.tag}
-                        </span>
-                      )}
-                      
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10 pointer-events-none">
-                        <Link
-                          href={`/product/${product.id}`}
-                          className="bg-brand-white text-brand-black font-bold uppercase tracking-widest px-6 py-3 rounded-[var(--radius-btn)] hover:bg-brand-green transition-colors transform translate-y-4 group-hover:translate-y-0 duration-300 text-xs text-center pointer-events-auto"
-                        >
-                          View Details
-                        </Link>
-                      </div>
-                    </div>
-
-                    {/* Meta info */}
-                    <div className="px-2">
-                      <Link href={`/product/${product.id}`} className="block">
-                        <h3 className="font-bold text-lg hover:text-brand-green transition-colors uppercase font-heading truncate">
-                          {product.name}
-                        </h3>
-                      </Link>
-                      <div className="mt-2 text-brand-green font-bold tracking-widest">
-                        ${product.price}.00
-                      </div>
-                    </div>
-                  </div>
+                  <ProductCard
+                    id={product.id}
+                    name={product.name}
+                    price={product.price}
+                    image={product.image}
+                    tag={product.tag}
+                  />
                 </motion.div>
               ))
             )}
@@ -409,7 +339,6 @@ export default function AdidasBrowser({ initialMainCategories }: AdidasBrowserPr
         )}
 
       </AnimatePresence>
-
     </div>
   );
 }

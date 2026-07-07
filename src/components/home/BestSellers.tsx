@@ -1,67 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from "framer-motion";
-import Image from "next/image";
-import Link from "next/link";
-import { Star } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import TextReveal from "../ui/TextReveal";
-
-// 3D Tilt Card Component
-function TiltCard({ children }: { children: React.ReactNode }) {
-    const x = useMotionValue(0);
-    const y = useMotionValue(0);
-
-    const mouseXSpring = useSpring(x);
-    const mouseYSpring = useSpring(y);
-
-    const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["17.5deg", "-17.5deg"]);
-    const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-17.5deg", "17.5deg"]);
-
-    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const width = rect.width;
-        const height = rect.height;
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-        const xPct = mouseX / width - 0.5;
-        const yPct = mouseY / height - 0.5;
-        x.set(xPct);
-        y.set(yPct);
-    };
-
-    const handleMouseLeave = () => {
-        x.set(0);
-        y.set(0);
-    };
-
-    return (
-        <motion.div
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-            style={{
-                rotateY,
-                rotateX,
-                transformStyle: "preserve-3d",
-            }}
-            className="w-full h-full relative group cursor-pointer"
-        >
-            <div
-                style={{
-                    transform: "translateZ(30px)",
-                    transformStyle: "preserve-3d",
-                }}
-                className="w-full h-full bg-transparent border-none md:glass-card p-0 md:p-4 transition-shadow duration-300 group-hover:shadow-[0_20px_40px_rgba(177,243,16,0.15)]"
-            >
-                {children}
-            </div>
-        </motion.div>
-    );
-}
-
+import ProductCard from "../ui/ProductCard";
 import { WooCommerceProduct } from "@/lib/woocommerce";
-
-import { useCart } from "@/context/CartContext";
 
 // Expanded Mock Data
 const mockProducts = [
@@ -97,7 +40,6 @@ interface BestSellersProps {
 
 export default function BestSellers({ initialProducts }: BestSellersProps) {
     const [activeCategory, setActiveCategory] = useState("All");
-    const { addToCart } = useCart();
 
     const topProducts = initialProducts && initialProducts.length > 0
         ? initialProducts.map(prod => {
@@ -159,7 +101,7 @@ export default function BestSellers({ initialProducts }: BestSellersProps) {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-100px" }}
                     transition={{ duration: 0.6 }}
-                    className="flex flex-col items-center mb-8 md:mb-16 text-center w-full"
+                    className="flex flex-col items-center mb-8 md:mb-12 text-center w-full"
                 >
                     <div className="flex flex-col items-center w-full">
                         <TextReveal
@@ -192,72 +134,25 @@ export default function BestSellers({ initialProducts }: BestSellersProps) {
                     ))}
                 </div>
 
-                <motion.div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-8 min-h-[300px] md:min-h-[400px]">
-                    <AnimatePresence mode="wait">
+                <motion.div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8 min-h-[300px] md:min-h-[400px]">
+                    <AnimatePresence mode="popLayout">
                         {filteredProducts.map((product) => (
                             <motion.div
                                 layout
                                 key={product.id}
-                                initial={{ opacity: 0, scale: 0.8 }}
+                                initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.8 }}
-                                transition={{ duration: 0.4, ease: "easeOut" }}
-                                className="perspective-1000"
+                                exit={{ opacity: 0, scale: 0.95 }}
+                                transition={{ duration: 0.3, ease: "easeOut" }}
                             >
-                                <TiltCard>
-                                    <div className="relative aspect-[3/4] bg-white/5 rounded-[12px] sm:rounded-[var(--radius-img)] overflow-hidden mb-3 sm:mb-6 flex items-center justify-center">
-                                        {/* Product Image Link */}
-                                        <Link href={`/product/${product.id}`} className="absolute inset-0 w-full h-full block z-0">
-                                            <Image
-                                                src={product.image}
-                                                alt={product.name}
-                                                fill
-                                                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
-                                                className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-                                            />
-                                        </Link>
-
-                                        {product.tag && (
-                                            <span className="absolute top-2 left-2 bg-brand-green text-brand-black text-[9px] sm:text-xs font-bold px-2 py-0.5 sm:px-3 sm:py-1 uppercase tracking-widest z-10 pointer-events-none">
-                                                {product.tag}
-                                            </span>
-                                        )}
-
-                                        <div className="hidden md:flex absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 items-center justify-center z-10 pointer-events-none">
-                                            <button 
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    addToCart({
-                                                        id: product.id,
-                                                        name: product.name,
-                                                        price: product.price,
-                                                        size: "M",
-                                                        image: product.image
-                                                    }, 1);
-                                                }}
-                                                className="bg-brand-white text-brand-black font-bold uppercase tracking-widest px-6 py-3 rounded-[var(--radius-btn)] hover:bg-brand-green transition-colors transform translate-y-4 group-hover:translate-y-0 duration-300 cursor-pointer pointer-events-auto"
-                                            >
-                                                Quick Add
-                                            </button>
-                                        </div>
-                                    </div>
-
-
-                                    <div className="px-0 sm:px-2">
-                                        <div className="flex items-center gap-0.5 sm:gap-1 mb-1.5 sm:mb-2">
-                                            {[...Array(5)].map((_, i) => (
-                                                <Star key={i} size={10} className="fill-brand-green text-brand-green sm:w-3.5 sm:h-3.5" />
-                                            ))}
-                                            <span className="text-[10px] sm:text-xs text-gray-400 ml-1.5 sm:ml-2">(124)</span>
-                                        </div>
-                                        <Link href={`/product/${product.id}`} className="block">
-                                            <h3 className="font-bold text-xs sm:text-base md:text-lg hover:text-brand-green transition-colors uppercase font-heading truncate">{product.name}</h3>
-                                        </Link>
-                                        <div className="mt-1 sm:mt-2 text-brand-green font-bold tracking-widest text-xs sm:text-base">
-                                            ${product.price}.00
-                                        </div>
-                                    </div>
-                                </TiltCard>
+                                <ProductCard
+                                    id={product.id}
+                                    name={product.name}
+                                    price={product.price}
+                                    image={product.image}
+                                    tag={product.tag}
+                                    category={product.category}
+                                />
                             </motion.div>
                         ))}
                     </AnimatePresence>
