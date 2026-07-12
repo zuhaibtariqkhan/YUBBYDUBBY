@@ -4,6 +4,8 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import { CURRENCY_SYMBOL } from "@/lib/utils";
+
 
 export interface ShopProduct {
   id: string;
@@ -119,7 +121,7 @@ export default function ShopSection({ id, title, products }: ShopSectionProps) {
                       </h3>
                     </Link>
                     <div className="mt-2 text-brand-green font-bold tracking-widest">
-                      ${product.price}.00
+                      {CURRENCY_SYMBOL}{product.price}.00
                     </div>
                   </div>
                 </div>

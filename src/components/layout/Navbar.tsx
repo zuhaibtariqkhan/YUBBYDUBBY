@@ -8,6 +8,8 @@ import { ShoppingCart, Search, Menu, User, X, ChevronRight } from "lucide-react"
 import { useCart } from "@/context/CartContext";
 import { motion, AnimatePresence } from "framer-motion";
 import CartDrawer from "./CartDrawer";
+import { CURRENCY_SYMBOL } from "@/lib/utils";
+
 
 const navLinks = [
     { name: "Shop", mobileName: "Shop", href: "/shop" },
@@ -457,7 +459,7 @@ export default function Navbar() {
                                                         </Link>
                                                         <div className="flex justify-between items-center">
                                                             <span className="text-[9px] sm:text-[10px] font-mono text-brand-green font-bold">
-                                                                ${product.price}.00
+                                                                {CURRENCY_SYMBOL}{product.price}.00
                                                             </span>
                                                             <span className="text-[8px] font-mono text-gray-500 uppercase tracking-wider">
                                                                 {product.subcategory || "STREETWEAR"}

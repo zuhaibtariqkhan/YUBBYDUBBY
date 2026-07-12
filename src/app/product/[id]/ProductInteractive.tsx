@@ -5,6 +5,8 @@ import Image from "next/image";
 import { Star, Minus, Plus, ShoppingBag, Heart, Shield, RotateCcw, Truck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/context/CartContext";
+import { CURRENCY_SYMBOL } from "@/lib/utils";
+
 
 interface ProductInteractiveProps {
   product: {
@@ -14,6 +16,7 @@ interface ProductInteractiveProps {
     description: string;
     images: string[];
     sizes: string[];
+    colors?: string[];
     inStock: boolean;
     rating: number;
     ratingCount: number;
@@ -23,6 +26,7 @@ interface ProductInteractiveProps {
 
 export default function ProductInteractive({ product }: ProductInteractiveProps) {
   const [selectedSize, setSelectedSize] = useState(product.sizes[0] || "M");
+  const [selectedColor, setSelectedColor] = useState(product.colors?.[0] || "");
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(product.images[0] || "/prod-hoodie.png");
   const [isLiked, setIsLiked] = useState(false);
@@ -35,6 +39,7 @@ export default function ProductInteractive({ product }: ProductInteractiveProps)
       name: product.name,
       price: product.price,
       size: selectedSize,
+      color: selectedColor,
       image: product.images[0] || "/prod-hoodie.png"
     }, quantity);
     setAddedToCart(true);
@@ -110,7 +115,7 @@ export default function ProductInteractive({ product }: ProductInteractiveProps)
               {product.name}
             </h1>
             <div className="text-3xl font-heading font-bold text-brand-green tracking-widest">
-              ${product.price}.00
+              {CURRENCY_SYMBOL}{product.price}.00
             </div>
           </div>
 
@@ -142,6 +147,30 @@ export default function ProductInteractive({ product }: ProductInteractiveProps)
                     }`}
                   >
                     {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Colors Selector */}
+          {product.colors && product.colors.length > 0 && (
+            <div className="space-y-3">
+              <div className="text-xs uppercase tracking-widest text-gray-400 font-bold">
+                Select Color: <span className="text-white ml-2">{selectedColor}</span>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                {product.colors.map((color) => (
+                  <button
+                    key={color}
+                    onClick={() => setSelectedColor(color)}
+                    className={`px-4 h-10 flex items-center justify-center rounded-[var(--radius-dropdown)] border font-bold text-xs uppercase tracking-wider transition-colors ${
+                      selectedColor === color
+                        ? "bg-brand-green text-brand-black border-brand-green"
+                        : "border-white/10 hover:border-white/40 text-white"
+                    }`}
+                  >
+                    {color}
                   </button>
                 ))}
               </div>

@@ -2,6 +2,8 @@ import Navbar from "@/components/layout/Navbar";
 import { Footer } from "@/components/home/HomeSections";
 import { getProductById, getProducts } from "@/lib/woocommerce";
 import ProductInteractive from "./ProductInteractive";
+import { CURRENCY_SYMBOL } from "@/lib/utils";
+
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronRight } from "lucide-react";
@@ -46,18 +48,21 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const wcProduct = await getProductById(productId);
 
   if (wcProduct) {
-    let images = wcProduct.images.map(img => img.src).length > 0 ? wcProduct.images.map(img => img.src) : ["/prod-hoodie.png"];
-    const lowerName = wcProduct.name.toLowerCase();
-    if (lowerName.includes("iphone") || lowerName.includes("phone") || lowerName.includes("case")) {
-        images = ["/prod-phone-case.png"];
-    } else if (lowerName.includes("airpod")) {
-        images = ["/prod-airpods-cover.png"];
-    } else if (lowerName.includes("cap") || lowerName.includes("hat")) {
-        images = ["/prod-cap.png"];
-    } else if (lowerName.includes("sunglass") || lowerName.includes("glasses")) {
-        images = ["/prod-sunglasses.png"];
-    } else if (lowerName.includes("sticker")) {
-        images = ["/prod-stickers.png"];
+    let images = wcProduct.images.map(img => img.src);
+    if (images.length === 0) {
+      images = ["/prod-hoodie.png"];
+      const lowerName = wcProduct.name.toLowerCase();
+      if (lowerName.includes("iphone") || lowerName.includes("phone") || lowerName.includes("case")) {
+          images = ["/prod-phone-case.png"];
+      } else if (lowerName.includes("airpod")) {
+          images = ["/prod-airpods-cover.png"];
+      } else if (lowerName.includes("cap") || lowerName.includes("hat")) {
+          images = ["/prod-cap.png"];
+      } else if (lowerName.includes("sunglass") || lowerName.includes("glasses")) {
+          images = ["/prod-sunglasses.png"];
+      } else if (lowerName.includes("sticker")) {
+          images = ["/prod-stickers.png"];
+      }
     }
 
     product = {
@@ -67,6 +72,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       description: wcProduct.description || wcProduct.short_description || "No description available.",
       images,
       sizes: wcProduct.attributes.find(attr => attr.name.toLowerCase() === "size")?.options || ["S", "M", "L", "XL"],
+      colors: wcProduct.attributes.find(attr => attr.name.toLowerCase() === "color" || attr.name.toLowerCase() === "colour")?.options || [],
       inStock: wcProduct.stock_status === "instock",
       rating: parseFloat(wcProduct.average_rating) || 5.0,
       ratingCount: wcProduct.rating_count || 12,
@@ -81,18 +87,21 @@ export default async function ProductPage({ params }: ProductPageProps) {
       relatedProducts = allRelated
         .filter((p): p is NonNullable<typeof p> => p !== null)
         .map(p => {
-          let image = p.images[0]?.src || "/prod-hoodie.png";
-          const relName = p.name.toLowerCase();
-          if (relName.includes("iphone") || relName.includes("phone") || relName.includes("case")) {
-              image = "/prod-phone-case.png";
-          } else if (relName.includes("airpod")) {
-              image = "/prod-airpods-cover.png";
-          } else if (relName.includes("cap") || relName.includes("hat")) {
-              image = "/prod-cap.png";
-          } else if (relName.includes("sunglass") || relName.includes("glasses")) {
-              image = "/prod-sunglasses.png";
-          } else if (relName.includes("sticker")) {
-              image = "/prod-stickers.png";
+          let image = p.images[0]?.src;
+          if (!image) {
+            image = "/prod-hoodie.png";
+            const relName = p.name.toLowerCase();
+            if (relName.includes("iphone") || relName.includes("phone") || relName.includes("case")) {
+                image = "/prod-phone-case.png";
+            } else if (relName.includes("airpod")) {
+                image = "/prod-airpods-cover.png";
+            } else if (relName.includes("cap") || relName.includes("hat")) {
+                image = "/prod-cap.png";
+            } else if (relName.includes("sunglass") || relName.includes("glasses")) {
+                image = "/prod-sunglasses.png";
+            } else if (relName.includes("sticker")) {
+                image = "/prod-stickers.png";
+            }
           }
 
           return {
@@ -115,6 +124,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         description: matchedMock.description,
         images: [matchedMock.image],
         sizes: ["S", "M", "L", "XL"],
+        colors: ["Black", "French Navy", "Stone"],
         inStock: true,
         rating: 4.8,
         ratingCount: 142,
@@ -206,7 +216,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                       <h3 className="font-bold text-lg hover:text-brand-green transition-colors uppercase font-heading truncate">{p.name}</h3>
                     </Link>
                     <div className="mt-2 text-brand-green font-bold tracking-widest">
-                      ${p.price}.00
+                      {CURRENCY_SYMBOL}{p.price}.00
                     </div>
                   </div>
                 </div>

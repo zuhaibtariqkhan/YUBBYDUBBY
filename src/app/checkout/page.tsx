@@ -7,6 +7,8 @@ import { Footer } from "@/components/home/HomeSections";
 import Image from "next/image";
 import { ArrowLeft, CreditCard, ShoppingBag, ShieldCheck, Truck } from "lucide-react";
 import Link from "next/link";
+import { CURRENCY_SYMBOL } from "@/lib/utils";
+
 
 export default function CheckoutPage() {
   const { cartItems, cartTotal, clearCart } = useCart();
@@ -348,7 +350,7 @@ export default function CheckoutPage() {
                 <div className="space-y-4 divide-y divide-white/5 max-h-[300px] overflow-y-auto pr-2">
                   {cartItems.map((item) => (
                     <div
-                      key={`${item.id}-${item.size}`}
+                      key={`${item.id}-${item.size}-${item.color || ""}`}
                       className="flex gap-4 items-center pt-4 first:pt-0"
                     >
                       <div className="relative aspect-square w-14 rounded-[var(--radius-img)] overflow-hidden border border-white/10 shrink-0 bg-white/5 flex items-center justify-center">
@@ -365,11 +367,11 @@ export default function CheckoutPage() {
                           {item.name}
                         </h4>
                         <div className="text-[10px] text-gray-500 font-mono tracking-wider mt-0.5 uppercase">
-                          QTY: {item.quantity} | Size: {item.size}
+                          QTY: {item.quantity} | Size: {item.size}{item.color ? ` | Color: ${item.color}` : ""}
                         </div>
                       </div>
                       <div className="font-heading font-black text-brand-green tracking-widest text-xs">
-                        ${item.price * item.quantity}.00
+                        {CURRENCY_SYMBOL}{item.price * item.quantity}.00
                       </div>
                     </div>
                   ))}
@@ -381,7 +383,7 @@ export default function CheckoutPage() {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center text-xs text-gray-400">
                     <span className="uppercase tracking-widest">Subtotal</span>
-                    <span className="font-mono">${cartTotal}.00</span>
+                    <span className="font-mono">{CURRENCY_SYMBOL}{cartTotal}.00</span>
                   </div>
                   <div className="flex justify-between items-center text-xs text-gray-400">
                     <span className="uppercase tracking-widest">Shipping</span>
@@ -395,7 +397,7 @@ export default function CheckoutPage() {
                       Grand Total
                     </span>
                     <span className="font-heading font-black text-xl text-brand-green tracking-wider">
-                      ${cartTotal}.00
+                      {CURRENCY_SYMBOL}{cartTotal}.00
                     </span>
                   </div>
                 </div>

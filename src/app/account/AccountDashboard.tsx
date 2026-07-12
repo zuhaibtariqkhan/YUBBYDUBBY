@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import { Footer } from "@/components/home/HomeSections";
 import Navbar from "@/components/layout/Navbar";
+import { CURRENCY_SYMBOL } from "@/lib/utils";
+
 
 
 // Mock WooCommerce Products for Wishlist / Recently Viewed
@@ -1185,7 +1187,7 @@ export default function AccountDashboard() {
               </div>
               <div className="space-y-1">
                 <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest block font-mono">Lifetime Value</span>
-                <div className="text-3xl font-heading font-black text-brand-green tracking-wide">${personalInfo.firstName === "ZTK" ? "42,580" : "0"}</div>
+                <div className="text-3xl font-heading font-black text-brand-green tracking-wide">{CURRENCY_SYMBOL}{personalInfo.firstName === "ZTK" ? "42,580" : "0"}</div>
                 <span className="text-[10px] text-gray-400 font-sans block">Invested in style</span>
               </div>
               <div className="space-y-1">
@@ -1539,7 +1541,7 @@ export default function AccountDashboard() {
                             </div>
                             <div>
                               <span className="text-gray-500 block">TOTAL VALUE</span>
-                              <span className="text-brand-green font-bold">${order.total}.00</span>
+                              <span className="text-brand-green font-bold">{CURRENCY_SYMBOL}{order.total}.00</span>
                             </div>
                             <div>
                               <span className="text-gray-500 block">PAYMENT PORTAL</span>
@@ -1610,7 +1612,7 @@ export default function AccountDashboard() {
                                 </div>
                               </div>
                               <div className="font-heading font-black text-brand-green tracking-widest text-sm shrink-0">
-                                ${item.price * item.qty}.00
+                                {CURRENCY_SYMBOL}{item.price * item.qty}.00
                               </div>
                             </div>
                           ))}
@@ -1683,9 +1685,9 @@ export default function AccountDashboard() {
                               {item.name}
                             </h3>
                             <div className="flex items-center gap-2 font-heading font-bold tracking-widest text-xs">
-                              <span className="text-brand-green">${item.price}.00</span>
+                              <span className="text-brand-green">{CURRENCY_SYMBOL}{item.price}.00</span>
                               {item.price < item.oldPrice && (
-                                <span className="text-gray-500 line-through">${item.oldPrice}.00</span>
+                                <span className="text-gray-500 line-through">{CURRENCY_SYMBOL}{item.oldPrice}.00</span>
                               )}
                             </div>
                             <button
@@ -2146,7 +2148,7 @@ export default function AccountDashboard() {
                   </h4>
                   <div className="flex items-center justify-between mt-1">
                     <span className="text-[10px] font-heading font-bold tracking-widest text-brand-green">
-                      ${product.price}.00
+                      {CURRENCY_SYMBOL}{product.price}.00
                     </span>
                     <button
                       onClick={() => addToCart({

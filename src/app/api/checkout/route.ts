@@ -25,6 +25,13 @@ export async function POST(req: NextRequest) {
         },
       ];
 
+      if (item.color) {
+        meta_data.push({
+          key: "Color",
+          value: item.color,
+        });
+      }
+
       // Attach print-on-demand custom uploaded image and custom text layers to WooCommerce order metadata
       if (item.customImage) {
         meta_data.push({

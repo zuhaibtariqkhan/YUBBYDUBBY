@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Star, Plus } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { motion } from "framer-motion";
+import { CURRENCY_SYMBOL } from "@/lib/utils";
 
 interface ProductCardProps {
   id: string;
@@ -107,11 +108,11 @@ export default function ProductCard({
         {/* Pricing Layout */}
         <div className="flex items-center gap-2 mt-0.5">
           <span className="font-bold text-xs md:text-sm font-sans tracking-wide">
-            ${price.toFixed(2)}
+            {CURRENCY_SYMBOL}{price.toFixed(2)}
           </span>
           {isOnSale && (
             <span className="text-2xs text-gray-500 line-through font-sans">
-              ${regularPrice.toFixed(2)}
+              {CURRENCY_SYMBOL}{regularPrice.toFixed(2)}
             </span>
           )}
         </div>

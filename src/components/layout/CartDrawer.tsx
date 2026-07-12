@@ -5,6 +5,8 @@ import { X, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import { CURRENCY_SYMBOL } from "@/lib/utils";
+
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -78,7 +80,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   {cartItems.map((item) => (
                     <motion.div
                       layout
-                      key={`${item.id}-${item.size}`}
+                      key={`${item.id}-${item.size}-${item.color || ""}`}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, x: 50 }}
@@ -102,23 +104,26 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                             {item.name}
                           </h4>
                           <button
-                            onClick={() => removeFromCart(item.id, item.size)}
+                            onClick={() => removeFromCart(item.id, item.size, item.color)}
                             className="text-gray-600 hover:text-red-500 transition-colors shrink-0 cursor-pointer"
                           >
                             <Trash2 size={16} />
                           </button>
                         </div>
 
-                        {/* Size */}
-                        <div className="text-[10px] text-gray-500 font-mono tracking-wider uppercase mt-0.5">
-                          Size: <span className="text-white font-bold">{item.size}</span>
+                        {/* Size & Color */}
+                        <div className="text-[10px] text-gray-500 font-mono tracking-wider uppercase mt-0.5 flex flex-wrap gap-x-3">
+                          <span>Size: <span className="text-white font-bold">{item.size}</span></span>
+                          {item.color && (
+                            <span>Color: <span className="text-white font-bold">{item.color}</span></span>
+                          )}
                         </div>
 
                         {/* Quantity and Price */}
                         <div className="flex justify-between items-center mt-3">
                           <div className="flex items-center border border-white/10 rounded-[var(--radius-dropdown)] bg-white/5 h-8">
                             <button
-                              onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
+                              onClick={() => updateQuantity(item.id, item.size, item.color, item.quantity - 1)}
                               className="px-2 text-gray-400 hover:text-white transition-colors"
                             >
                               <Minus size={12} />
@@ -127,7 +132,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                               {item.quantity}
                             </span>
                             <button
-                              onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}
+                              onClick={() => updateQuantity(item.id, item.size, item.color, item.quantity + 1)}
                               className="px-2 text-gray-400 hover:text-white transition-colors"
                             >
                               <Plus size={12} />
@@ -135,7 +140,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                           </div>
 
                           <div className="font-heading font-black text-brand-green tracking-widest text-sm">
-                            ${item.price * item.quantity}.00
+                            {CURRENCY_SYMBOL}{item.price * item.quantity}.00
                           </div>
                         </div>
                       </div>
@@ -153,7 +158,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                     Subtotal
                   </span>
                   <span className="font-heading font-black text-2xl text-brand-green tracking-wider">
-                    ${cartTotal}.00
+                    {CURRENCY_SYMBOL}{cartTotal}.00
                   </span>
                 </div>
                 <p className="text-[10px] text-gray-500 font-sans leading-normal">
