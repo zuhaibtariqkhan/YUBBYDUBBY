@@ -1,6 +1,43 @@
 import { NextResponse } from 'next/server';
 import { getProductCategories, getCategoriesBySlug, isWooCommerceConfigured } from '@/lib/woocommerce';
 
+const FALLBACK_CATEGORY_IMAGES: Record<string, string> = {
+  mens: "/cat-mens.png",
+  womens: "/cat-womens.png",
+  kids: "/cat-kids.png",
+  "home-living": "/cat-home.png",
+  accessories: "/cat-accessories.png",
+
+  "mens-t-shirts": "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&auto=format&fit=crop&q=80",
+  "mens-hoodies": "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=800&auto=format&fit=crop&q=80",
+  "mens-jackets": "https://images.unsplash.com/photo-1548883354-7622d03aca27?w=800&auto=format&fit=crop&q=80",
+  "mens-sweatshirts": "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=800&auto=format&fit=crop&q=80",
+  "mens-tracksuits": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&auto=format&fit=crop&q=80",
+  "mens-accessories": "/cat-accessories.png",
+
+  "womens-t-shirts": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800&auto=format&fit=crop&q=80",
+  "womens-dresses": "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=800&auto=format&fit=crop&q=80",
+  "womens-hoodies": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&auto=format&fit=crop&q=80",
+  "womens-tops": "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=800&auto=format&fit=crop&q=80",
+  "womens-accessories": "/cat-accessories.png",
+
+  "kids-boys-clothing": "/cat-kids.png",
+  "kids-girls-clothing": "/cat-kids.png",
+  "kids-school-essentials": "/cat-kids.png",
+  "kids-accessories": "/cat-accessories.png",
+
+  "home-wall-art": "/cat-home.png",
+  "home-posters": "/cat-home.png",
+  "home-mugs": "/cat-home.png",
+  "home-cushions": "/cat-home.png",
+  "home-bedding": "/cat-home.png",
+  "home-decor": "/cat-home.png",
+
+  "accessories-tech-cases": "/cat-accessories.png",
+  "accessories-headwear": "/cat-accessories.png",
+  "accessories-misc": "/cat-accessories.png",
+};
+
 // Mock category database matching Yubby Dubby's premium catalog hierarchy
 const MOCK_CATEGORIES = [
   // Level 1: Main Categories
@@ -55,6 +92,19 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Invalid parent ID' }, { status: 400 });
   }
 
+  // Helper to attach image object if missing
+  const enrichCategory = (c: any) => {
+    const slug = c.slug ? c.slug.toLowerCase() : '';
+    const imageSrc = c.image?.src || FALLBACK_CATEGORY_IMAGES[slug] || '/cat-accessories.png';
+    return {
+      ...c,
+      image: {
+        src: imageSrc,
+        alt: c.name || 'Category'
+      }
+    };
+  };
+
   // If WooCommerce is configured, query live WordPress subcategories
   if (isWooCommerceConfigured()) {
     try {
@@ -74,13 +124,13 @@ export async function GET(request: Request) {
         });
       }
       
-      return NextResponse.json(filtered || []);
+      return NextResponse.json((filtered || []).map(enrichCategory));
     } catch (error) {
       console.error('WooCommerce categories fetch failed, using fallback:', error);
     }
   }
 
   // Fallback to local structured mock categories database
-  const fallbackCategories = MOCK_CATEGORIES.filter(c => c.parent === parentId);
+  const fallbackCategories = MOCK_CATEGORIES.filter(c => c.parent === parentId).map(enrichCategory);
   return NextResponse.json(fallbackCategories);
 }

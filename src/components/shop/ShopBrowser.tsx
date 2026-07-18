@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image";
 import Link from "next/link";
 import { 
   ChevronRight, ChevronDown, ChevronUp, X, SlidersHorizontal, 
   Check, Search, Star, Loader2, RefreshCw, ShoppingBag 
 } from "lucide-react";
 import ProductCard from "../ui/ProductCard";
+import CategoryCard from "../ui/CategoryCard";
 import { CURRENCY_SYMBOL } from "@/lib/utils";
 
 // Map names/slugs to color hex codes for circular swatches
@@ -33,6 +33,44 @@ const COLOR_HEX_MAP: Record<string, string> = {
   olive: "#808000"
 };
 
+// Fallback high-resolution thumbnail images for WooCommerce categories matching streetwear design
+const CATEGORY_THUMBNAILS: Record<string, string> = {
+  mens: "/cat-mens.png",
+  womens: "/cat-womens.png",
+  kids: "/cat-kids.png",
+  "home-living": "/cat-home.png",
+  accessories: "/cat-accessories.png",
+
+  "mens-t-shirts": "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&auto=format&fit=crop&q=80",
+  "mens-hoodies": "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=800&auto=format&fit=crop&q=80",
+  "mens-jackets": "https://images.unsplash.com/photo-1548883354-7622d03aca27?w=800&auto=format&fit=crop&q=80",
+  "mens-sweatshirts": "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=800&auto=format&fit=crop&q=80",
+  "mens-tracksuits": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&auto=format&fit=crop&q=80",
+  "mens-accessories": "/cat-accessories.png",
+
+  "womens-t-shirts": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800&auto=format&fit=crop&q=80",
+  "womens-dresses": "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=800&auto=format&fit=crop&q=80",
+  "womens-hoodies": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&auto=format&fit=crop&q=80",
+  "womens-tops": "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=800&auto=format&fit=crop&q=80",
+  "womens-accessories": "/cat-accessories.png",
+
+  "kids-boys-clothing": "/cat-kids.png",
+  "kids-girls-clothing": "/cat-kids.png",
+  "kids-school-essentials": "/cat-kids.png",
+  "kids-accessories": "/cat-accessories.png",
+
+  "home-wall-art": "/cat-home.png",
+  "home-posters": "/cat-home.png",
+  "home-mugs": "/cat-home.png",
+  "home-cushions": "/cat-home.png",
+  "home-bedding": "/cat-home.png",
+  "home-decor": "/cat-home.png",
+
+  "accessories-tech-cases": "/cat-accessories.png",
+  "accessories-headwear": "/cat-accessories.png",
+  "accessories-misc": "/cat-accessories.png",
+};
+
 // Interface definitions matching the dynamic API schemas
 interface CategoryFilterItem {
   id: number;
@@ -40,6 +78,7 @@ interface CategoryFilterItem {
   slug: string;
   parent: number;
   count: number;
+  image?: { src: string; alt?: string } | null;
 }
 
 interface TagFilterItem {
@@ -151,7 +190,7 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps 
     return () => clearTimeout(handler);
   }, [searchQuery]);
 
-  // Expandable subcategories toggle tracker
+  // Expandable subcategories toggle tracker inside sidebar
   const [expandedCategories, setExpandedCategories] = useState<Record<number, boolean>>({});
 
   const toggleCategoryExpand = (catId: number, e: React.MouseEvent) => {
@@ -160,6 +199,13 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps 
       ...prev,
       [catId]: !prev[catId]
     }));
+  };
+
+  // Helper to extract image source for category cards
+  const getCategoryImage = (cat: CategoryFilterItem) => {
+    if (cat.image?.src) return cat.image.src;
+    const slug = cat.slug ? cat.slug.toLowerCase() : '';
+    return CATEGORY_THUMBNAILS[slug] || "/cat-accessories.png";
   };
 
   // --- Fetch Filter Metadata from WooCommerce on mount ---
@@ -174,7 +220,7 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps 
         
         // Parse URL search params to initial states
         const params = new URLSearchParams(window.location.search);
-        const categories = params.get('categories');
+        const categoryParam = params.get('category') || params.get('categories');
         const minP = params.get('min_price');
         const maxP = params.get('max_price');
         const colors = params.get('colors');
@@ -188,8 +234,18 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps 
         const sort = params.get('sort_by');
         const searchQ = params.get('search');
 
-        // Set state values with fallbacks matching metadata price ranges
-        if (categories) setSelectedCategories(categories.split(',').map(Number));
+        // Resolve category slug or ID
+        if (categoryParam) {
+          const match = data.categories.find(
+            c => c.slug.toLowerCase() === categoryParam.toLowerCase() || c.id.toString() === categoryParam
+          );
+          if (match) {
+            setSelectedCategories([match.id]);
+          } else if (categoryParam.includes(',')) {
+            setSelectedCategories(categoryParam.split(',').map(Number).filter(Boolean));
+          }
+        }
+
         if (colors) setSelectedColors(colors.split(','));
         if (sizes) setSelectedSizes(sizes.split(','));
         if (materials) setSelectedMaterials(materials.split(','));
@@ -210,23 +266,105 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps 
       })
       .catch(err => {
         console.error(err);
-        setError("Failed to load filter options. Sandbox mode active.");
+        setError("Failed to load filter options.");
       })
       .finally(() => {
         setMetaLoading(false);
       });
   }, []);
 
-  // --- Fetch products dynamically whenever filters or sorting parameters change ---
+  // Listen to popstate (Browser Back/Forward navigation)
   useEffect(() => {
     if (!isMounted) return;
+
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const categoryParam = params.get('category') || params.get('categories');
+      if (categoryParam) {
+        const match = metadata.categories.find(
+          c => c.slug.toLowerCase() === categoryParam.toLowerCase() || c.id.toString() === categoryParam
+        );
+        if (match) {
+          setSelectedCategories([match.id]);
+          return;
+        }
+      }
+      setSelectedCategories([]);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [isMounted, metadata.categories]);
+
+  // Derive current view mode (Category-First Flow logic)
+  const isSearchActive = !!debouncedSearchQuery.trim();
+  const isFilterActive = 
+    selectedColors.length > 0 ||
+    selectedSizes.length > 0 ||
+    selectedMaterials.length > 0 ||
+    selectedBrands.length > 0 ||
+    selectedTags.length > 0 ||
+    selectedRating !== null ||
+    selectedDiscount !== null ||
+    selectedAvailability.length > 0 ||
+    priceRange[0] !== metadata.priceRange.min ||
+    priceRange[1] !== metadata.priceRange.max;
+
+  const parentCategories = metadata.categories.filter(c => c.parent === 0);
+
+  const activeCategoryId = selectedCategories.length === 1 ? selectedCategories[0] : null;
+  const activeCategoryObj = activeCategoryId 
+    ? metadata.categories.find(c => c.id === activeCategoryId) || null
+    : null;
+
+  let parentCategoryObj: CategoryFilterItem | null = null;
+  let subcategoryObj: CategoryFilterItem | null = null;
+  let subcategories: CategoryFilterItem[] = [];
+
+  if (activeCategoryObj) {
+    if (activeCategoryObj.parent === 0) {
+      parentCategoryObj = activeCategoryObj;
+      subcategories = metadata.categories.filter(c => c.parent === activeCategoryObj.id);
+    } else {
+      subcategoryObj = activeCategoryObj;
+      parentCategoryObj = metadata.categories.find(c => c.id === activeCategoryObj.parent) || null;
+      if (parentCategoryObj) {
+        subcategories = metadata.categories.filter(c => c.parent === parentCategoryObj.id);
+      }
+    }
+  }
+
+  // Determine current view level
+  let viewMode: 'PARENT_CATEGORIES' | 'SUBCATEGORIES' | 'PRODUCTS' = 'PARENT_CATEGORIES';
+
+  if (isSearchActive || isFilterActive || selectedCategories.length > 1) {
+    viewMode = 'PRODUCTS';
+  } else if (activeCategoryObj) {
+    if (subcategoryObj) {
+      viewMode = 'PRODUCTS';
+    } else if (subcategories.length > 0) {
+      viewMode = 'SUBCATEGORIES';
+    } else {
+      viewMode = 'PRODUCTS';
+    }
+  } else {
+    viewMode = 'PARENT_CATEGORIES';
+  }
+
+  // --- Fetch products dynamically when in PRODUCTS view mode ---
+  useEffect(() => {
+    if (!isMounted) return;
+
+    if (viewMode !== 'PRODUCTS') {
+      setProductsLoading(false);
+      return;
+    }
 
     setProductsLoading(true);
     const params = new URLSearchParams();
 
     if (selectedCategories.length > 0) params.set('categories', selectedCategories.join(','));
     
-    // Only set price limits if they deviate from absolute metadata boundaries
     if (debouncedPriceRange[0] !== metadata.priceRange.min) params.set('min_price', debouncedPriceRange[0].toString());
     if (debouncedPriceRange[1] !== metadata.priceRange.max) params.set('max_price', debouncedPriceRange[1].toString());
     
@@ -241,12 +379,7 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps 
     if (sortBy !== 'featured') params.set('sort_by', sortBy);
     if (debouncedSearchQuery) params.set('search', debouncedSearchQuery);
 
-    // Sync state values directly into URL without full page reload
-    const currentParamsString = params.toString();
-    const newUrl = `${window.location.pathname}${currentParamsString ? '?' + currentParamsString : ''}`;
-    window.history.pushState({ path: newUrl }, '', newUrl);
-
-    fetch(`/api/shop/products?${currentParamsString}`)
+    fetch(`/api/shop/products?${params.toString()}`)
       .then(res => {
         if (!res.ok) throw new Error("Failed to load products list");
         return res.json();
@@ -265,8 +398,24 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps 
     selectedCategories, debouncedPriceRange, selectedColors, selectedSizes, 
     selectedMaterials, selectedBrands, selectedTags, selectedRating, 
     selectedDiscount, selectedAvailability, sortBy, debouncedSearchQuery, 
-    isMounted, metadata.priceRange
+    isMounted, metadata.priceRange, viewMode
   ]);
+
+  // --- Category Click Handlers ---
+  const handleSelectCategory = (catId: number, catSlug: string) => {
+    setSelectedCategories([catId]);
+    const params = new URLSearchParams(window.location.search);
+    params.set('category', catSlug);
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    window.history.pushState({ path: newUrl }, '', newUrl);
+  };
+
+  const handleResetToCategories = () => {
+    setSelectedCategories([]);
+    setSearchQuery("");
+    const newUrl = window.location.pathname;
+    window.history.pushState({ path: newUrl }, '', newUrl);
+  };
 
   // --- Accordion Section Toggle helper ---
   const toggleSection = (section: string) => {
@@ -334,6 +483,8 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps 
     setSelectedDiscount(null);
     setSelectedAvailability([]);
     setSearchQuery("");
+    const newUrl = window.location.pathname;
+    window.history.pushState({ path: newUrl }, '', newUrl);
   };
 
   // --- Build List of Active Filter Chips ---
@@ -394,10 +545,7 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps 
   };
 
   const activeFilters = getActiveFiltersList();
-
-  // Helper to check if a category is parent
-  const parentCategories = metadata.categories.filter(c => c.parent === 0);
-  const getSubcategories = (parentId: number) => metadata.categories.filter(c => c.parent === parentId);
+  const getSubcategoriesList = (parentId: number) => metadata.categories.filter(c => c.parent === parentId);
 
   // Search filter for brands list if long
   const filteredBrands = metadata.attributes.brands.filter(b => 
@@ -411,7 +559,7 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps 
     return (
       <button
         onClick={() => toggleSection(section)}
-        className="w-full flex items-center justify-between py-3.5 border-b border-white/5 text-[10px] font-mono font-bold uppercase tracking-widest text-gray-300 hover:text-brand-green transition-colors select-none text-left"
+        className="w-full flex items-center justify-between py-3.5 border-b border-white/5 text-[10px] font-mono font-bold uppercase tracking-widest text-gray-300 hover:text-brand-green transition-colors select-none text-left cursor-pointer"
       >
         <span>{title}</span>
         {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
@@ -435,14 +583,14 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps 
               className="overflow-hidden pt-3 space-y-2 text-sm font-sans"
             >
               {parentCategories.map(parent => {
-                const subs = getSubcategories(parent.id);
+                const subs = getSubcategoriesList(parent.id);
                 const isSelected = selectedCategories.includes(parent.id);
                 const isExpanded = !!expandedCategories[parent.id];
                 
                 return (
                   <div key={parent.id} className="space-y-1">
                     <div 
-                      onClick={() => toggleFilter(selectedCategories, setSelectedCategories, parent.id)}
+                      onClick={() => handleSelectCategory(parent.id, parent.slug)}
                       className="flex items-center justify-between group cursor-pointer py-1 px-1.5 rounded hover:bg-white/5 transition-colors"
                     >
                       <div className="flex items-center gap-2">
@@ -480,7 +628,7 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps 
                             return (
                               <div
                                 key={sub.id}
-                                onClick={() => toggleFilter(selectedCategories, setSelectedCategories, sub.id)}
+                                onClick={() => handleSelectCategory(sub.id, sub.slug)}
                                 className="flex items-center gap-2 py-0.5 cursor-pointer group hover:text-white transition-colors"
                               >
                                 <div className={`w-3 h-3 rounded-[3px] border border-white/20 flex items-center justify-center transition-all ${
@@ -683,7 +831,7 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps 
         </AnimatePresence>
       </div>
 
-      {/* 5. Brand Filter with search option */}
+      {/* 5. Brand Filter */}
       <div className="border-b border-white/5 pb-2">
         {renderAccordionHeader("Brands", "brands", metadata.attributes.brands.length === 0)}
         <AnimatePresence initial={false}>
@@ -695,7 +843,6 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps 
               transition={{ duration: 0.2 }}
               className="overflow-hidden pt-3 space-y-3 pb-2"
             >
-              {/* Optional Search bar inside brands */}
               {metadata.attributes.brands.length > 5 && (
                 <div className="relative flex items-center">
                   <Search size={10} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
@@ -736,199 +883,6 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps 
           )}
         </AnimatePresence>
       </div>
-
-      {/* 6. Material Filter */}
-      <div className="border-b border-white/5 pb-2">
-        {renderAccordionHeader("Material", "materials", metadata.attributes.materials.length === 0)}
-        <AnimatePresence initial={false}>
-          {expandedSections.materials && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="overflow-hidden pt-3 space-y-2 pb-2"
-            >
-              {metadata.attributes.materials.map(mat => {
-                const isSelected = selectedMaterials.includes(mat);
-                return (
-                  <div
-                    key={mat}
-                    onClick={() => toggleFilter(selectedMaterials, setSelectedMaterials, mat)}
-                    className="flex items-center gap-2 cursor-pointer group hover:text-white transition-colors"
-                  >
-                    <div className={`w-3.5 h-3.5 rounded border border-white/20 flex items-center justify-center transition-all ${
-                      isSelected ? 'bg-brand-green border-brand-green text-brand-black' : 'group-hover:border-white/40'
-                    }`}>
-                      {isSelected && <Check size={10} strokeWidth={3} />}
-                    </div>
-                    <span className={`text-xs ${isSelected ? 'text-brand-green font-semibold' : 'text-gray-400 group-hover:text-white'}`}>
-                      {mat}
-                    </span>
-                  </div>
-                );
-              })}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* 7. Star Ratings Filter */}
-      <div className="border-b border-white/5 pb-2">
-        {renderAccordionHeader("Customer Rating", "rating")}
-        <AnimatePresence initial={false}>
-          {expandedSections.rating && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="overflow-hidden pt-3 space-y-2 pb-2"
-            >
-              {[5, 4, 3].map(stars => {
-                const isSelected = selectedRating === stars;
-                return (
-                  <button
-                    key={stars}
-                    onClick={() => setSelectedRating(isSelected ? null : stars)}
-                    className={`w-full flex items-center justify-between text-left group cursor-pointer py-1 px-1.5 rounded hover:bg-white/5 transition-colors`}
-                  >
-                    <div className="flex items-center gap-1.5">
-                      <div className="flex items-center gap-0.5 text-brand-green">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <Star 
-                            key={i} 
-                            size={11} 
-                            className={i < stars ? "fill-brand-green text-brand-green" : "text-white/10"} 
-                          />
-                        ))}
-                      </div>
-                      <span className={`text-xs font-mono ${isSelected ? 'text-brand-green font-bold' : 'text-gray-400 group-hover:text-white'}`}>
-                        {stars === 5 ? "Only 5★" : `${stars}★ & above`}
-                      </span>
-                    </div>
-                    {isSelected && <Check size={11} className="text-brand-green" strokeWidth={3} />}
-                  </button>
-                );
-              })}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* 8. Discounts Filter */}
-      <div className="border-b border-white/5 pb-2">
-        {renderAccordionHeader("Discounts", "discount")}
-        <AnimatePresence initial={false}>
-          {expandedSections.discount && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="overflow-hidden pt-3 space-y-2 pb-2"
-            >
-              {[50, 30, 20, 10].map(pct => {
-                const isSelected = selectedDiscount === pct;
-                return (
-                  <div
-                    key={pct}
-                    onClick={() => setSelectedDiscount(isSelected ? null : pct)}
-                    className="flex items-center gap-2 cursor-pointer group hover:text-white transition-colors py-0.5"
-                  >
-                    <div className={`w-3.5 h-3.5 rounded border border-white/20 flex items-center justify-center transition-all ${
-                      isSelected ? 'bg-brand-green border-brand-green text-brand-black' : 'group-hover:border-white/40'
-                    }`}>
-                      {isSelected && <Check size={10} strokeWidth={3} />}
-                    </div>
-                    <span className={`text-xs font-mono ${isSelected ? 'text-brand-green font-semibold' : 'text-gray-400 group-hover:text-white'}`}>
-                      {pct}% Off or More
-                    </span>
-                  </div>
-                );
-              })}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* 9. Availability Filter */}
-      <div className="border-b border-white/5 pb-2">
-        {renderAccordionHeader("Availability", "availability")}
-        <AnimatePresence initial={false}>
-          {expandedSections.availability && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="overflow-hidden pt-3 space-y-2 pb-2"
-            >
-              {[
-                { key: 'instock', label: 'In Stock' },
-                { key: 'outofstock', label: 'Out of Stock' },
-                { key: 'onbackorder', label: 'Pre-order' }
-              ].map(avail => {
-                const isSelected = selectedAvailability.includes(avail.key);
-                return (
-                  <div
-                    key={avail.key}
-                    onClick={() => toggleFilter(selectedAvailability, setSelectedAvailability, avail.key)}
-                    className="flex items-center gap-2 cursor-pointer group hover:text-white transition-colors"
-                  >
-                    <div className={`w-3.5 h-3.5 rounded border border-white/20 flex items-center justify-center transition-all ${
-                      isSelected ? 'bg-brand-green border-brand-green text-brand-black' : 'group-hover:border-white/40'
-                    }`}>
-                      {isSelected && <Check size={10} strokeWidth={3} />}
-                    </div>
-                    <span className={`text-xs ${isSelected ? 'text-brand-green font-semibold' : 'text-gray-400 group-hover:text-white'}`}>
-                      {avail.label}
-                    </span>
-                  </div>
-                );
-              })}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* 10. Tags Filter */}
-      {metadata.tags.length > 0 && (
-        <div className="border-b border-white/5 pb-2">
-          {renderAccordionHeader("Product Tags", "tags")}
-          <AnimatePresence initial={false}>
-            {expandedSections.tags && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="overflow-hidden pt-3 pb-2"
-              >
-                <div className="flex flex-wrap gap-1.5">
-                  {metadata.tags.map(tag => {
-                    const isSelected = selectedTags.includes(tag.name);
-                    return (
-                      <button
-                        key={tag.id}
-                        onClick={() => toggleFilter(selectedTags, setSelectedTags, tag.name)}
-                        className={`px-3 py-1 border rounded-lg text-[9px] uppercase font-mono tracking-widest cursor-pointer transition-all ${
-                          isSelected
-                            ? 'bg-brand-green text-brand-black border-brand-green font-semibold'
-                            : 'border-white/10 text-gray-400 hover:border-white/30 hover:text-white'
-                        }`}
-                      >
-                        {tag.name}
-                        <span className="text-[8px] text-gray-500 ml-1">({tag.count || 0})</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      )}
     </div>
   );
 
@@ -937,7 +891,7 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps 
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <Loader2 className="w-8 h-8 text-brand-green animate-spin" />
-        <span className="text-xs uppercase font-mono tracking-widest text-gray-400">Loading catalog filters...</span>
+        <span className="text-xs uppercase font-mono tracking-widest text-gray-400">Loading catalog...</span>
       </div>
     );
   }
@@ -945,263 +899,404 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps 
   return (
     <div className="space-y-6">
       
-      {/* 1. Header Control Bar (Search, Breadcrumbs, Mobile trigger) */}
-      <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 bg-white/[0.01] border border-white/5 p-4 rounded-[var(--radius-card)] backdrop-blur-md">
-        {/* Search Bar Input */}
-        <div className="relative flex-1 max-w-md flex items-center">
-          <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
-          <input
-            type="text"
-            placeholder="SEARCH PRODUCTS OR CATEGORIES..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-10 py-2.5 rounded-[var(--radius-dropdown)] border border-white/10 bg-white/5 text-xs font-mono uppercase tracking-wider text-white placeholder-gray-500 focus:outline-none focus:border-brand-green/30 transition-all shadow-inner"
-          />
-          {searchQuery && (
+      {/* 0. Breadcrumb Navigation Bar */}
+      <div className="flex flex-wrap items-center gap-2 text-xs font-mono uppercase tracking-widest text-gray-400 bg-white/[0.01] border border-white/5 px-4 py-3 rounded-xl backdrop-blur-md">
+        <Link href="/" className="hover:text-brand-green transition-colors">
+          Home
+        </Link>
+        <ChevronRight size={12} className="text-gray-600" />
+        
+        <button
+          onClick={handleResetToCategories}
+          className={`hover:text-brand-green transition-colors cursor-pointer ${
+            viewMode === 'PARENT_CATEGORIES' ? 'text-brand-green font-bold' : ''
+          }`}
+        >
+          Shop
+        </button>
+
+        {parentCategoryObj && (
+          <>
+            <ChevronRight size={12} className="text-gray-600" />
             <button
-              onClick={() => setSearchQuery("")}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+              onClick={() => handleSelectCategory(parentCategoryObj!.id, parentCategoryObj!.slug)}
+              className={`hover:text-brand-green transition-colors cursor-pointer ${
+                viewMode === 'SUBCATEGORIES' ? 'text-brand-green font-bold' : ''
+              }`}
             >
-              <X size={14} />
+              {parentCategoryObj.name}
             </button>
-          )}
-        </div>
+          </>
+        )}
 
-        {/* Sort By Dropdown selection */}
-        <div className="flex items-center justify-between md:justify-end gap-3 font-mono text-[10px] uppercase tracking-widest text-gray-400 font-bold">
-          {/* Mobile Filter Trigger Button */}
-          <button
-            onClick={() => setIsMobileFiltersOpen(true)}
-            className="md:hidden flex items-center gap-2 px-4.5 py-2.5 rounded-[var(--radius-dropdown)] border border-white/10 hover:border-brand-green bg-white/5 text-gray-200 hover:text-brand-green transition-all cursor-pointer shadow-[0_5px_15px_rgba(0,0,0,0.15)]"
-          >
-            <SlidersHorizontal size={12} />
-            <span>Filters {activeFilters.length > 0 && `(${activeFilters.length})`}</span>
-          </button>
+        {subcategoryObj && (
+          <>
+            <ChevronRight size={12} className="text-gray-600" />
+            <span className="text-brand-green font-bold">{subcategoryObj.name}</span>
+          </>
+        )}
 
-          <div className="flex items-center gap-2 shrink-0">
-            <span>Sort By</span>
-            <div className="relative">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="appearance-none bg-white/5 border border-white/10 pl-4 pr-9 py-2.5 rounded-[var(--radius-dropdown)] text-white font-semibold focus:outline-none focus:border-brand-green/30 cursor-pointer shadow-md select-none pr-8 text-[10px] font-mono tracking-widest uppercase"
+        {debouncedSearchQuery && (
+          <>
+            <ChevronRight size={12} className="text-gray-600" />
+            <span className="text-brand-green font-bold">Search: "{debouncedSearchQuery}"</span>
+          </>
+        )}
+      </div>
+
+      {/* VIEW LEVEL 1: PARENT CATEGORIES GRID */}
+      {viewMode === 'PARENT_CATEGORIES' && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.3 }}
+          className="space-y-8"
+        >
+          <div className="text-center space-y-2 py-4">
+            <h2 className="text-2xl sm:text-4xl font-heading font-black uppercase tracking-wider text-white">
+              Shop Categories
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-400 font-sans uppercase tracking-widest max-w-xl mx-auto">
+              Select a category below to explore our streetwear collections
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 sm:gap-8">
+            {parentCategories.map((cat, idx) => (
+              <motion.div
+                key={cat.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: idx * 0.05 }}
               >
-                <option value="featured">Featured</option>
-                <option value="best_selling">Best Selling</option>
-                <option value="newest">Newest Arrivals</option>
-                <option value="price_asc">Price: Low to High</option>
-                <option value="price_desc">Price: High to Low</option>
-                <option value="rating_desc">Customer Rating</option>
-                <option value="popularity_desc">Most Popular</option>
-                <option value="title_asc">Alphabetically: A-Z</option>
-                <option value="title_desc">Alphabetically: Z-A</option>
-                <option value="discount_desc">Discount: High to Low</option>
-                <option value="availability">Availability</option>
-              </select>
-              <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
-                <ChevronDown size={10} strokeWidth={3} />
+                <CategoryCard
+                  name={cat.name}
+                  image={getCategoryImage(cat)}
+                  href={`/shop?category=${cat.slug}`}
+                  countText={`${cat.count || 0} Products`}
+                  onClick={() => handleSelectCategory(cat.id, cat.slug)}
+                />
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      {/* VIEW LEVEL 2: SUBCATEGORIES GRID */}
+      {viewMode === 'SUBCATEGORIES' && parentCategoryObj && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.3 }}
+          className="space-y-8"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-6">
+            <div className="space-y-1">
+              <span className="text-[10px] font-mono text-brand-green uppercase tracking-widest font-bold block">
+                Category
+              </span>
+              <h2 className="text-2xl sm:text-4xl font-heading font-black uppercase tracking-wider text-white">
+                {parentCategoryObj.name}
+              </h2>
+              <p className="text-xs text-gray-400 font-mono uppercase tracking-widest">
+                Select a subcategory to browse items
+              </p>
+            </div>
+
+            <button
+              onClick={handleResetToCategories}
+              className="self-start sm:self-auto flex items-center gap-2 px-5 py-2.5 rounded-[var(--radius-btn)] border border-white/10 bg-white/5 hover:border-brand-green hover:text-brand-green text-xs font-mono uppercase tracking-widest text-gray-300 transition-all cursor-pointer shadow-md"
+            >
+              ← Back to All Categories
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5 sm:gap-6">
+            {subcategories.map((sub, idx) => (
+              <motion.div
+                key={sub.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: idx * 0.05 }}
+              >
+                <CategoryCard
+                  name={sub.name}
+                  image={getCategoryImage(sub)}
+                  href={`/shop?category=${sub.slug}`}
+                  countText={`${sub.count || 0} Items`}
+                  onClick={() => handleSelectCategory(sub.id, sub.slug)}
+                />
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      {/* VIEW LEVEL 3: PRODUCT LISTING & FILTERS */}
+      {viewMode === 'PRODUCTS' && (
+        <div className="space-y-6">
+          
+          {/* Header Control Bar (Search, Mobile trigger, Sort By) */}
+          <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 bg-white/[0.01] border border-white/5 p-4 rounded-[var(--radius-card)] backdrop-blur-md">
+            {/* Search Bar Input */}
+            <div className="relative flex-1 max-w-md flex items-center">
+              <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="SEARCH PRODUCTS OR CATEGORIES..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-10 py-2.5 rounded-[var(--radius-dropdown)] border border-white/10 bg-white/5 text-xs font-mono uppercase tracking-wider text-white placeholder-gray-500 focus:outline-none focus:border-brand-green/30 transition-all shadow-inner"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors cursor-pointer"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+
+            {/* Sort By Dropdown selection */}
+            <div className="flex items-center justify-between md:justify-end gap-3 font-mono text-[10px] uppercase tracking-widest text-gray-400 font-bold">
+              {/* Mobile Filter Trigger Button */}
+              <button
+                onClick={() => setIsMobileFiltersOpen(true)}
+                className="md:hidden flex items-center gap-2 px-4.5 py-2.5 rounded-[var(--radius-dropdown)] border border-white/10 hover:border-brand-green bg-white/5 text-gray-200 hover:text-brand-green transition-all cursor-pointer shadow-md"
+              >
+                <SlidersHorizontal size={12} />
+                <span>Filters {activeFilters.length > 0 && `(${activeFilters.length})`}</span>
+              </button>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <span>Sort By</span>
+                <div className="relative">
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="appearance-none bg-white/5 border border-white/10 pl-4 pr-9 py-2.5 rounded-[var(--radius-dropdown)] text-white font-semibold focus:outline-none focus:border-brand-green/30 cursor-pointer shadow-md select-none text-[10px] font-mono tracking-widest uppercase"
+                  >
+                    <option value="featured">Featured</option>
+                    <option value="best_selling">Best Selling</option>
+                    <option value="newest">Newest Arrivals</option>
+                    <option value="price_asc">Price: Low to High</option>
+                    <option value="price_desc">Price: High to Low</option>
+                    <option value="rating_desc">Customer Rating</option>
+                    <option value="popularity_desc">Most Popular</option>
+                    <option value="title_asc">Alphabetically: A-Z</option>
+                    <option value="title_desc">Alphabetically: Z-A</option>
+                    <option value="discount_desc">Discount: High to Low</option>
+                    <option value="availability">Availability</option>
+                  </select>
+                  <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
+                    <ChevronDown size={10} strokeWidth={3} />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* 2. Active Filter Chips Row */}
-      {activeFilters.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2.5 bg-white/[0.005] border border-white/[0.02] p-3 rounded-2xl">
-          <span className="text-[8px] font-mono font-bold text-gray-500 uppercase tracking-widest mr-1">Active Filters:</span>
-          {activeFilters.map(f => (
-            <button
-              key={f.id}
-              onClick={() => removeFilter(f.id, f.type, f.value)}
-              className="flex items-center gap-1.5 bg-white/5 border border-white/10 hover:border-brand-green hover:text-brand-green px-3 py-1 rounded-full text-[9px] uppercase font-mono tracking-widest text-gray-300 transition-all cursor-pointer group shadow-sm"
-            >
-              <span>{f.label}</span>
-              <X size={10} className="text-gray-500 group-hover:text-brand-green transition-colors" />
-            </button>
-          ))}
-          <button
-            onClick={handleClearAll}
-            className="flex items-center gap-1 text-[9px] uppercase font-mono font-bold tracking-widest text-brand-green hover:text-white transition-colors cursor-pointer border border-brand-green/20 hover:border-white/20 bg-brand-green/5 hover:bg-white/5 px-3 py-1 rounded-full ml-auto"
-          >
-            <RefreshCw size={10} />
-            <span>Clear All</span>
-          </button>
-        </div>
-      )}
-
-      {/* 3. Main Grid layout: Sidebar (Desktop) + Feed Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8 items-start">
-        
-        {/* Desktop Left Sidebar: Collapsible accordion filters */}
-        <aside className="hidden md:block col-span-1 bg-white/[0.01] border border-white/5 p-6 rounded-[var(--radius-card)] backdrop-blur-md space-y-6 sticky top-24 max-h-[85vh] overflow-y-auto shadow-xl pr-4">
-          <div className="flex justify-between items-center border-b border-white/10 pb-3">
-            <span className="text-[11px] font-mono font-bold uppercase tracking-widest text-white flex items-center gap-2">
-              <SlidersHorizontal size={12} className="text-brand-green" />
-              Filters
-            </span>
-            {activeFilters.length > 0 && (
-              <button 
-                onClick={handleClearAll} 
-                className="text-[9px] font-mono uppercase tracking-wider text-brand-green hover:underline cursor-pointer"
+          {/* Active Filter Chips Row */}
+          {activeFilters.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2.5 bg-white/[0.005] border border-white/[0.02] p-3 rounded-2xl">
+              <span className="text-[8px] font-mono font-bold text-gray-500 uppercase tracking-widest mr-1">Active Filters:</span>
+              {activeFilters.map(f => (
+                <button
+                  key={f.id}
+                  onClick={() => removeFilter(f.id, f.type, f.value)}
+                  className="flex items-center gap-1.5 bg-white/5 border border-white/10 hover:border-brand-green hover:text-brand-green px-3 py-1 rounded-full text-[9px] uppercase font-mono tracking-widest text-gray-300 transition-all cursor-pointer group shadow-sm"
+                >
+                  <span>{f.label}</span>
+                  <X size={10} className="text-gray-500 group-hover:text-brand-green transition-colors" />
+                </button>
+              ))}
+              <button
+                onClick={handleClearAll}
+                className="flex items-center gap-1 text-[9px] uppercase font-mono font-bold tracking-widest text-brand-green hover:text-white transition-colors cursor-pointer border border-brand-green/20 hover:border-white/20 bg-brand-green/5 hover:bg-white/5 px-3 py-1 rounded-full ml-auto"
               >
-                Clear All
+                <RefreshCw size={10} />
+                <span>Clear All</span>
               </button>
-            )}
-          </div>
-          {renderFiltersContent()}
-        </aside>
+            </div>
+          )}
 
-        {/* Mobile Filter Slide-in Drawer Container */}
-        <AnimatePresence>
-          {isMobileFiltersOpen && (
-            <>
-              {/* Drawer Backdrop Overlay */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.6 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setIsMobileFiltersOpen(false)}
-                className="fixed inset-0 bg-black z-40 md:hidden"
-              />
-              
-              {/* Slide-in panel drawer */}
-              <motion.div
-                initial={{ x: "100%" }}
-                animate={{ x: 0 }}
-                exit={{ x: "100%" }}
-                transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                className="fixed top-0 right-0 h-full w-[85vw] max-w-sm bg-[#0d0d0d] border-l border-white/10 z-50 md:hidden flex flex-col shadow-2xl"
-              >
-                {/* Header */}
-                <div className="p-5 border-b border-white/10 flex justify-between items-center shrink-0">
-                  <span className="text-xs font-mono font-bold uppercase tracking-widest text-white flex items-center gap-2">
-                    <SlidersHorizontal size={12} className="text-brand-green" />
-                    Filters {activeFilters.length > 0 && `(${activeFilters.length})`}
-                  </span>
-                  <button
-                    onClick={() => setIsMobileFiltersOpen(false)}
-                    className="p-1.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white"
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
-
-                {/* Filter content wrapper (scrollable body) */}
-                <div className="flex-1 overflow-y-auto p-5 pb-24 scrollbar-hide">
-                  {renderFiltersContent()}
-                </div>
-
-                {/* Sticky Drawer Footer actions */}
-                <div className="absolute bottom-0 left-0 w-full p-4 bg-[#0a0a0a]/90 backdrop-blur-md border-t border-white/5 flex gap-3 shrink-0">
-                  <button
-                    onClick={handleClearAll}
-                    disabled={activeFilters.length === 0}
-                    className="flex-1 py-3 text-center rounded-[var(--radius-btn)] border border-white/10 hover:border-brand-green text-[10px] font-heading font-bold uppercase tracking-wider text-gray-300 hover:text-brand-green transition-all cursor-pointer bg-white/5 disabled:opacity-50 disabled:pointer-events-none"
+          {/* Main Grid layout: Sidebar (Desktop) + Feed Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 items-start">
+            
+            {/* Desktop Left Sidebar: Collapsible accordion filters */}
+            <aside className="hidden md:block col-span-1 bg-white/[0.01] border border-white/5 p-6 rounded-[var(--radius-card)] backdrop-blur-md space-y-6 sticky top-24 max-h-[85vh] overflow-y-auto shadow-xl pr-4">
+              <div className="flex justify-between items-center border-b border-white/10 pb-3">
+                <span className="text-[11px] font-mono font-bold uppercase tracking-widest text-white flex items-center gap-2">
+                  <SlidersHorizontal size={12} className="text-brand-green" />
+                  Filters
+                </span>
+                {activeFilters.length > 0 && (
+                  <button 
+                    onClick={handleClearAll} 
+                    className="text-[9px] font-mono uppercase tracking-wider text-brand-green hover:underline cursor-pointer"
                   >
                     Clear All
                   </button>
-                  <button
-                    onClick={() => setIsMobileFiltersOpen(false)}
-                    className="flex-1 py-3 text-center rounded-[var(--radius-btn)] bg-brand-green text-brand-black text-[10px] font-heading font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all cursor-pointer shadow-[0_0_15px_rgba(177,243,16,0.3)]"
-                  >
-                    Apply Filters
-                  </button>
-                </div>
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
+                )}
+              </div>
+              {renderFiltersContent()}
+            </aside>
 
-        {/* 4. Products Feed Display */}
-        <div className="col-span-1 md:col-span-3 space-y-6">
-          {/* Feed stats top header bar */}
-          <div className="flex justify-between items-center border-b border-white/5 pb-3">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-gray-400">
-              Showing {products.length} of {totalProducts} Products
-            </span>
-          </div>
-
-          <AnimatePresence mode="wait">
-            {productsLoading ? (
-              /* Loading Skeleton Grid */
-              <motion.div
-                key="skeleton-feed"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="grid grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
-              >
-                {Array.from({ length: 6 }).map((_, idx) => (
-                  <div
-                    key={idx}
-                    className="w-full flex flex-col space-y-3.5 animate-pulse"
-                  >
-                    <div className="aspect-[4/5] w-full bg-white/5 rounded-[var(--radius-img)]" />
-                    <div className="h-4 bg-white/10 rounded w-2/3" />
-                    <div className="h-3 bg-white/5 rounded w-1/3" />
-                  </div>
-                ))}
-              </motion.div>
-            ) : products.length === 0 ? (
-              /* Premium Empty State Illustration Layout */
-              <motion.div
-                key="empty-feed"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 15 }}
-                className="flex flex-col items-center justify-center text-center py-20 px-4 bg-white/[0.01] border border-white/5 rounded-[var(--radius-card)] backdrop-blur-sm max-w-xl mx-auto gap-5 shadow-2xl"
-              >
-                <div className="relative w-20 h-20 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-600 hover:text-brand-green transition-colors duration-300">
-                  <ShoppingBag size={36} strokeWidth={1} />
-                  <div className="absolute inset-0 border border-brand-green/20 rounded-full scale-105 animate-pulse" />
-                </div>
-                <div className="space-y-2">
-                  <h3 className="font-heading font-black text-lg uppercase tracking-wider text-white">
-                    No products match your filters
-                  </h3>
-                  <p className="text-gray-500 font-sans text-xs max-w-sm leading-normal">
-                    Try adjusting your price bounds, color swatches, size selections, or clean up terms to browse the full lineup.
-                  </p>
-                </div>
-                <button
-                  onClick={handleClearAll}
-                  className="py-3 px-8 uppercase tracking-widest font-heading font-black text-[10px] rounded-[var(--radius-btn)] bg-brand-green hover:bg-brand-white text-brand-black hover:text-black transition-all duration-300 shadow-[0_0_15px_rgba(177,243,16,0.25)] hover:shadow-none cursor-pointer"
-                >
-                  Clear Filters
-                </button>
-              </motion.div>
-            ) : (
-              /* Product Display Grid */
-              <motion.div
-                key="products-feed"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="grid grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
-              >
-                {products.map((product) => (
+            {/* Mobile Filter Slide-in Drawer Container */}
+            <AnimatePresence>
+              {isMobileFiltersOpen && (
+                <>
                   <motion.div
-                    key={product.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 0.6 }}
+                    exit={{ opacity: 0 }}
+                    onClick={() => setIsMobileFiltersOpen(false)}
+                    className="fixed inset-0 bg-black z-40 md:hidden"
+                  />
+                  
+                  <motion.div
+                    initial={{ x: "100%" }}
+                    animate={{ x: 0 }}
+                    exit={{ x: "100%" }}
+                    transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                    className="fixed top-0 right-0 h-full w-[85vw] max-w-sm bg-[#0d0d0d] border-l border-white/10 z-50 md:hidden flex flex-col shadow-2xl"
                   >
-                    <ProductCard
-                      id={product.id}
-                      name={product.name}
-                      price={product.price}
-                      regularPrice={product.regularPrice}
-                      image={product.image}
-                      tag={product.tag}
-                    />
+                    <div className="p-5 border-b border-white/10 flex justify-between items-center shrink-0">
+                      <span className="text-xs font-mono font-bold uppercase tracking-widest text-white flex items-center gap-2">
+                        <SlidersHorizontal size={12} className="text-brand-green" />
+                        Filters {activeFilters.length > 0 && `(${activeFilters.length})`}
+                      </span>
+                      <button
+                        onClick={() => setIsMobileFiltersOpen(false)}
+                        className="p-1.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto p-5 pb-24 scrollbar-hide">
+                      {renderFiltersContent()}
+                    </div>
+
+                    <div className="absolute bottom-0 left-0 w-full p-4 bg-[#0a0a0a]/90 backdrop-blur-md border-t border-white/5 flex gap-3 shrink-0">
+                      <button
+                        onClick={handleClearAll}
+                        disabled={activeFilters.length === 0}
+                        className="flex-1 py-3 text-center rounded-[var(--radius-btn)] border border-white/10 hover:border-brand-green text-[10px] font-heading font-bold uppercase tracking-wider text-gray-300 hover:text-brand-green transition-all cursor-pointer bg-white/5 disabled:opacity-50 disabled:pointer-events-none"
+                      >
+                        Clear All
+                      </button>
+                      <button
+                        onClick={() => setIsMobileFiltersOpen(false)}
+                        className="flex-1 py-3 text-center rounded-[var(--radius-btn)] bg-brand-green text-brand-black text-[10px] font-heading font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all cursor-pointer shadow-[0_0_15px_rgba(177,243,16,0.3)]"
+                      >
+                        Apply Filters
+                      </button>
+                    </div>
                   </motion.div>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
+                </>
+              )}
+            </AnimatePresence>
+
+            {/* Products Feed Display */}
+            <div className="col-span-1 md:col-span-3 space-y-6">
+              <div className="flex justify-between items-center border-b border-white/5 pb-3">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-gray-400">
+                  Showing {products.length} of {totalProducts} Products
+                </span>
+                
+                {parentCategoryObj && (
+                  <button
+                    onClick={handleResetToCategories}
+                    className="text-[9px] font-mono uppercase tracking-wider text-brand-green hover:underline cursor-pointer"
+                  >
+                    ← Browse Categories
+                  </button>
+                )}
+              </div>
+
+              <AnimatePresence mode="wait">
+                {productsLoading ? (
+                  <motion.div
+                    key="skeleton-feed"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="grid grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
+                  >
+                    {Array.from({ length: 6 }).map((_, idx) => (
+                      <div
+                        key={idx}
+                        className="w-full flex flex-col space-y-3.5 animate-pulse"
+                      >
+                        <div className="aspect-[4/5] w-full bg-white/5 rounded-[var(--radius-img)]" />
+                        <div className="h-4 bg-white/10 rounded w-2/3" />
+                        <div className="h-3 bg-white/5 rounded w-1/3" />
+                      </div>
+                    ))}
+                  </motion.div>
+                ) : products.length === 0 ? (
+                  <motion.div
+                    key="empty-feed"
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 15 }}
+                    className="flex flex-col items-center justify-center text-center py-20 px-4 bg-white/[0.01] border border-white/5 rounded-[var(--radius-card)] backdrop-blur-sm max-w-xl mx-auto gap-5 shadow-2xl"
+                  >
+                    <div className="relative w-20 h-20 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-600 hover:text-brand-green transition-colors duration-300">
+                      <ShoppingBag size={36} strokeWidth={1} />
+                      <div className="absolute inset-0 border border-brand-green/20 rounded-full scale-105 animate-pulse" />
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="font-heading font-black text-lg uppercase tracking-wider text-white">
+                        No products match your filters
+                      </h3>
+                      <p className="text-gray-500 font-sans text-xs max-w-sm leading-normal">
+                        Try adjusting your price bounds, color swatches, size selections, or clean up terms to browse the full lineup.
+                      </p>
+                    </div>
+                    <button
+                      onClick={handleClearAll}
+                      className="py-3 px-8 uppercase tracking-widest font-heading font-black text-[10px] rounded-[var(--radius-btn)] bg-brand-green hover:bg-brand-white text-brand-black hover:text-black transition-all duration-300 shadow-[0_0_15px_rgba(177,243,16,0.25)] hover:shadow-none cursor-pointer"
+                    >
+                      Clear Filters
+                    </button>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="products-feed"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="grid grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
+                  >
+                    {products.map((product) => (
+                      <motion.div
+                        key={product.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <ProductCard
+                          id={product.id}
+                          name={product.name}
+                          price={product.price}
+                          regularPrice={product.regularPrice}
+                          image={product.image}
+                          tag={product.tag}
+                        />
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

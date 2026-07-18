@@ -6,11 +6,11 @@ import TextReveal from "../ui/TextReveal";
 import CategoryCard from "../ui/CategoryCard";
 
 const categories = [
-    { id: 1, name: "Men's Fashion", image: "/cat-mens.png", href: "/shop#mens" },
-    { id: 2, name: "Women's Fashion", image: "/cat-womens.png", href: "/shop#womens" },
-    { id: 3, name: "Kid's Fashion", image: "/cat-kids.png", href: "/shop#kids" },
-    { id: 4, name: "Home & Living", image: "/cat-home.png", href: "/shop#home-living" },
-    { id: 5, name: "Accessories", image: "/cat-accessories.png", href: "/shop#accessories" },
+    { id: 1, name: "Men's Fashion", image: "/cat-mens.png", href: "/shop?category=mens" },
+    { id: 2, name: "Women's Fashion", image: "/cat-womens.png", href: "/shop?category=womens" },
+    { id: 3, name: "Kid's Fashion", image: "/cat-kids.png", href: "/shop?category=kids" },
+    { id: 4, name: "Home & Living", image: "/cat-home.png", href: "/shop?category=home-living" },
+    { id: 5, name: "Accessories", image: "/cat-accessories.png", href: "/shop?category=accessories" },
 ];
 
 export default function CategoryGrid() {

@@ -193,11 +193,11 @@ export function Footer() {
                 <div className="text-center md:text-left">
                     <h4 className="font-bold uppercase tracking-widest mb-4 md:mb-6 text-sm text-brand-green">Shop</h4>
                     <ul className="space-y-4 text-gray-400 text-sm uppercase tracking-wider flex flex-col items-center md:items-start">
-                        <li><Link href="/shop#mens" className="hover:text-white transition-colors">Men</Link></li>
-                        <li><Link href="/shop#womens" className="hover:text-white transition-colors">Women</Link></li>
-                        <li><Link href="/shop#kids" className="hover:text-white transition-colors">Kids</Link></li>
-                        <li><Link href="/shop#home-living" className="hover:text-white transition-colors">Home & Living</Link></li>
-                        <li><Link href="/shop#accessories" className="hover:text-white transition-colors">Accessories</Link></li>
+                        <li><Link href="/shop?category=mens" className="hover:text-white transition-colors">Men</Link></li>
+                        <li><Link href="/shop?category=womens" className="hover:text-white transition-colors">Women</Link></li>
+                        <li><Link href="/shop?category=kids" className="hover:text-white transition-colors">Kids</Link></li>
+                        <li><Link href="/shop?category=home-living" className="hover:text-white transition-colors">Home & Living</Link></li>
+                        <li><Link href="/shop?category=accessories" className="hover:text-white transition-colors">Accessories</Link></li>
                     </ul>
                 </div>
 
