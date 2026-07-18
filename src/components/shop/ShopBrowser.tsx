@@ -327,9 +327,10 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps 
       subcategories = metadata.categories.filter(c => c.parent === activeCategoryObj.id);
     } else {
       subcategoryObj = activeCategoryObj;
-      parentCategoryObj = metadata.categories.find(c => c.id === activeCategoryObj.parent) || null;
-      if (parentCategoryObj) {
-        subcategories = metadata.categories.filter(c => c.parent === parentCategoryObj.id);
+      const foundParent = metadata.categories.find(c => c.id === activeCategoryObj.parent) || null;
+      parentCategoryObj = foundParent;
+      if (foundParent) {
+        subcategories = metadata.categories.filter(c => c.parent === foundParent.id);
       }
     }
   }
