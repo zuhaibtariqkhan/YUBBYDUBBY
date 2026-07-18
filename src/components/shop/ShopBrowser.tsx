@@ -698,7 +698,7 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps 
               {/* Optional Search bar inside brands */}
               {metadata.attributes.brands.length > 5 && (
                 <div className="relative flex items-center">
-                  <Search size={10} className="absolute left-2.5 text-gray-500" />
+                  <Search size={10} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
                   <input
                     type="text"
                     placeholder="Search brand..."
@@ -948,8 +948,8 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps 
       {/* 1. Header Control Bar (Search, Breadcrumbs, Mobile trigger) */}
       <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 bg-white/[0.01] border border-white/5 p-4 rounded-[var(--radius-card)] backdrop-blur-md">
         {/* Search Bar Input */}
-        <div className="relative flex-1 max-w-md">
-          <Search size={14} className="absolute left-3.5 text-gray-500" />
+        <div className="relative flex-1 max-w-md flex items-center">
+          <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
           <input
             type="text"
             placeholder="SEARCH PRODUCTS OR CATEGORIES..."
@@ -960,7 +960,7 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps 
           {searchQuery && (
             <button
               onClick={() => setSearchQuery("")}
-              className="absolute right-3.5 text-gray-500 hover:text-white transition-colors"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
             >
               <X size={14} />
             </button>
