@@ -116,11 +116,14 @@ export async function GET(request: Request) {
       let filtered = categories;
       if (queryParentId === 0) {
         filtered = categories.filter(c => {
-          const slug = c.slug.toLowerCase();
+          const slug = c.slug ? c.slug.toLowerCase() : '';
+          const name = c.name ? c.name.toLowerCase() : '';
           return !['uncategorized', 'shop'].includes(slug) && 
                  !slug.includes('adidas') && 
                  !slug.includes('create') && 
-                 !slug.includes('collab');
+                 !slug.includes('collab') &&
+                 !slug.includes('featured') &&
+                 !name.includes('featured');
         });
       }
       

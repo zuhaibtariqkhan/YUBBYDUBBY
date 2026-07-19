@@ -53,11 +53,14 @@ export async function GET() {
     // 1. Fetch Categories
     const categories: any = await fetchWooCommerce('products/categories?per_page=100');
     const filteredCategories = categories.filter((c: any) => {
-      const slug = c.slug.toLowerCase();
+      const slug = c.slug ? c.slug.toLowerCase() : '';
+      const name = c.name ? c.name.toLowerCase() : '';
       return !['uncategorized', 'shop'].includes(slug) && 
              !slug.includes('adidas') && 
              !slug.includes('create') && 
-             !slug.includes('collab');
+             !slug.includes('collab') &&
+             !slug.includes('featured') &&
+             !name.includes('featured');
     }).map((c: any) => ({
       id: c.id,
       name: c.name,

@@ -25,10 +25,13 @@ export default async function ShopPage() {
     const categoriesData = mainCategories && mainCategories.length > 0
         ? mainCategories.filter(c => {
             const slug = c.slug.toLowerCase();
+            const name = c.name ? c.name.toLowerCase() : '';
             return !['uncategorized', 'shop'].includes(slug) && 
                    !slug.includes('adidas') && 
                    !slug.includes('create') && 
-                   !slug.includes('collab');
+                   !slug.includes('collab') &&
+                   !slug.includes('featured') &&
+                   !name.includes('featured');
           })
         : fallbackMainCategories;
 

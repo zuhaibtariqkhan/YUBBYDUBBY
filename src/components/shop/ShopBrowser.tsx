@@ -310,7 +310,17 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps 
     priceRange[0] !== metadata.priceRange.min ||
     priceRange[1] !== metadata.priceRange.max;
 
-  const parentCategories = metadata.categories.filter(c => c.parent === 0);
+  const parentCategories = metadata.categories.filter(c => {
+    const slug = c.slug ? c.slug.toLowerCase() : '';
+    const name = c.name ? c.name.toLowerCase() : '';
+    return c.parent === 0 &&
+           !['uncategorized', 'shop'].includes(slug) &&
+           !slug.includes('adidas') &&
+           !slug.includes('create') &&
+           !slug.includes('collab') &&
+           !slug.includes('featured') &&
+           !name.includes('featured');
+  });
 
   const activeCategoryId = selectedCategories.length === 1 ? selectedCategories[0] : null;
   const activeCategoryObj = activeCategoryId 
