@@ -6,7 +6,7 @@ import TextReveal from "@/components/ui/TextReveal";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
 import ProfileCard from "@/components/ProfileCard";
-import { Instagram, Facebook, Gem, Truck, Heart, Palette, ShieldCheck, Sparkles } from "lucide-react";
+import { Instagram, Gem, Truck, Heart, Palette, ShieldCheck, Sparkles } from "lucide-react";
 
 // Fade in component for text blocks
 const FadeIn = ({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) => {
@@ -396,24 +396,14 @@ export default function AboutPage() {
                             contactText="Get in Touch"
                             onContactClick={() => window.open("https://www.instagram.com/zuhaibtariqkhan/", "_blank")}
                             socials={
-                                <>
-                                    <a
-                                        href="https://www.instagram.com/zuhaibtariqkhan/"
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="text-white hover:text-brand-green transition-colors cursor-pointer pointer-events-auto"
-                                    >
-                                        <Instagram size={24} />
-                                    </a>
-                                    <a
-                                        href="https://www.facebook.com/zuhaibtariqkhan/"
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="text-white hover:text-brand-green transition-colors cursor-pointer pointer-events-auto"
-                                    >
-                                        <Facebook size={24} />
-                                    </a>
-                                </>
+                                <a
+                                    href="https://www.instagram.com/zuhaibtariqkhan/"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-white hover:text-brand-green transition-colors cursor-pointer pointer-events-auto"
+                                >
+                                    <Instagram size={24} />
+                                </a>
                             }
                         />
                     </FadeIn>
