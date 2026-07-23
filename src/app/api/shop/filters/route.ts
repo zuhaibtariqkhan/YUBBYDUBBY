@@ -42,6 +42,8 @@ const MOCK_FILTERS = {
     min: 0,
     max: 3000
   }
+};
+
 const FALLBACK_CATEGORY_IMAGES: Record<string, string> = {
   mens: "/cat-mens.png",
   womens: "/cat-womens.png",
