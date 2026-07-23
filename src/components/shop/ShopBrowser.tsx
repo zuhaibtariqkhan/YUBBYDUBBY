@@ -42,15 +42,22 @@ const CATEGORY_THUMBNAILS: Record<string, string> = {
   accessories: "/cat-accessories.png",
 
   "mens-t-shirts": "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&auto=format&fit=crop&q=80",
+  menstshirts: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&auto=format&fit=crop&q=80",
   "mens-hoodies": "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=800&auto=format&fit=crop&q=80",
   "mens-jackets": "https://images.unsplash.com/photo-1548883354-7622d03aca27?w=800&auto=format&fit=crop&q=80",
+  mensjackets: "https://images.unsplash.com/photo-1548883354-7622d03aca27?w=800&auto=format&fit=crop&q=80",
   "mens-sweatshirts": "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=800&auto=format&fit=crop&q=80",
+  "mens-sweaters": "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=800&auto=format&fit=crop&q=80",
+  sweatshirts: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=800&auto=format&fit=crop&q=80",
+  sweaters: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=800&auto=format&fit=crop&q=80",
   "mens-tracksuits": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&auto=format&fit=crop&q=80",
   "mens-accessories": "/cat-accessories.png",
 
   "womens-t-shirts": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800&auto=format&fit=crop&q=80",
+  "womens-tshirts": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800&auto=format&fit=crop&q=80",
   "womens-dresses": "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=800&auto=format&fit=crop&q=80",
   "womens-hoodies": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&auto=format&fit=crop&q=80",
+  "women-hoodie": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&auto=format&fit=crop&q=80",
   "womens-tops": "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=800&auto=format&fit=crop&q=80",
   "womens-accessories": "/cat-accessories.png",
 
@@ -58,6 +65,8 @@ const CATEGORY_THUMBNAILS: Record<string, string> = {
   "kids-girls-clothing": "/cat-kids.png",
   "kids-school-essentials": "/cat-kids.png",
   "kids-accessories": "/cat-accessories.png",
+  "kids-hoodies": "/cat-kids.png",
+  "kids-tshirts": "/cat-kids.png",
 
   "home-wall-art": "/cat-home.png",
   "home-posters": "/cat-home.png",
@@ -205,7 +214,12 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps 
   const getCategoryImage = (cat: CategoryFilterItem) => {
     if (cat.image?.src) return cat.image.src;
     const slug = cat.slug ? cat.slug.toLowerCase() : '';
-    return CATEGORY_THUMBNAILS[slug] || "/cat-accessories.png";
+    if (CATEGORY_THUMBNAILS[slug]) return CATEGORY_THUMBNAILS[slug];
+    if (cat.parent === 24) return "/cat-mens.png";
+    if (cat.parent === 25) return "/cat-womens.png";
+    if (cat.parent === 26) return "/cat-kids.png";
+    if (cat.parent === 27) return "/cat-home.png";
+    return "/cat-accessories.png";
   };
 
   // --- Fetch Filter Metadata from WooCommerce on mount ---
