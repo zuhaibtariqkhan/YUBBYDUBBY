@@ -119,8 +119,25 @@ export async function GET(request: Request) {
     try {
       let queryParentId = parentId;
 
-      const categories = await getProductCategories({ parent: queryParentId });
-      
+      const [categories, products]: [any, any] = await Promise.all([
+        getProductCategories({ parent: queryParentId }),
+        fetchWooCommerce('products?per_page=100')
+      ]);
+
+      const catImgMap: Record<number, string> = {};
+      if (Array.isArray(products)) {
+        products.forEach((p: any) => {
+          if (p.images && p.images.length > 0 && p.images[0]?.src) {
+            (p.categories || []).forEach((c: any) => {
+              const catId = typeof c === 'object' ? c.id : c;
+              if (catId && !catImgMap[catId]) {
+                catImgMap[catId] = p.images[0].src;
+              }
+            });
+          }
+        });
+      }
+
       // Exclude admin categories or internal ones from Level 1
       let filtered = categories;
       if (queryParentId === 0) {
@@ -135,8 +152,25 @@ export async function GET(request: Request) {
                  !name.includes('featured');
         });
       }
+
+      const enrichWithWpProduct = (c: any) => {
+        const slug = c.slug ? c.slug.toLowerCase() : '';
+        const imageSrc = c.image?.src || catImgMap[c.id] || FALLBACK_CATEGORY_IMAGES[slug] || (
+          c.parent === 24 ? "/cat-mens.png" :
+          c.parent === 25 ? "/cat-womens.png" :
+          c.parent === 26 ? "/cat-kids.png" :
+          c.parent === 27 ? "/cat-home.png" : "/cat-accessories.png"
+        );
+        return {
+          ...c,
+          image: {
+            src: imageSrc,
+            alt: c.name || 'Category'
+          }
+        };
+      };
       
-      return NextResponse.json((filtered || []).map(enrichCategory));
+      return NextResponse.json((filtered || []).map(enrichWithWpProduct));
     } catch (error) {
       console.error('WooCommerce categories fetch failed, using fallback:', error);
     }

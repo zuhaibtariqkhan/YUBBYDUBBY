@@ -50,55 +50,26 @@ export async function GET() {
   }
 
   try {
-    // 1. Fetch Categories
-    const categories: any = await fetchWooCommerce('products/categories?per_page=100');
-const FALLBACK_CATEGORY_IMAGES: Record<string, string> = {
-  mens: "/cat-mens.png",
-  womens: "/cat-womens.png",
-  kids: "/cat-kids.png",
-  "home-living": "/cat-home.png",
-  accessories: "/cat-accessories.png",
+    // 1. Fetch Categories & Products from WordPress to map live product photos to categories
+    const [categories, products]: [any, any] = await Promise.all([
+      fetchWooCommerce('products/categories?per_page=100'),
+      fetchWooCommerce('products?per_page=100')
+    ]);
 
-  "mens-t-shirts": "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&auto=format&fit=crop&q=80",
-  menstshirts: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&auto=format&fit=crop&q=80",
-  "mens-hoodies": "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=800&auto=format&fit=crop&q=80",
-  "mens-jackets": "https://images.unsplash.com/photo-1548883354-7622d03aca27?w=800&auto=format&fit=crop&q=80",
-  mensjackets: "https://images.unsplash.com/photo-1548883354-7622d03aca27?w=800&auto=format&fit=crop&q=80",
-  "mens-sweatshirts": "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=800&auto=format&fit=crop&q=80",
-  "mens-sweaters": "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=800&auto=format&fit=crop&q=80",
-  sweatshirts: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=800&auto=format&fit=crop&q=80",
-  sweaters: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=800&auto=format&fit=crop&q=80",
-  "mens-tracksuits": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&auto=format&fit=crop&q=80",
-  "mens-accessories": "/cat-accessories.png",
+    const catImgMap: Record<number, string> = {};
+    if (Array.isArray(products)) {
+      products.forEach((p: any) => {
+        if (p.images && p.images.length > 0 && p.images[0]?.src) {
+          (p.categories || []).forEach((c: any) => {
+            if (!catImgMap[c.id]) {
+              catImgMap[c.id] = p.images[0].src;
+            }
+          });
+        }
+      });
+    }
 
-  "womens-t-shirts": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800&auto=format&fit=crop&q=80",
-  "womens-tshirts": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800&auto=format&fit=crop&q=80",
-  "womens-dresses": "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=800&auto=format&fit=crop&q=80",
-  "womens-hoodies": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&auto=format&fit=crop&q=80",
-  "women-hoodie": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&auto=format&fit=crop&q=80",
-  "womens-tops": "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=800&auto=format&fit=crop&q=80",
-  "womens-accessories": "/cat-accessories.png",
-
-  "kids-boys-clothing": "/cat-kids.png",
-  "kids-girls-clothing": "/cat-kids.png",
-  "kids-school-essentials": "/cat-kids.png",
-  "kids-accessories": "/cat-accessories.png",
-  "kids-hoodies": "/cat-kids.png",
-  "kids-tshirts": "/cat-kids.png",
-
-  "home-wall-art": "/cat-home.png",
-  "home-posters": "/cat-home.png",
-  "home-mugs": "/cat-home.png",
-  "home-cushions": "/cat-home.png",
-  "home-bedding": "/cat-home.png",
-  "home-decor": "/cat-home.png",
-
-  "accessories-tech-cases": "/cat-accessories.png",
-  "accessories-headwear": "/cat-accessories.png",
-  "accessories-misc": "/cat-accessories.png",
-};
-
-    const filteredCategories = categories.filter((c: any) => {
+    const filteredCategories = (Array.isArray(categories) ? categories : []).filter((c: any) => {
       const slug = c.slug ? c.slug.toLowerCase() : '';
       const name = c.name ? c.name.toLowerCase() : '';
       return !['uncategorized', 'shop'].includes(slug) && 
@@ -109,7 +80,7 @@ const FALLBACK_CATEGORY_IMAGES: Record<string, string> = {
              !name.includes('featured');
     }).map((c: any) => {
       const slug = c.slug ? c.slug.toLowerCase() : '';
-      const imageSrc = c.image?.src || FALLBACK_CATEGORY_IMAGES[slug] || (
+      const imageSrc = c.image?.src || catImgMap[c.id] || FALLBACK_CATEGORY_IMAGES[slug] || (
         c.parent === 24 ? "/cat-mens.png" :
         c.parent === 25 ? "/cat-womens.png" :
         c.parent === 26 ? "/cat-kids.png" :
