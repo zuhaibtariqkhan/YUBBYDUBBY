@@ -141,7 +141,7 @@ export async function GET(request: Request) {
       // Exclude admin categories or internal ones from Level 1
       let filtered = categories;
       if (queryParentId === 0) {
-        filtered = categories.filter(c => {
+        filtered = categories.filter((c: any) => {
           const slug = c.slug ? c.slug.toLowerCase() : '';
           const name = c.name ? c.name.toLowerCase() : '';
           return !['uncategorized', 'shop'].includes(slug) && 
