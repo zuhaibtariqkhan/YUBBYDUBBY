@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getProductCategories, getCategoriesBySlug, isWooCommerceConfigured } from '@/lib/woocommerce';
+import { getProductCategories, getCategoriesBySlug, isWooCommerceConfigured, fetchWooCommerce } from '@/lib/woocommerce';
 
 const FALLBACK_CATEGORY_IMAGES: Record<string, string> = {
   mens: "/cat-mens.png",
