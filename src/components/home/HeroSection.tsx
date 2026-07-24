@@ -21,7 +21,7 @@ export default function HeroSection() {
     return (
         <section
             ref={sectionRef}
-            className="relative h-[55vh] md:h-[100dvh] w-full flex items-center justify-center overflow-hidden bg-brand-black"
+            className="relative min-h-[88dvh] md:min-h-[100dvh] w-full flex items-center justify-center overflow-hidden bg-brand-black py-16 md:py-0"
         >
             {/* Background Video with parallax */}
             <motion.div
@@ -33,7 +33,7 @@ export default function HeroSection() {
                     loop
                     muted
                     playsInline
-                    className="absolute inset-0 w-full h-full object-cover object-center opacity-15 saturate-100"
+                    className="absolute inset-0 w-full h-full object-cover object-center opacity-20 saturate-100"
                 >
                     <source src="/hero-video.mp4" type="video/mp4" />
                 </video>
@@ -42,39 +42,39 @@ export default function HeroSection() {
             {/* Text content with parallax */}
             <motion.div
                 style={{ y: textY, opacity: textOpacity }}
-                className="relative z-10 text-center max-w-5xl px-4 sm:px-6 flex flex-col items-center mt-8 sm:mt-0"
+                className="relative z-10 text-center max-w-5xl px-5 sm:px-6 flex flex-col items-center justify-center my-auto pt-6 md:pt-0"
             >
-                <div className="mb-3 sm:mb-6 flex flex-col items-center">
+                <div className="mb-4 sm:mb-6 flex flex-col items-center">
                     <TextReveal
                         text="Elevating The"
                         type="chars"
-                        className="font-heading text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-bold uppercase tracking-tighter leading-[0.9]"
+                        className="font-heading text-3xl sm:text-6xl md:text-8xl lg:text-9xl font-black uppercase tracking-tighter leading-[0.95]"
                     />
                     <TextReveal
                         text="Everyday"
                         type="chars"
                         delay={0.4}
-                        className="text-brand-green italic drop-shadow-lg font-heading text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-bold uppercase tracking-tighter leading-[0.9]"
+                        className="text-brand-green italic drop-shadow-lg font-heading text-3xl sm:text-6xl md:text-8xl lg:text-9xl font-black uppercase tracking-tighter leading-[0.95]"
                     />
                 </div>
  
                 <motion.p
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-                    className="text-gray-200 text-sm sm:text-lg md:text-xl max-w-2xl mb-5 sm:mb-10 tracking-wide font-sans drop-shadow-md px-2 sm:px-0"
+                    className="text-gray-300 text-xs sm:text-base md:text-lg max-w-xl mb-6 sm:mb-8 tracking-wide font-sans drop-shadow-md px-2 sm:px-0 leading-relaxed"
                 >
                     From mens and womens fashion to kids, home living and accessories, redefine everyday style.
                 </motion.p>
  
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
+                    initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.5, delay: 0.4 }}
-                    className="flex justify-center sm:justify-start gap-4 w-full sm:w-auto px-6 sm:px-0 mt-2"
+                    className="flex justify-center gap-4 w-full sm:w-auto px-4 sm:px-0"
                 >
                     <Link href="/shop" className="w-full sm:w-auto">
-                        <button className="w-full sm:w-auto bg-brand-green text-brand-black font-bold uppercase tracking-widest px-6 py-2.5 sm:px-10 sm:py-4 text-xs sm:text-sm rounded-[var(--radius-btn)] hover:bg-white hover:shadow-[0_0_30px_rgba(177,243,16,0.5)] transition-all duration-300 cursor-pointer">
+                        <button className="w-full sm:w-auto min-h-[44px] bg-brand-green text-brand-black font-bold uppercase tracking-widest px-8 py-3 sm:px-10 sm:py-4 text-xs sm:text-sm rounded-[var(--radius-btn)] hover:bg-white hover:shadow-[0_0_30px_rgba(177,243,16,0.5)] active:scale-98 transition-all duration-300 cursor-pointer flex items-center justify-center">
                             Shop Categories
                         </button>
                     </Link>

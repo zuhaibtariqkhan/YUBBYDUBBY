@@ -41,13 +41,13 @@ export default function SocialGrid() {
     }, []);
 
     return (
-        <section className="py-10 md:py-20 bg-brand-black border-t border-white/10">
-            <div className="max-w-7xl mx-auto px-6 mb-6 md:mb-12 text-center md:text-left flex flex-col md:flex-row justify-between items-center md:items-end gap-6">
+        <section className="py-10 px-4 sm:px-6 md:py-20 bg-brand-black border-t border-white/10">
+            <div className="max-w-7xl mx-auto mb-6 md:mb-12 text-center md:text-left flex flex-col md:flex-row justify-between items-center md:items-end gap-4 md:gap-6">
                 <div>
-                    <h2 className="font-heading text-3xl md:text-5xl font-black uppercase tracking-tighter text-brand-white">
+                    <h2 className="font-heading text-2xl sm:text-4xl md:text-5xl font-black uppercase tracking-tighter text-brand-white">
                         Join The <span className="text-brand-green italic drop-shadow-[0_0_15px_rgba(177,243,16,0.5)]">Syndicate</span>
                     </h2>
-                    <p className="text-gray-400 mt-3 max-w-md font-sans text-xs sm:text-sm md:text-base mx-auto md:mx-0">
+                    <p className="text-gray-400 mt-2 max-w-md font-sans text-xs sm:text-sm md:text-base mx-auto md:mx-0">
                         Tag @yubby.dubby to be featured on our official grid.
                     </p>
                 </div>
@@ -55,16 +55,16 @@ export default function SocialGrid() {
                     href="https://instagram.com/yubby.dubby"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-brand-black bg-brand-green font-bold uppercase tracking-widest px-5 py-2.5 md:px-6 md:py-3 rounded-[var(--radius-btn)] hover:bg-white hover:shadow-[0_0_20px_rgba(177,243,16,0.4)] transition-all duration-300 text-xs md:text-sm"
+                    className="flex items-center justify-center min-h-[44px] gap-2 text-brand-black bg-brand-green font-bold uppercase tracking-widest px-6 py-2.5 md:px-6 md:py-3 rounded-[var(--radius-btn)] hover:bg-white hover:shadow-[0_0_20px_rgba(177,243,16,0.4)] transition-all duration-300 text-xs md:text-sm cursor-pointer"
                 >
                     <Instagram size={16} className="md:w-[18px] md:h-[18px]" />
                     Follow Us
                 </a>
             </div>
 
-            {/* Responsive Grid: 2 cols on mobile, 4 on tablet/desktop */}
-            <div className={`w-full grid grid-cols-2 md:grid-cols-4 gap-1 sm:gap-2 transition-opacity duration-1000 ${loading ? "opacity-50" : "opacity-100"}`}>
-                {posts.map((post, index) => (
+            {/* Responsive Grid: 3 cols on mobile, 4-6 on desktop for luxury Instagram grid */}
+            <div className={`w-full grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 sm:gap-3 transition-opacity duration-1000 ${loading ? "opacity-50" : "opacity-100"}`}>
+                {posts.slice(0, 6).map((post, index) => (
                     <motion.a
                         key={post.id}
                         href={post.link}
@@ -72,28 +72,28 @@ export default function SocialGrid() {
                         rel="noopener noreferrer"
                         initial={{ opacity: 0, scale: 0.95 }}
                         whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true, margin: "-50px" }}
-                        transition={{ delay: index * 0.05, duration: 0.5 }}
-                        className="relative aspect-square group overflow-hidden bg-white/5 cursor-pointer block"
+                        viewport={{ once: true, margin: "-30px" }}
+                        transition={{ delay: index * 0.05, duration: 0.4 }}
+                        className="relative aspect-square group overflow-hidden bg-white/5 rounded-lg sm:rounded-xl cursor-pointer block"
                     >
                         {/* Image */}
                         <Image
                             src={post.image}
                             alt={`Instagram post ${post.id}`}
                             fill
-                            sizes="(max-width: 768px) 50vw, 25vw"
+                            sizes="(max-width: 640px) 33vw, 20vw"
                             className="object-cover transition-all duration-700 md:grayscale group-hover:grayscale-0 group-hover:scale-110"
                         />
 
                         {/* Overlay */}
                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                             <motion.div
-                                initial={{ y: 20, opacity: 0 }}
+                                initial={{ y: 15, opacity: 0 }}
                                 whileHover={{ y: 0, opacity: 1 }}
                                 transition={{ duration: 0.2 }}
                                 className="text-white flex flex-col items-center"
                             >
-                                <Instagram size={32} className="text-brand-white mb-2" />
+                                <Instagram size={24} className="text-brand-white" />
                             </motion.div>
                         </div>
                     </motion.a>

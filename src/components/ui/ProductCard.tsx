@@ -64,7 +64,7 @@ export default function ProductCard({
 
         {/* Subtle top-left status badge */}
         {tag && (
-          <span className="absolute top-3 left-3 bg-brand-black text-brand-white text-[8px] font-mono font-bold px-2 py-0.5 uppercase tracking-widest border border-white/10 z-10 pointer-events-none">
+          <span className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 bg-brand-black/90 backdrop-blur-md text-brand-white text-[8px] font-mono font-bold px-2 py-0.5 uppercase tracking-widest border border-white/10 z-10 pointer-events-none rounded-sm">
             {tag}
           </span>
         )}
@@ -79,13 +79,13 @@ export default function ProductCard({
           </button>
         </div>
         
-        {/* Mobile Quick Add icon button */}
+        {/* Mobile Quick Add icon button (44px touch target) */}
         <button
           onClick={handleQuickAdd}
-          className="md:hidden absolute bottom-3 right-3 z-10 w-8 h-8 rounded-full bg-brand-black/85 text-brand-white hover:bg-brand-green hover:text-brand-black flex items-center justify-center shadow-md active:scale-95 transition-all cursor-pointer"
+          className="md:hidden absolute bottom-2.5 right-2.5 z-10 min-w-[40px] min-h-[40px] w-10 h-10 rounded-full bg-brand-black/85 backdrop-blur-md text-brand-white hover:bg-brand-green hover:text-brand-black flex items-center justify-center shadow-md active:scale-95 transition-all cursor-pointer"
           aria-label="Quick add to cart"
         >
-          <Plus size={14} />
+          <Plus size={15} />
         </button>
       </div>
 

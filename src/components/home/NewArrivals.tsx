@@ -47,39 +47,39 @@ export default function NewArrivals({ initialProducts }: NewArrivalsProps) {
         : mockNew;
 
     return (
-        <section className="bg-brand-black text-brand-white py-12 md:py-24 px-6 md:px-12 lg:px-24 border-t border-white/10 relative overflow-hidden">
+        <section className="bg-brand-black text-brand-white py-10 px-4 sm:px-6 md:py-20 md:px-12 lg:px-24 border-t border-white/10 relative overflow-hidden">
             <div className="max-w-7xl mx-auto relative z-10">
                 
                 {/* Header */}
-                <div className="flex flex-col items-center mb-10 md:mb-16 gap-4 text-center w-full">
+                <div className="flex flex-col items-center mb-8 md:mb-14 gap-3 text-center w-full">
                     <div className="flex flex-col items-center w-full">
-                        <span className="text-brand-green font-bold tracking-widest uppercase text-xs md:text-sm mb-1 md:mb-2 block">Latest Drops</span>
+                        <span className="text-brand-green font-bold tracking-widest uppercase text-xs md:text-sm mb-1 block">Latest Drops</span>
                         <TextReveal
                             text="New Arrivals"
-                            className="font-heading text-3xl md:text-6xl font-black uppercase tracking-tighter justify-center w-full"
+                            className="font-heading text-2xl sm:text-4xl md:text-6xl font-black uppercase tracking-tighter justify-center w-full"
                         />
-                        <p className="text-gray-400 mt-4 max-w-md font-sans text-center text-xs md:text-base mx-auto">
+                        <p className="text-gray-400 mt-2 sm:mt-3 max-w-md font-sans text-center text-xs md:text-base mx-auto">
                             Freshly synthesized coordinates constructed for immediate deployment.
                         </p>
                     </div>
                     <Link 
                         href="/shop" 
-                        className="group inline-flex items-center gap-3 font-bold uppercase tracking-widest text-sm hover:text-brand-green transition-colors border-b border-white/10 hover:border-brand-green pb-2"
+                        className="group inline-flex items-center gap-2 font-bold uppercase tracking-widest text-xs md:text-sm text-brand-white hover:text-brand-green transition-colors border-b border-white/10 hover:border-brand-green pb-1 min-h-[44px] items-center"
                     >
                         View All Drops
-                        <ArrowRight size={18} className="transform group-hover:translate-x-1.5 transition-transform" />
+                        <ArrowRight size={16} className="transform group-hover:translate-x-1.5 transition-transform" />
                     </Link>
                 </div>
 
                 {/* Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-6 md:gap-8">
                     {displayProducts.map((product, idx) => (
                         <motion.div
                             key={product.id}
-                            initial={{ opacity: 0, y: 30 }}
+                            initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, margin: "-50px" }}
-                            transition={{ delay: idx * 0.15, duration: 0.6, ease: "easeOut" }}
+                            viewport={{ once: true, margin: "-30px" }}
+                            transition={{ delay: idx * 0.1, duration: 0.5, ease: "easeOut" }}
                         >
                             <ProductCard
                                 id={product.id}

@@ -90,20 +90,20 @@ export default function ReviewsCarousel() {
     const review = reviews[activeIndex];
 
     return (
-        <section className="bg-brand-black text-brand-white py-8 sm:py-16 md:py-28 px-4 sm:px-6 border-t border-white/10 overflow-hidden">
+        <section className="bg-brand-black text-brand-white py-10 px-4 sm:px-6 md:py-20 border-t border-white/10 overflow-hidden">
             <div className="max-w-5xl mx-auto">
                 {/* Header */}
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 15 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6 }}
-                    className="text-center mb-8 md:mb-16"
+                    viewport={{ once: true, margin: "-30px" }}
+                    transition={{ duration: 0.5 }}
+                    className="text-center mb-6 md:mb-12"
                 >
-                    <span className="text-brand-green font-bold tracking-widest uppercase text-xs md:text-sm mb-2 md:mb-3 block">
+                    <span className="text-brand-green font-bold tracking-widest uppercase text-xs md:text-sm mb-1 block">
                         Testimonials
                     </span>
-                    <h2 className="font-heading text-3xl sm:text-4xl md:text-6xl font-black uppercase tracking-tighter">
+                    <h2 className="font-heading text-2xl sm:text-4xl md:text-6xl font-black uppercase tracking-tighter">
                         What People Say
                     </h2>
                 </motion.div>
@@ -114,24 +114,24 @@ export default function ReviewsCarousel() {
                     onMouseEnter={() => setIsPaused(true)}
                     onMouseLeave={() => setIsPaused(false)}
                 >
-                    {/* Navigation arrows (hidden on mobile to reduce clutter) */}
+                    {/* Navigation arrows (Available on touch & desktop) */}
                     <button
                         onClick={() => paginate(-1)}
-                        className="hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 md:-translate-x-12 rounded-full border border-white/15 items-center justify-center hover:border-brand-green transition-colors text-white/50 hover:text-brand-green"
+                        className="flex absolute left-0 top-1/2 -translate-y-1/2 z-20 min-w-[44px] min-h-[44px] w-11 h-11 md:w-12 md:h-12 md:-translate-x-12 rounded-full border border-white/15 items-center justify-center hover:border-brand-green transition-colors text-white/60 hover:text-brand-green bg-brand-black/60 backdrop-blur-md cursor-pointer"
                         aria-label="Previous review"
                     >
                         <ChevronLeft className="w-5 h-5" />
                     </button>
                     <button
                         onClick={() => paginate(1)}
-                        className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 md:translate-x-12 rounded-full border border-white/15 items-center justify-center hover:border-brand-green transition-colors text-white/50 hover:text-brand-green"
+                        className="flex absolute right-0 top-1/2 -translate-y-1/2 z-20 min-w-[44px] min-h-[44px] w-11 h-11 md:w-12 md:h-12 md:translate-x-12 rounded-full border border-white/15 items-center justify-center hover:border-brand-green transition-colors text-white/60 hover:text-brand-green bg-brand-black/60 backdrop-blur-md cursor-pointer"
                         aria-label="Next review"
                     >
                         <ChevronRight className="w-5 h-5" />
                     </button>
 
                     {/* Review card */}
-                    <div className="relative min-h-[160px] md:min-h-[240px] flex items-center justify-center px-4 sm:px-16 md:px-20">
+                    <div className="relative min-h-[180px] md:min-h-[240px] flex items-center justify-center px-10 sm:px-16 md:px-20">
                         <AnimatePresence custom={direction} mode="wait">
                             <motion.div
                                 key={review.id}
@@ -148,12 +148,12 @@ export default function ReviewsCarousel() {
                             >
                                 {/* Quote icon */}
                                 <Quote
-                                    className="text-brand-green/30 mx-auto mb-4 md:mb-6 w-6 h-6 md:w-10 md:h-10"
+                                    className="text-brand-green/30 mx-auto mb-3 md:mb-6 w-6 h-6 md:w-10 md:h-10"
                                     fill="rgba(177,243,16,0.1)"
                                 />
 
                                 {/* Stars */}
-                                <div className="flex items-center justify-center gap-1 mb-4 md:mb-5">
+                                <div className="flex items-center justify-center gap-1 mb-3 md:mb-5">
                                     {[...Array(5)].map((_, i) => (
                                         <Star
                                             key={i}
@@ -166,7 +166,7 @@ export default function ReviewsCarousel() {
                                 </div>
 
                                 {/* Review text */}
-                                <p className="text-xs sm:text-lg md:text-xl text-gray-200 leading-relaxed max-w-3xl mx-auto font-sans mb-4 md:mb-8 italic px-2 sm:px-0">
+                                <p className="text-xs sm:text-base md:text-xl text-gray-200 leading-relaxed max-w-2xl mx-auto font-sans mb-4 md:mb-8 italic px-1">
                                     &ldquo;{review.text}&rdquo;
                                 </p>
 
@@ -175,7 +175,7 @@ export default function ReviewsCarousel() {
                                     <p className="font-bold uppercase tracking-widest text-xs md:text-sm text-white">
                                         {review.name}
                                     </p>
-                                    <p className="text-gray-500 text-[10px] md:text-xs uppercase tracking-widest mt-1">
+                                    <p className="text-gray-500 text-[10px] md:text-xs uppercase tracking-widest mt-0.5">
                                         {review.location}
                                         {review.product && (
                                             <>
@@ -191,20 +191,22 @@ export default function ReviewsCarousel() {
                         </AnimatePresence>
                     </div>
 
-                    {/* Dots */}
-                    <div className="flex items-center justify-center gap-2 mt-6 md:mt-8">
+                    {/* Touch-Friendly Indicator Dots */}
+                    <div className="flex items-center justify-center gap-2 mt-4 md:mt-8">
                         {reviews.map((_, i) => (
                             <button
                                 key={i}
                                 onClick={() =>
                                     setActiveIndex([i, i > activeIndex ? 1 : -1])
                                 }
-                                className={`h-1.5 md:h-2 rounded-full transition-all duration-300 ${i === activeIndex
+                                className={`min-h-[32px] min-w-[20px] flex items-center justify-center cursor-pointer`}
+                                aria-label={`Go to review ${i + 1}`}
+                            >
+                                <span className={`h-1.5 md:h-2 rounded-full transition-all duration-300 ${i === activeIndex
                                         ? "w-6 md:w-8 bg-brand-green"
                                         : "w-1.5 md:w-2 bg-white/20 hover:bg-white/40"
-                                    }`}
-                                aria-label={`Go to review ${i + 1}`}
-                            />
+                                    }`} />
+                            </button>
                         ))}
                     </div>
                 </div>

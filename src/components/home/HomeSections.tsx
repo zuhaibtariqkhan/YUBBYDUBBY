@@ -102,7 +102,7 @@ export function EditorialMessage() {
     return (
         <section
             ref={sectionRef}
-            className="relative text-brand-white py-20 md:py-40 px-6 flex items-center justify-center text-center overflow-hidden min-h-[40vh] md:min-h-[60vh]"
+            className="relative text-brand-white py-12 sm:py-20 md:py-36 px-4 flex items-center justify-center text-center overflow-hidden min-h-[35vh] md:min-h-[55vh]"
         >
             <motion.div
                 style={{ y: videoY }}
@@ -121,17 +121,17 @@ export function EditorialMessage() {
                 </video>
             </motion.div>
 
-            <div className="absolute inset-0 bg-black/60 z-10"></div>
+            <div className="absolute inset-0 bg-black/65 z-10"></div>
 
             <motion.div
                 style={{ y: textY }}
-                className="relative z-20 max-w-4xl mx-auto px-4 md:px-8 text-center md:text-left"
+                className="relative z-20 max-w-4xl mx-auto px-4 md:px-8 text-center"
             >
                 <TextReveal
                     text="&quot;We do not follow trends. We dictate the aesthetic of tomorrow's urban landscape.&quot;"
-                    className="font-heading text-xl md:text-5xl lg:text-6xl uppercase tracking-widest leading-relaxed drop-shadow-lg justify-center md:justify-start"
+                    className="font-heading text-lg sm:text-3xl md:text-5xl lg:text-6xl uppercase tracking-wider sm:tracking-widest leading-relaxed drop-shadow-lg justify-center"
                 />
-                <p className="mt-4 md:mt-12 text-brand-green font-bold tracking-widest uppercase text-xs md:text-base drop-shadow-md">
+                <p className="mt-3 md:mt-8 text-brand-green font-bold tracking-widest uppercase text-xs sm:text-sm md:text-base drop-shadow-md">
                     - YUBBY DUBBY STUDIO
                 </p>
             </motion.div>
@@ -141,22 +141,22 @@ export function EditorialMessage() {
 
 export function TrustStrip() {
     return (
-        <section className="border-y border-white/10 bg-brand-black py-6 md:py-12 px-6">
-            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 text-center text-brand-white">
-                <div className="flex flex-col items-center justify-center">
-                    <Truck size={32} className="text-brand-green mb-4" />
-                    <h4 className="font-bold uppercase tracking-widest text-sm mb-2">Global Shipping</h4>
-                    <p className="text-gray-400 text-sm max-w-[200px]">Free worldwide delivery.</p>
+        <section className="border-y border-white/10 bg-brand-black py-8 md:py-12 px-4 sm:px-6">
+            <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 text-center text-brand-white">
+                <div className="flex flex-col items-center justify-center p-4 rounded-xl bg-white/[0.02] border border-white/5 md:bg-transparent md:border-none">
+                    <Truck size={26} className="text-brand-green mb-2.5 sm:mb-4" />
+                    <h4 className="font-bold uppercase tracking-widest text-xs sm:text-sm mb-1">Global Shipping</h4>
+                    <p className="text-gray-400 text-2xs sm:text-xs max-w-[180px]">Free worldwide delivery.</p>
                 </div>
-                <div className="flex flex-col items-center justify-center">
-                    <ShieldCheck size={32} className="text-brand-green mb-4" />
-                    <h4 className="font-bold uppercase tracking-widest text-sm mb-2">Premium Quality</h4>
-                    <p className="text-gray-400 text-sm max-w-[200px]">Engineered with absolute precision.</p>
+                <div className="flex flex-col items-center justify-center p-4 rounded-xl bg-white/[0.02] border border-white/5 md:bg-transparent md:border-none">
+                    <ShieldCheck size={26} className="text-brand-green mb-2.5 sm:mb-4" />
+                    <h4 className="font-bold uppercase tracking-widest text-xs sm:text-sm mb-1">Premium Quality</h4>
+                    <p className="text-gray-400 text-2xs sm:text-xs max-w-[180px]">Engineered with absolute precision.</p>
                 </div>
-                <div className="flex flex-col items-center justify-center">
-                    <Lock size={32} className="text-brand-green mb-4" />
-                    <h4 className="font-bold uppercase tracking-widest text-sm mb-2">Secure Payments</h4>
-                    <p className="text-gray-400 text-sm max-w-[200px]">Encrypted, protected, and fully secure transactions.</p>
+                <div className="col-span-2 md:col-span-1 flex flex-col items-center justify-center p-4 rounded-xl bg-white/[0.02] border border-white/5 md:bg-transparent md:border-none">
+                    <Lock size={26} className="text-brand-green mb-2.5 sm:mb-4" />
+                    <h4 className="font-bold uppercase tracking-widest text-xs sm:text-sm mb-1">Secure Payments</h4>
+                    <p className="text-gray-400 text-2xs sm:text-xs max-w-[200px]">Encrypted & protected transactions.</p>
                 </div>
             </div>
         </section>

@@ -15,36 +15,36 @@ const categories = [
 
 export default function CategoryGrid() {
     return (
-        <section className="bg-brand-white text-brand-black py-12 md:py-24 px-6 md:px-12 lg:px-24">
+        <section className="bg-brand-white text-brand-black py-10 px-4 sm:px-6 md:py-20 md:px-12 lg:px-24">
             <div className="max-w-7xl mx-auto">
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 15 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-100px" }}
-                    transition={{ duration: 0.6 }}
-                    className="flex flex-col items-center justify-center mb-10 md:mb-16 text-center w-full"
+                    viewport={{ once: true, margin: "-50px" }}
+                    transition={{ duration: 0.5 }}
+                    className="flex flex-col items-center justify-center mb-8 md:mb-14 text-center w-full"
                 >
-                    <div className="flex flex-col items-center mb-2 md:mb-4 w-full">
-                        <span className="text-brand-green font-bold tracking-widest uppercase text-xs md:text-sm mb-1 md:mb-2 block">Collections</span>
+                    <div className="flex flex-col items-center mb-1 md:mb-3 w-full">
+                        <span className="text-brand-green font-bold tracking-widest uppercase text-xs md:text-sm mb-1 block">Collections</span>
                         <TextReveal
                             text="Shop Collections"
-                            className="font-heading text-3xl md:text-6xl font-black uppercase tracking-tighter justify-center w-full"
+                            className="font-heading text-2xl sm:text-4xl md:text-6xl font-black uppercase tracking-tighter justify-center w-full"
                         />
                     </div>
-                    <Link href="/shop" className="hidden md:inline-flex items-center gap-2 font-bold uppercase tracking-widest text-sm hover:text-brand-green transition-colors">
+                    <Link href="/shop" className="hidden md:inline-flex items-center gap-2 font-bold uppercase tracking-widest text-xs md:text-sm hover:text-brand-green transition-colors mt-2">
                         View All
                     </Link>
                 </motion.div>
 
                 {/* Grid of Equal-Dimension Category Cards */}
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 md:gap-8">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-6 md:gap-8">
                     {categories.map((cat, i) => (
                         <motion.div
                             key={cat.id}
-                            initial={{ opacity: 0, y: 30 }}
+                            initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, margin: "-50px" }}
-                            transition={{ delay: i * 0.1, duration: 0.6, ease: "easeOut" }}
+                            viewport={{ once: true, margin: "-30px" }}
+                            transition={{ delay: i * 0.08, duration: 0.5, ease: "easeOut" }}
                         >
                             <CategoryCard
                                 name={cat.name}

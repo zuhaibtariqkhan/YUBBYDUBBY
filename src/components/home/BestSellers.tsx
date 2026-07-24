@@ -94,39 +94,40 @@ export default function BestSellers({ initialProducts }: BestSellersProps) {
         (product) => activeCategory === "All" || product.category === activeCategory
     );
     return (
-        <section className="bg-brand-black text-brand-white py-12 md:py-24 px-6 md:px-12 lg:px-24 border-t border-white/10">
+        <section className="bg-brand-black text-brand-white py-10 px-4 sm:px-6 md:py-20 md:px-12 lg:px-24 border-t border-white/10">
             <div className="max-w-7xl mx-auto">
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 15 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-100px" }}
-                    transition={{ duration: 0.6 }}
-                    className="flex flex-col items-center mb-8 md:mb-12 text-center w-full"
+                    viewport={{ once: true, margin: "-50px" }}
+                    transition={{ duration: 0.5 }}
+                    className="flex flex-col items-center mb-6 md:mb-10 text-center w-full"
                 >
                     <div className="flex flex-col items-center w-full">
                         <TextReveal
                             text="Shop By Category"
-                            className="font-heading text-3xl md:text-6xl font-black uppercase tracking-tighter justify-center w-full"
+                            className="font-heading text-2xl sm:text-4xl md:text-6xl font-black uppercase tracking-tighter justify-center w-full"
                         />
-                        <p className="text-gray-400 mt-4 max-w-md font-sans text-center text-xs md:text-base mx-auto">
+                        <p className="text-gray-400 mt-2 sm:mt-3 max-w-md font-sans text-center text-xs md:text-base mx-auto">
                             Curated selection of our highest performing aesthetic structures.
                         </p>
                     </div>
                 </motion.div>
 
-                <div className="flex overflow-x-auto whitespace-nowrap scrollbar-hide gap-3 mb-8 md:mb-12 justify-start md:justify-center pb-3 -mx-6 px-6 snap-x">
+                {/* Touch-Friendly Edge-to-Edge Category Filter Scrollbar */}
+                <div className="flex overflow-x-auto whitespace-nowrap scrollbar-hide gap-2.5 mb-6 md:mb-10 justify-start md:justify-center pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 snap-x items-center">
                     {categories.map((cat) => (
                         <button
                             key={cat}
                             onClick={() => setActiveCategory(cat)}
-                            className={`relative px-4 py-1.5 rounded-[var(--radius-btn)] font-bold uppercase tracking-widest text-xs transition-colors duration-300 shrink-0 snap-start ${activeCategory === cat ? "text-brand-black" : "text-gray-400 hover:text-white"
+                            className={`relative min-h-[44px] px-5 py-2 rounded-[var(--radius-btn)] font-bold uppercase tracking-widest text-xs transition-colors duration-300 shrink-0 snap-start flex items-center justify-center cursor-pointer ${activeCategory === cat ? "text-brand-black" : "text-gray-400 hover:text-white"
                                 }`}
                         >
                             {activeCategory === cat && (
                                 <motion.div
                                     layoutId="activeFilter"
                                     className="absolute inset-0 bg-brand-green rounded-[var(--radius-btn)]"
-                                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                                    transition={{ type: "spring", stiffness: 350, damping: 25 }}
                                 />
                             )}
                             <span className="relative z-10">{cat}</span>
@@ -134,7 +135,7 @@ export default function BestSellers({ initialProducts }: BestSellersProps) {
                     ))}
                 </div>
 
-                <motion.div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8 min-h-[300px] md:min-h-[400px]">
+                <motion.div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-6 md:gap-8 min-h-[300px] md:min-h-[400px]">
                     <AnimatePresence mode="popLayout">
                         {filteredProducts.map((product) => (
                             <motion.div

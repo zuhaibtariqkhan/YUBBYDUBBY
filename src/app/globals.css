@@ -74,6 +74,22 @@
   .glass-nav {
     @apply bg-brand-black/80 border-b border-white/10 backdrop-blur-lg;
   }
+
+  /* Utility helper to hide scrollbars smoothly */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Touch target safety helper */
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
   * {
     @apply border-border outline-ring/50;
   }
