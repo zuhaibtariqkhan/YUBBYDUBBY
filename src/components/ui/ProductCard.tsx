@@ -113,7 +113,7 @@ export default function ProductCard({
 
         {/* Pricing Layout */}
         <div className="flex items-center gap-2 mt-0.5">
-          <span className="font-bold text-xs md:text-sm font-sans tracking-wide">
+          <span className="font-bold text-xs md:text-sm font-sans tracking-wide text-brand-green">
             {CURRENCY_SYMBOL}{price.toFixed(2)}
           </span>
           {isOnSale && (

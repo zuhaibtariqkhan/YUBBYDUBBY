@@ -383,7 +383,7 @@ export default function CheckoutPage() {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center text-xs text-gray-400">
                     <span className="uppercase tracking-widest">Subtotal</span>
-                    <span className="font-mono">{CURRENCY_SYMBOL}{cartTotal}.00</span>
+                    <span className="font-mono text-brand-green">{CURRENCY_SYMBOL}{cartTotal}.00</span>
                   </div>
                   <div className="flex justify-between items-center text-xs text-gray-400">
                     <span className="uppercase tracking-widest">Shipping</span>
