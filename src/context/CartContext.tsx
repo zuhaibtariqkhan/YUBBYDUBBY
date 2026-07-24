@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
+import CartToast from "@/components/ui/CartToast";
 
 export interface CartItem {
   id: string;
@@ -20,6 +21,11 @@ interface CartContextType {
   clearCart: () => void;
   cartCount: number;
   cartTotal: number;
+  isCartOpen: boolean;
+  setIsCartOpen: (open: boolean) => void;
+  isCartBouncing: boolean;
+  toastItem: CartItem | null;
+  clearToast: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -27,6 +33,9 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isMounted, setIsMounted] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isCartBouncing, setIsCartBouncing] = useState(false);
+  const [toastItem, setToastItem] = useState<CartItem | null>(null);
 
   // Load cart from localStorage after mount to prevent hydration mismatch
   useEffect(() => {
@@ -49,6 +58,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [cartItems, isMounted]);
 
   const addToCart = (newItem: Omit<CartItem, "quantity">, quantity: number) => {
+    const fullItem: CartItem = { ...newItem, quantity };
+
+    // Trigger toast notification
+    setToastItem(fullItem);
+
+    // Trigger navbar cart icon animation bounce
+    setIsCartBouncing(true);
+    setTimeout(() => setIsCartBouncing(false), 800);
+
     setCartItems((prevItems) => {
       // Check if product with same ID, same size, and same color already exists
       const existingItemIndex = prevItems.findIndex(
@@ -63,9 +81,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
 
       // Add as new item
-      return [...prevItems, { ...newItem, quantity }];
+      return [...prevItems, fullItem];
     });
   };
+
+  // Auto clear toast after 3.5 seconds
+  useEffect(() => {
+    if (toastItem) {
+      const timer = setTimeout(() => {
+        setToastItem(null);
+      }, 3500);
+      return () => clearTimeout(timer);
+    }
+  }, [toastItem]);
+
+  const clearToast = () => setToastItem(null);
 
   const removeFromCart = (id: string, size: string, color?: string) => {
     setCartItems((prevItems) =>
@@ -103,9 +133,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         clearCart,
         cartCount,
         cartTotal,
+        isCartOpen,
+        setIsCartOpen,
+        isCartBouncing,
+        toastItem,
+        clearToast,
       }}
     >
       {children}
+      <CartToast
+        item={toastItem}
+        onClose={clearToast}
+        onOpenDrawer={() => setIsCartOpen(true)}
+      />
     </CartContext.Provider>
   );
 }

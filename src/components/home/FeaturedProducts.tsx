@@ -15,12 +15,20 @@ const mockFeatured = [
     { id: "p1", name: "0-GRAVITY HOODIE", price: 120, image: "/prod-hoodie.png", tag: "HOT", category: "Mens" },
     { id: "p2", name: "VOID CARGO PANTS", price: 145, image: "/prod-cargo.png", tag: "ESSENTIAL", category: "Mens" },
     { id: "p16", name: "TECHWEAR SUNGLASSES", price: 60, image: "/prod-sunglasses.png", tag: "LIMITED", category: "Accessories" },
-    { id: "p4", name: "STRUCTURAL JACKET", price: 210, image: "/prod-jacket.png", tag: "EXCLUSIVE", category: "Mens" }
+    { id: "p4", name: "STRUCTURAL JACKET", price: 210, image: "/prod-jacket.png", tag: "EXCLUSIVE", category: "Mens" },
+    { id: "p3", name: "NEBULA OVERSIZED TEE", price: 65, image: "/prod-tee.png", tag: "BEST SELLER", category: "Womens" },
+    { id: "p13", name: "CYBERPUNK IPHONE CASE", price: 40, image: "/prod-phone-case.png", tag: "NEW", category: "Accessories" },
+    { id: "p14", name: "CYBERPUNK AIRPODS COVER", price: 30, image: "/prod-airpods-cover.png", tag: "NEW", category: "Accessories" },
+    { id: "p15", name: "STREETWEAR SNAPBACK CAP", price: 45, image: "/prod-cap.png", tag: "POPULAR", category: "Accessories" },
+    { id: "p17", name: "AESTHETIC STICKER PACK", price: 15, image: "/prod-stickers.png", tag: "BUDGET", category: "Accessories" },
+    { id: "p18", name: "METROPOLIS OVERCOAT", price: 280, image: "/prod-jacket.png", tag: "NEW", category: "Mens" },
+    { id: "p6", name: "TECH-WEAR SKIRT", price: 95, image: "/prod-cargo.png", tag: "NEW", category: "Womens" },
+    { id: "p9", name: "FUTURE YOUTH HOODIE", price: 75, image: "/prod-hoodie.png", tag: "NEW", category: "Kids" }
 ];
 
 export default function FeaturedProducts({ initialProducts }: FeaturedProductsProps) {
-    const displayProducts = initialProducts && initialProducts.length > 0
-        ? initialProducts.slice(0, 4).map(prod => {
+    const fetched = initialProducts && initialProducts.length > 0
+        ? initialProducts.map(prod => {
             let image = prod.images && prod.images.length > 0 && prod.images[0]?.src ? prod.images[0].src : "";
             if (!image) {
                 image = "/prod-hoodie.png";
@@ -47,7 +55,16 @@ export default function FeaturedProducts({ initialProducts }: FeaturedProductsPr
                 category: prod.categories[0]?.name || "Accessories"
             };
         })
-        : mockFeatured;
+        : [];
+
+    const combined = [...fetched];
+    for (const mockItem of mockFeatured) {
+        if (combined.length >= 12) break;
+        if (!combined.some(p => p.id === mockItem.id)) {
+            combined.push(mockItem);
+        }
+    }
+    const displayProducts = combined.slice(0, 12);
 
     return (
         <section className="bg-brand-white text-brand-black py-10 px-4 sm:px-6 md:py-20 md:px-12 lg:px-24">
