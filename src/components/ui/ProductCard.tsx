@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Star, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { motion } from "framer-motion";
 import { CURRENCY_SYMBOL } from "@/lib/utils";
@@ -16,10 +16,6 @@ interface ProductCardProps {
   image: string;
   tag?: string;
   category?: string;
-  rating?: {
-    score: number;
-    count: number;
-  };
 }
 
 export default function ProductCard({
@@ -30,7 +26,6 @@ export default function ProductCard({
   image,
   tag,
   category,
-  rating = { score: 4.8, count: 98 }
 }: ProductCardProps) {
   const { addToCart } = useCart();
   const [imgSrc, setImgSrc] = useState<string>(image || "/prod-hoodie.png");
@@ -127,15 +122,6 @@ export default function ProductCard({
             </span>
           )}
         </div>
-
-        {/* Rating Row (Subtle) */}
-        {rating && (
-          <div className="flex items-center gap-1 mt-0.5 text-2xs text-gray-500 font-mono">
-            <Star size={9} className="fill-brand-green text-brand-green" />
-            <span>{rating.score.toFixed(1)}</span>
-            <span className="text-[10px] text-gray-600">({rating.count})</span>
-          </div>
-        )}
       </div>
     </div>
   );

@@ -96,20 +96,6 @@ export default function ProductInteractive({ product }: ProductInteractiveProps)
               <span className="text-xs tracking-widest uppercase text-brand-green font-bold">
                 {product.inStock ? "IN STOCK" : "OUT OF STOCK"}
               </span>
-              <div className="flex items-center gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    size={14}
-                    className={
-                      i < Math.floor(product.rating)
-                        ? "fill-brand-green text-brand-green"
-                        : "text-white/20"
-                    }
-                  />
-                ))}
-                <span className="text-xs text-gray-400 ml-2">({product.ratingCount} reviews)</span>
-              </div>
             </div>
             <h1 className="text-4xl md:text-5xl font-heading font-black uppercase tracking-tighter text-white">
               {product.name}

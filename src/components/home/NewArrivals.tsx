@@ -62,7 +62,7 @@ export default function NewArrivals({ initialProducts }: NewArrivalsProps) {
                             className="font-heading text-2xl sm:text-4xl md:text-6xl font-black uppercase tracking-tighter justify-center w-full"
                         />
                         <p className="text-gray-400 mt-2 sm:mt-3 max-w-md font-sans text-center text-xs md:text-base mx-auto">
-                            Freshly synthesized coordinates constructed for immediate deployment.
+                            Explore our newest collection of elevated streetwear and premium lifestyle drops.
                         </p>
                     </div>
                     <Link 
