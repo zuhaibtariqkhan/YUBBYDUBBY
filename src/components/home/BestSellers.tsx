@@ -65,18 +65,21 @@ export default function BestSellers({ initialProducts }: BestSellersProps) {
                 tag = "LIMITED";
             }
 
-            let image = prod.images[0]?.src || "/prod-hoodie.png";
-            const lowerName = prod.name.toLowerCase();
-            if (lowerName.includes("iphone") || lowerName.includes("phone") || lowerName.includes("case")) {
-                image = "/prod-phone-case.png";
-            } else if (lowerName.includes("airpod")) {
-                image = "/prod-airpods-cover.png";
-            } else if (lowerName.includes("cap") || lowerName.includes("hat")) {
-                image = "/prod-cap.png";
-            } else if (lowerName.includes("sunglass") || lowerName.includes("glasses")) {
-                image = "/prod-sunglasses.png";
-            } else if (lowerName.includes("sticker")) {
-                image = "/prod-stickers.png";
+            let image = prod.images && prod.images.length > 0 && prod.images[0]?.src ? prod.images[0].src : "";
+            if (!image) {
+                image = "/prod-hoodie.png";
+                const lowerName = prod.name.toLowerCase();
+                if (lowerName.includes("iphone") || lowerName.includes("phone") || lowerName.includes("case")) {
+                    image = "/prod-phone-case.png";
+                } else if (lowerName.includes("airpod")) {
+                    image = "/prod-airpods-cover.png";
+                } else if (lowerName.includes("cap") || lowerName.includes("hat")) {
+                    image = "/prod-cap.png";
+                } else if (lowerName.includes("sunglass") || lowerName.includes("glasses")) {
+                    image = "/prod-sunglasses.png";
+                } else if (lowerName.includes("sticker")) {
+                    image = "/prod-stickers.png";
+                }
             }
 
             return {

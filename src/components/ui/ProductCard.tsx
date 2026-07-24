@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Star, Plus } from "lucide-react";
@@ -32,6 +33,11 @@ export default function ProductCard({
   rating = { score: 4.8, count: 98 }
 }: ProductCardProps) {
   const { addToCart } = useCart();
+  const [imgSrc, setImgSrc] = useState<string>(image || "/prod-hoodie.png");
+
+  useEffect(() => {
+    setImgSrc(image || "/prod-hoodie.png");
+  }, [image]);
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -41,7 +47,7 @@ export default function ProductCard({
       name,
       price,
       size: "M",
-      image
+      image: imgSrc
     }, 1);
   };
 
@@ -53,12 +59,17 @@ export default function ProductCard({
       <div className="relative aspect-[4/5] w-full bg-neutral-900 rounded-[var(--radius-img)] overflow-hidden flex items-center justify-center">
         <Link href={`/product/${id}`} className="absolute inset-0 w-full h-full block z-0">
           <Image
-            src={image}
+            src={imgSrc}
             alt={name}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
             priority={false}
+            onError={() => {
+              if (imgSrc !== "/prod-hoodie.png") {
+                setImgSrc("/prod-hoodie.png");
+              }
+            }}
           />
         </Link>
 
