@@ -386,7 +386,7 @@ export default function AboutPage() {
                             FOUNDER
                         </h2>
                     </FadeIn>
-                    <FadeIn delay={0.2}>
+                    <FadeIn delay={0.2} className="flex flex-col items-center gap-6">
                         <ProfileCard
                             name="Zuhaib Tariq Khan"
                             title="Founder"
@@ -395,17 +395,16 @@ export default function AboutPage() {
                             status="Entrepreneur"
                             contactText="Get in Touch"
                             onContactClick={() => window.open("https://www.instagram.com/zuhaibtariqkhan/", "_blank")}
-                            socials={
-                                <a
-                                    href="https://www.instagram.com/zuhaibtariqkhan/"
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="text-white hover:text-brand-green transition-colors cursor-pointer pointer-events-auto"
-                                >
-                                    <Instagram size={24} />
-                                </a>
-                            }
                         />
+                        <a
+                            href="https://www.instagram.com/zuhaibtariqkhan/"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-neutral-900/90 border border-white/15 text-white hover:border-[#b1f310] hover:text-[#b1f310] hover:shadow-[0_0_25px_rgba(177,243,16,0.3)] transition-all duration-300 font-mono text-xs uppercase tracking-widest cursor-pointer group mt-2"
+                        >
+                            <Instagram size={18} className="text-[#b1f310] group-hover:scale-110 transition-transform" />
+                            <span>Follow @zuhaibtariqkhan</span>
+                        </a>
                     </FadeIn>
                 </div>
             </section>
