@@ -6,14 +6,14 @@ import { signPayload, verifyPayload } from "@/lib/otp-token";
 
 const OTP_DEBUG_LOG_PATH = path.join(process.cwd(), "otp-debug.log");
 
-// Helper to log OTP to a local debug file for developer convenience
+// Helper to log OTP to a local debug file for development testing only
 function logOtpToDebugFile(email: string, emailOtp: string) {
+  if (process.env.NODE_ENV === "production") return;
   try {
     const logMsg = `[${new Date().toISOString()}] REGISTRATION OTP FOR:\n` +
       `Email: ${email} -> OTP: ${emailOtp}\n` +
       `----------------------------------------\n`;
     fs.appendFileSync(OTP_DEBUG_LOG_PATH, logMsg, "utf8");
-    console.log(`[OTP DEBUG] OTP written to ${OTP_DEBUG_LOG_PATH}`);
   } catch (error) {
     console.error("Error writing OTP to debug log:", error);
   }
@@ -188,8 +188,8 @@ export async function POST(req: NextRequest) {
 
       // Prepare user guidance response message
       let debugNote = "";
-      if (!emailSent) {
-        debugNote += `[Email Failed: ${emailErrorDetail}] Find your verification code in the root file 'otp-debug.log'`;
+      if (!emailSent && process.env.NODE_ENV !== "production") {
+        debugNote += `[Email Delivery Notice: ${emailErrorDetail}] Check local development debug log for code.`;
       }
 
       return NextResponse.json({

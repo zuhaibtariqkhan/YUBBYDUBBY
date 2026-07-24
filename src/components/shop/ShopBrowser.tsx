@@ -983,7 +983,7 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps 
               Shop Categories
             </h2>
             <p className="text-xs sm:text-sm text-gray-400 font-sans uppercase tracking-widest max-w-xl mx-auto">
-              Select a category below to explore our streetwear collections
+              Select a category below to explore our collections
             </p>
           </div>
 

@@ -1,6 +1,18 @@
 import crypto from "crypto";
 
-const SECRET = process.env.COCART_JWT_AUTH_SECRET_KEY || "yubby_dubby_secure_fallback_secret_654321";
+const getSecret = (): string => {
+  const secret = process.env.COCART_JWT_AUTH_SECRET_KEY;
+  if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("[SECURITY ERROR] COCART_JWT_AUTH_SECRET_KEY environment variable is not configured.");
+    }
+    console.warn("[SECURITY WARNING] COCART_JWT_AUTH_SECRET_KEY is missing. Using strict runtime secret.");
+    return "yubby_dubby_runtime_session_secret_requires_env_key";
+  }
+  return secret;
+};
+
+const SECRET = getSecret();
 
 /**
  * Encrypt and sign a payload statelessly.
