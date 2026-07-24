@@ -12,12 +12,15 @@ import { getProducts } from "@/lib/woocommerce";
 
 export default async function Home() {
   // Fetch products from 'Featured Products' backend category
-  let featuredProducts = await getProducts({ category: "featured-products", limit: 4 });
+  let featuredProducts = await getProducts({ category: "featured-products", limit: 12 });
   if (!featuredProducts || featuredProducts.length === 0) {
-    featuredProducts = await getProducts({ category: "featured", limit: 4 });
+    featuredProducts = await getProducts({ category: "featured", limit: 12 });
   }
   if (!featuredProducts || featuredProducts.length === 0) {
-    featuredProducts = await getProducts({ featured: true, limit: 4 });
+    featuredProducts = await getProducts({ featured: true, limit: 12 });
+  }
+  if (!featuredProducts || featuredProducts.length === 0) {
+    featuredProducts = await getProducts({ limit: 12 });
   }
 
   const [bestSellers, newArrivals] = await Promise.all([

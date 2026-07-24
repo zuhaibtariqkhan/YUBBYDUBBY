@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getProducts, isWooCommerceConfigured, fetchWooCommerce } from '@/lib/woocommerce';
+import { getProducts, isWooCommerceConfigured, fetchWooCommerce, getCategoriesBySlug } from '@/lib/woocommerce';
 
 // Fallback mock products categorized by subcategory IDs for robust offline sandbox browsing
 const MOCK_PRODUCTS = [
@@ -59,6 +59,7 @@ export async function GET(request: Request) {
 
   // Read filters
   const categoriesParam = searchParams.get('categories'); // e.g. "11,22,52"
+  const categorySlugParam = searchParams.get('category'); // e.g. "mens", "womens", "home-living"
   const minPriceParam = searchParams.get('min_price');
   const maxPriceParam = searchParams.get('max_price');
   const colorsParam = searchParams.get('colors'); // e.g. "Black,Stone"
@@ -87,10 +88,25 @@ export async function GET(request: Request) {
       if (minPriceParam) queryParams.append('min_price', minPriceParam);
       if (maxPriceParam) queryParams.append('max_price', maxPriceParam);
 
-      // If a single category is active, query natively. Otherwise we do it in memory.
-      const categoryIds = categoriesParam ? categoriesParam.split(',').map(id => parseInt(id, 10)).filter(id => !isNaN(id)) : [];
-      if (categoryIds.length === 1) {
-        queryParams.append('category', categoryIds[0].toString());
+      // Resolve category IDs from categoriesParam or categorySlugParam
+      const targetCategoryIds: number[] = [];
+      if (categoriesParam) {
+        categoriesParam.split(',').forEach(id => {
+          const parsed = parseInt(id, 10);
+          if (!isNaN(parsed)) targetCategoryIds.push(parsed);
+        });
+      }
+      if (categorySlugParam && categorySlugParam !== 'all') {
+        const foundCats = await getCategoriesBySlug(categorySlugParam);
+        if (foundCats && foundCats.length > 0) {
+          foundCats.forEach(c => {
+            if (!targetCategoryIds.includes(c.id)) targetCategoryIds.push(c.id);
+          });
+        }
+      }
+
+      if (targetCategoryIds.length > 0) {
+        queryParams.append('category', targetCategoryIds.join(','));
       }
 
       // Map Sort By directly to WooCommerce API orderby where applicable

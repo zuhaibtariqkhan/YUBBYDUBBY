@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Star, Minus, Plus, ShoppingBag, Heart, Shield, RotateCcw, Truck } from "lucide-react";
+import { Star, Minus, Plus, ShoppingBag, Heart, Shield, RotateCcw, Truck, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/context/CartContext";
 import { CURRENCY_SYMBOL } from "@/lib/utils";
@@ -200,12 +200,14 @@ export default function ProductInteractive({ product }: ProductInteractiveProps)
 
         {/* Action Buttons */}
         <div className="space-y-6 mt-8">
-          <button
+          <motion.button
             onClick={handleAddToCart}
             disabled={!product.inStock}
-            className={`w-full py-4 uppercase tracking-widest font-heading font-black text-sm rounded-[var(--radius-btn)] transition-all duration-300 relative overflow-hidden flex items-center justify-center gap-2 ${
+            animate={addedToCart ? { scale: [1, 1.03, 1] } : {}}
+            transition={{ duration: 0.3 }}
+            className={`w-full py-4 uppercase tracking-widest font-heading font-black text-sm rounded-[var(--radius-btn)] transition-all duration-300 relative overflow-hidden flex items-center justify-center gap-2 cursor-pointer ${
               addedToCart
-                ? "bg-brand-green text-brand-black shadow-[0_0_20px_rgba(177,243,16,0.5)]"
+                ? "bg-brand-green text-brand-black shadow-[0_0_25px_rgba(177,243,16,0.6)]"
                 : "bg-white text-black hover:bg-brand-green hover:shadow-[0_0_20px_rgba(177,243,16,0.3)]"
             }`}
           >
@@ -216,8 +218,9 @@ export default function ProductInteractive({ product }: ProductInteractiveProps)
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: -20, opacity: 0 }}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 font-bold"
                 >
+                  <Check size={18} strokeWidth={3} />
                   Added to bag!
                 </motion.span>
               ) : (
@@ -233,7 +236,7 @@ export default function ProductInteractive({ product }: ProductInteractiveProps)
                 </motion.span>
               )}
             </AnimatePresence>
-          </button>
+          </motion.button>
 
           {/* Key Value Propositions */}
           <div className="grid grid-cols-3 gap-2 pt-4 border-t border-white/10 text-[10px] text-gray-400 uppercase tracking-widest font-bold">

@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, Check } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { CURRENCY_SYMBOL } from "@/lib/utils";
 
 interface ProductCardProps {
@@ -29,6 +29,7 @@ export default function ProductCard({
 }: ProductCardProps) {
   const { addToCart } = useCart();
   const [imgSrc, setImgSrc] = useState<string>(image || "/prod-hoodie.png");
+  const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
     setImgSrc(image || "/prod-hoodie.png");
@@ -37,6 +38,7 @@ export default function ProductCard({
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    setIsAdding(true);
     addToCart({
       id,
       name,
@@ -44,6 +46,8 @@ export default function ProductCard({
       size: "M",
       image: imgSrc
     }, 1);
+
+    setTimeout(() => setIsAdding(false), 1200);
   };
 
   const isOnSale = regularPrice && regularPrice > price;
@@ -75,24 +79,51 @@ export default function ProductCard({
           </span>
         )}
 
+        {/* Floating animated success ring overlay on add */}
+        <AnimatePresence>
+          {isAdding && (
+            <motion.div
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1.2, opacity: 1 }}
+              exit={{ scale: 1.8, opacity: 0 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center bg-brand-black/40 backdrop-blur-[2px]"
+            >
+              <div className="w-16 h-16 rounded-full bg-brand-green/20 border-2 border-brand-green flex items-center justify-center text-brand-green shadow-[0_0_30px_#B1F310]">
+                <Check size={28} strokeWidth={3} />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Premium Quick Add bar on desktop hover */}
         <div className="hidden md:block absolute bottom-0 left-0 right-0 z-10 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out">
-          <button
+          <motion.button
             onClick={handleQuickAdd}
-            className="w-full bg-brand-black text-brand-white hover:bg-brand-green hover:text-brand-black py-3 text-2xs font-mono font-bold uppercase tracking-widest transition-colors duration-200 shadow-lg cursor-pointer"
+            animate={isAdding ? { scale: [1, 1.04, 1], backgroundColor: "#B1F310", color: "#000000" } : {}}
+            transition={{ duration: 0.3 }}
+            className="w-full bg-brand-black text-brand-white hover:bg-brand-green hover:text-brand-black py-3 text-2xs font-mono font-bold uppercase tracking-widest transition-colors duration-200 shadow-lg cursor-pointer flex items-center justify-center gap-1.5"
           >
-            Quick Add +
-          </button>
+            {isAdding ? (
+              <motion.span initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="flex items-center gap-1">
+                <Check size={14} strokeWidth={3} /> Added to Cart!
+              </motion.span>
+            ) : (
+              "Quick Add +"
+            )}
+          </motion.button>
         </div>
         
-        {/* Mobile Quick Add icon button (44px touch target) */}
-        <button
+        {/* Mobile Quick Add icon button */}
+        <motion.button
           onClick={handleQuickAdd}
+          animate={isAdding ? { scale: [1, 1.3, 1], backgroundColor: "#B1F310", color: "#000000" } : { scale: 1 }}
+          transition={{ duration: 0.3 }}
           className="md:hidden absolute bottom-2.5 right-2.5 z-10 min-w-[40px] min-h-[40px] w-10 h-10 rounded-full bg-brand-black/85 backdrop-blur-md text-brand-white hover:bg-brand-green hover:text-brand-black flex items-center justify-center shadow-md active:scale-95 transition-all cursor-pointer"
           aria-label="Quick add to cart"
         >
-          <Plus size={15} />
-        </button>
+          {isAdding ? <Check size={16} strokeWidth={3} /> : <Plus size={15} />}
+        </motion.button>
       </div>
 
       {/* Product Information Details */}

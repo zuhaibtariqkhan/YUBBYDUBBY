@@ -73,8 +73,7 @@ const menuItemVariants: any = {
 
 export default function Navbar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [isCartOpen, setIsCartOpen] = useState(false);
-    const { cartCount } = useCart();
+    const { cartCount, isCartOpen, setIsCartOpen, isCartBouncing } = useCart();
     const pathname = usePathname();
 
     const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -224,17 +223,25 @@ export default function Navbar() {
                         >
                             <User className="w-5 h-5 md:w-[22px] md:h-[22px]" />
                         </Link>
-                        <button 
+                        <motion.button 
                             onClick={() => setIsCartOpen(true)}
+                            animate={isCartBouncing ? { scale: [1, 1.35, 0.9, 1.15, 1], rotate: [0, -12, 12, -6, 0] } : { scale: 1, rotate: 0 }}
+                            transition={{ duration: 0.55, ease: "easeInOut" }}
                             className="relative hover:text-brand-green transition-colors cursor-pointer"
                         >
                             <ShoppingCart className="w-5 h-5 md:w-[22px] md:h-[22px]" />
                             {cartCount > 0 && (
-                                <span className="absolute -top-1.5 -right-1.5 md:-top-2 md:-right-2 bg-brand-green text-brand-black text-[10px] md:text-xs font-bold w-3.5 h-3.5 md:w-4 md:h-4 rounded-full flex items-center justify-center">
+                                <motion.span
+                                    key={cartCount}
+                                    initial={{ scale: 0.5 }}
+                                    animate={isCartBouncing ? { scale: [1, 1.6, 1], backgroundColor: ["#B1F310", "#FFFFFF", "#B1F310"] } : { scale: 1 }}
+                                    transition={{ duration: 0.4 }}
+                                    className="absolute -top-1.5 -right-1.5 md:-top-2 md:-right-2 bg-brand-green text-brand-black text-[10px] md:text-xs font-bold w-3.5 h-3.5 md:w-4 md:h-4 rounded-full flex items-center justify-center shadow-[0_0_10px_#B1F310]"
+                                >
                                     {cartCount}
-                                </span>
+                                </motion.span>
                             )}
-                        </button>
+                        </motion.button>
                     </div>
                 </div>
                 {/* Mobile Menu Overlay */}

@@ -3,12 +3,14 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 export default function SplashScreen() {
     const pathname = usePathname();
     const [mounted, setMounted] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
     const [phase, setPhase] = useState<"playing" | "exit">("playing");
+    const [videoError, setVideoError] = useState(false);
     const videoRef = useRef<HTMLVideoElement>(null);
 
     useEffect(() => {
@@ -70,10 +72,13 @@ export default function SplashScreen() {
                     initial={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.5, ease: "easeInOut" }}
-                    className="fixed inset-0 z-[10000] flex items-center justify-center bg-black cursor-pointer"
+                    className="fixed inset-0 z-[10000] flex items-center justify-center bg-black cursor-pointer select-none overflow-hidden"
                     style={{ pointerEvents: phase === "exit" ? "none" : "auto" }}
                     onClick={handleVideoEnd}
                 >
+                    {/* Background glow orb */}
+                    <div className="absolute splash-glow-orb pointer-events-none" />
+
                     {/* Scan line sweep */}
                     <motion.div
                         initial={{ y: "-10vh" }}
@@ -83,7 +88,7 @@ export default function SplashScreen() {
                             delay: 0.1,
                             ease: "easeInOut",
                         }}
-                        className="absolute top-0 left-0 w-full h-[2px] z-20 will-change-transform"
+                        className="absolute top-0 left-0 w-full h-[2px] z-20 will-change-transform pointer-events-none"
                         style={{
                             background:
                                 "linear-gradient(90deg, transparent, #B1F310, rgba(177,243,16,0.4), transparent)",
@@ -97,9 +102,9 @@ export default function SplashScreen() {
                     <div className="absolute bottom-6 left-6 sm:bottom-10 sm:left-10 w-8 h-8 sm:w-12 sm:h-12 border-b-2 border-l-2 border-brand-green/50 z-20" />
                     <div className="absolute bottom-6 right-6 sm:bottom-10 sm:right-10 w-8 h-8 sm:w-12 sm:h-12 border-b-2 border-r-2 border-brand-green/50 z-20" />
 
-                    {/* Logo video */}
+                    {/* Logo & Icon Container */}
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
+                        initial={{ opacity: 0, scale: 0.85 }}
                         animate={
                             phase === "exit"
                                 ? { opacity: 0, scale: 1.1 }
@@ -111,17 +116,33 @@ export default function SplashScreen() {
                         }}
                         className="relative z-10 w-[280px] h-[280px] sm:w-[360px] sm:h-[360px] md:w-[420px] md:h-[420px] flex items-center justify-center will-change-transform"
                     >
-                        <video
-                            ref={videoRef}
-                            autoPlay
-                            muted
-                            playsInline
-                            preload="auto"
-                            onEnded={handleVideoEnd}
-                            className="w-full h-full object-contain"
-                        >
-                            <source src="/LOAD%20SCREEN.mp4" type="video/mp4" />
-                        </video>
+                        {/* Always visible brand logo icon with pulsing neon glow */}
+                        <div className="absolute inset-0 flex items-center justify-center p-6 z-10">
+                            <Image
+                                src="/LOGOO.png"
+                                alt="Yubby Dubby Logo"
+                                width={360}
+                                height={360}
+                                priority
+                                className="w-full h-full object-contain drop-shadow-[0_0_25px_rgba(177,243,16,0.6)]"
+                            />
+                        </div>
+
+                        {/* Video animation layer */}
+                        {!videoError && (
+                            <video
+                                ref={videoRef}
+                                autoPlay
+                                muted
+                                playsInline
+                                preload="auto"
+                                poster="/LOGOO.png"
+                                src="/LOAD SCREEN.mp4"
+                                onEnded={handleVideoEnd}
+                                onError={() => setVideoError(true)}
+                                className="absolute inset-0 w-full h-full object-contain z-20 mix-blend-screen"
+                            />
+                        )}
                     </motion.div>
 
                     {/* Decorative horizontal line */}
