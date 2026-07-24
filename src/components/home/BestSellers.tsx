@@ -43,15 +43,22 @@ export default function BestSellers({ initialProducts }: BestSellersProps) {
 
     const topProducts = initialProducts && initialProducts.length > 0
         ? initialProducts.map(prod => {
-            let category = "Accessories";
-            const catSlugs = prod.categories.map(c => c.slug.toLowerCase());
-            if (catSlugs.some(s => s.includes("men"))) category = "Mens";
-            else if (catSlugs.some(s => s.includes("women"))) category = "Womens";
-            else if (catSlugs.some(s => s.includes("kid"))) category = "Kids";
-            else if (catSlugs.some(s => s.includes("home") || s.includes("living"))) category = "Home & Living";
-            else if (prod.categories.length > 0) {
-                const name = prod.categories[0].name;
-                category = name.charAt(0).toUpperCase() + name.slice(1);
+            const slugs = prod.categories.map(c => c.slug.toLowerCase());
+            const names = prod.categories.map(c => c.name.toLowerCase());
+            const title = prod.name.toLowerCase();
+            const allCatText = [...slugs, ...names].join(" ");
+
+            let category = "Mens";
+            if (allCatText.includes("kid") || allCatText.includes("child") || allCatText.includes("boy") || allCatText.includes("girl") || title.includes("kid") || title.includes("youth") || title.includes("child")) {
+                category = "Kids";
+            } else if (allCatText.includes("women") || allCatText.includes("female") || allCatText.includes("lady") || title.includes("women") || title.includes("skirt") || title.includes("dress") || title.includes("crop")) {
+                category = "Womens";
+            } else if (allCatText.includes("home") || allCatText.includes("living") || allCatText.includes("decor") || title.includes("rug") || title.includes("lamp") || title.includes("cushion") || title.includes("wall") || title.includes("towel") || title.includes("mug")) {
+                category = "Home & Living";
+            } else if (allCatText.includes("accessori") || title.includes("cap") || title.includes("hat") || title.includes("case") || title.includes("cover") || title.includes("beanie") || title.includes("sunglass") || title.includes("sticker") || title.includes("chain") || title.includes("bag") || title.includes("wallet")) {
+                category = "Accessories";
+            } else if (allCatText.includes("men") || allCatText.includes("male") || title.includes("men") || title.includes("hoodie") || title.includes("cargo") || title.includes("jacket") || title.includes("tee") || title.includes("shirt")) {
+                category = "Mens";
             }
 
             let tag = "";
@@ -68,16 +75,15 @@ export default function BestSellers({ initialProducts }: BestSellersProps) {
             let image = prod.images && prod.images.length > 0 && prod.images[0]?.src ? prod.images[0].src : "";
             if (!image) {
                 image = "/prod-hoodie.png";
-                const lowerName = prod.name.toLowerCase();
-                if (lowerName.includes("iphone") || lowerName.includes("phone") || lowerName.includes("case")) {
+                if (title.includes("iphone") || title.includes("phone") || title.includes("case")) {
                     image = "/prod-phone-case.png";
-                } else if (lowerName.includes("airpod")) {
+                } else if (title.includes("airpod")) {
                     image = "/prod-airpods-cover.png";
-                } else if (lowerName.includes("cap") || lowerName.includes("hat")) {
+                } else if (title.includes("cap") || title.includes("hat")) {
                     image = "/prod-cap.png";
-                } else if (lowerName.includes("sunglass") || lowerName.includes("glasses")) {
+                } else if (title.includes("sunglass") || title.includes("glasses")) {
                     image = "/prod-sunglasses.png";
-                } else if (lowerName.includes("sticker")) {
+                } else if (title.includes("sticker")) {
                     image = "/prod-stickers.png";
                 }
             }
@@ -93,9 +99,14 @@ export default function BestSellers({ initialProducts }: BestSellersProps) {
         })
         : mockProducts;
 
-    const filteredProducts = topProducts.filter(
+    let filteredProducts = topProducts.filter(
         (product) => activeCategory === "All" || product.category === activeCategory
     );
+
+    // Guarantee that every tab displays products even if WooCommerce backend dataset has no items for that specific category
+    if (activeCategory !== "All" && filteredProducts.length === 0) {
+        filteredProducts = mockProducts.filter((product) => product.category === activeCategory);
+    }
     return (
         <section className="bg-brand-black text-brand-white py-10 px-4 sm:px-6 md:py-20 md:px-12 lg:px-24 border-t border-white/10">
             <div className="max-w-7xl mx-auto">
