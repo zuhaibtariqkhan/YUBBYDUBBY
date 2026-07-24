@@ -249,7 +249,13 @@ export async function getProductById(id: string): Promise<WooCommerceProduct | n
  */
 export async function getCategoriesBySlug(slug: string): Promise<WooCommerceCategory[]> {
   try {
-    return await fetchWooCommerce<WooCommerceCategory[]>(`products/categories?slug=${encodeURIComponent(slug)}`);
+    const categories = await fetchWooCommerce<WooCommerceCategory[]>(`products/categories?slug=${encodeURIComponent(slug)}`);
+    if (categories && categories.length > 0) {
+      return categories;
+    }
+    // Fallback: search by category name if slug match isn't exact
+    const searched = await fetchWooCommerce<WooCommerceCategory[]>(`products/categories?search=${encodeURIComponent(slug.replace(/-/g, ' '))}`);
+    return searched || [];
   } catch (error) {
     console.error(`Failed to fetch category by slug: ${slug}`, error);
     return [];

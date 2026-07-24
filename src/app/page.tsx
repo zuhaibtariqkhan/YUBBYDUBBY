@@ -11,10 +11,18 @@ import SocialGrid from "@/components/home/SocialGrid";
 import { getProducts } from "@/lib/woocommerce";
 
 export default async function Home() {
-  const [bestSellers, newArrivals, featuredProducts] = await Promise.all([
+  // Fetch products from 'Featured Products' backend category
+  let featuredProducts = await getProducts({ category: "featured-products", limit: 4 });
+  if (!featuredProducts || featuredProducts.length === 0) {
+    featuredProducts = await getProducts({ category: "featured", limit: 4 });
+  }
+  if (!featuredProducts || featuredProducts.length === 0) {
+    featuredProducts = await getProducts({ featured: true, limit: 4 });
+  }
+
+  const [bestSellers, newArrivals] = await Promise.all([
     getProducts({ limit: 16 }),
     getProducts({ limit: 4 }),
-    getProducts({ featured: true, limit: 4 })
   ]);
 
   return (
