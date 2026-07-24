@@ -1,10 +1,36 @@
-import ComingSoonClient from "./ComingSoonClient";
+import Navbar from "@/components/layout/Navbar";
+import HeroSection from "@/components/home/HeroSection";
+import Marquee from "@/components/ui/Marquee";
+import CategoryGrid from "@/components/home/CategoryGrid";
+import BestSellers from "@/components/home/BestSellers";
+import NewArrivals from "@/components/home/NewArrivals";
+import FeaturedProducts from "@/components/home/FeaturedProducts";
+import ReviewsCarousel from "@/components/home/ReviewsCarousel";
+import { EditorialMessage, TrustStrip, Footer } from "@/components/home/HomeSections";
+import SocialGrid from "@/components/home/SocialGrid";
+import { getProducts } from "@/lib/woocommerce";
 
-export const metadata = {
-  title: "YUBBY DUBBY | Coming Soon",
-  description: "Something extraordinary is coming. We are crafting the future of online shopping.",
-};
+export default async function Home() {
+  const [bestSellers, newArrivals, featuredProducts] = await Promise.all([
+    getProducts({ limit: 16 }),
+    getProducts({ limit: 4 }),
+    getProducts({ featured: true, limit: 4 })
+  ]);
 
-export default function Home() {
-  return <ComingSoonClient />;
+  return (
+    <main className="min-h-screen bg-brand-black text-white relative">
+      <Navbar />
+      <HeroSection />
+      <Marquee />
+      <CategoryGrid />
+      <BestSellers initialProducts={bestSellers} />
+      <NewArrivals initialProducts={newArrivals} />
+      <FeaturedProducts initialProducts={featuredProducts} />
+      <EditorialMessage />
+      <ReviewsCarousel />
+      <TrustStrip />
+      <SocialGrid />
+      <Footer />
+    </main>
+  );
 }

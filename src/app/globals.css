@@ -50,7 +50,21 @@
     background: var(--color-brand-green);
   }
 
+  /* Hide default cursor on desktop */
+  @media (hover: hover) and (pointer: fine) {
 
+    *,
+    *::before,
+    *::after {
+      cursor: none !important;
+    }
+  }
+
+  /* Ensure custom cursor elements never intercept mouse clicks */
+  .custom-cursor-dot,
+  .custom-cursor-ring {
+    pointer-events: none !important;
+  }
 
   /* Glassmorphism utility classes */
   .glass-card {
@@ -272,3 +286,55 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
 }
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+/* Hide scrollbar for IE, Edge and Firefox */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Dual range slider styles */
+.range-slider-input::-webkit-slider-runnable-track {
+  background: none;
+  border: none;
+}
+.range-slider-input::-moz-range-track {
+  background: none;
+  border: none;
+}
+.range-slider-input::-webkit-slider-thumb {
+  pointer-events: auto;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #B1F310;
+  cursor: pointer;
+  border: 2px solid #000000;
+  box-shadow: 0 0 8px rgba(177, 243, 16, 0.6);
+  transition: transform 0.1s ease, background-color 0.2s;
+}
+.range-slider-input::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  background: #FFFFFF;
+}
+.range-slider-input::-moz-range-thumb {
+  pointer-events: auto;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #B1F310;
+  cursor: pointer;
+  border: 2px solid #000000;
+  box-shadow: 0 0 8px rgba(177, 243, 16, 0.6);
+  transition: transform 0.1s ease, background-color 0.2s;
+}
+.range-slider-input::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  background: #FFFFFF;
+}
