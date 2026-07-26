@@ -116,7 +116,7 @@ export function EditorialMessage() {
                     preload="none"
                     className="w-full h-full object-cover"
                 >
-                    <source src="/UPDATED YUBBYDUBBYSTUDIO.mp4" type="video/mp4" />
+                    <source src="/yubby-dubby-studio.mp4" type="video/mp4" />
                     Your browser does not support the video tag.
                 </video>
             </motion.div>

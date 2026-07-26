@@ -6,48 +6,15 @@ import { ArrowRight } from "lucide-react";
 import { WooCommerceProduct } from "@/lib/woocommerce";
 import TextReveal from "../ui/TextReveal";
 import ProductCard from "../ui/ProductCard";
+import { useHomepageProducts } from "@/context/HomepageContext";
 
 interface NewArrivalsProps {
     initialProducts?: WooCommerceProduct[];
 }
 
-const mockNew = [
-    { id: "p18", name: "METROPOLIS OVERCOAT", price: 280, image: "/prod-jacket.png", tag: "NEW", category: "Mens" },
-    { id: "p6", name: "TECH-WEAR SKIRT", price: 95, image: "/prod-cargo.png", tag: "NEW", category: "Womens" },
-    { id: "p9", name: "FUTURE YOUTH HOODIE", price: 75, image: "/prod-hoodie.png", tag: "NEW", category: "Kids" },
-    { id: "p13", name: "CYBERPUNK IPHONE CASE", price: 40, image: "/prod-phone-case.png", tag: "NEW", category: "Accessories" }
-];
-
 export default function NewArrivals({ initialProducts }: NewArrivalsProps) {
-    const displayProducts = initialProducts && initialProducts.length > 0
-        ? initialProducts.slice(0, 4).map(prod => {
-            let image = prod.images && prod.images.length > 0 && prod.images[0]?.src ? prod.images[0].src : "";
-            if (!image) {
-                image = "/prod-hoodie.png";
-                const lowerName = prod.name.toLowerCase();
-                if (lowerName.includes("iphone") || lowerName.includes("phone") || lowerName.includes("case")) {
-                    image = "/prod-phone-case.png";
-                } else if (lowerName.includes("airpod")) {
-                    image = "/prod-airpods-cover.png";
-                } else if (lowerName.includes("cap") || lowerName.includes("hat")) {
-                    image = "/prod-cap.png";
-                } else if (lowerName.includes("sunglass") || lowerName.includes("glasses")) {
-                    image = "/prod-sunglasses.png";
-                } else if (lowerName.includes("sticker")) {
-                    image = "/prod-stickers.png";
-                }
-            }
-
-            return {
-                id: prod.id.toString(),
-                name: prod.name.toUpperCase(),
-                price: parseFloat(prod.price) || 0,
-                image,
-                tag: "NEW",
-                category: prod.categories[0]?.name || "Clothing"
-            };
-        })
-        : mockNew;
+    const { newArrivals } = useHomepageProducts();
+    const displayProducts = newArrivals;
 
     return (
         <section className="bg-brand-black text-brand-white py-10 px-4 sm:px-6 md:py-20 md:px-12 lg:px-24 border-t border-white/10 relative overflow-hidden">

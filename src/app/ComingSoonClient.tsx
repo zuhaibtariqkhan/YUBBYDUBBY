@@ -262,11 +262,12 @@ export default function ComingSoonClient() {
       <header className="w-full max-w-7xl mx-auto px-6 md:px-12 py-8 flex justify-between items-center z-20 relative">
         <div className="relative w-44 h-12 flex items-center justify-start">
           <Image
-            src="/LOGOO.png"
+            src="/logo.png"
             alt="Yubby Dubby Logo"
             fill
             className="object-contain"
             priority
+            unoptimized
           />
         </div>
       </header>

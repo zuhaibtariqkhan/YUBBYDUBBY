@@ -119,11 +119,12 @@ export default function SplashScreen() {
                         {/* Always visible brand logo icon with pulsing neon glow */}
                         <div className="absolute inset-0 flex items-center justify-center p-6 z-10">
                             <Image
-                                src="/LOGOO.png"
+                                src="/logo.png"
                                 alt="Yubby Dubby Logo"
                                 width={360}
                                 height={360}
                                 priority
+                                unoptimized
                                 className="w-full h-full object-contain drop-shadow-[0_0_25px_rgba(177,243,16,0.6)]"
                             />
                         </div>
@@ -136,8 +137,8 @@ export default function SplashScreen() {
                                 muted
                                 playsInline
                                 preload="auto"
-                                poster="/LOGOO.png"
-                                src="/LOAD SCREEN.mp4"
+                                poster="/logo.png"
+                                src="/load-screen.mp4"
                                 onEnded={handleVideoEnd}
                                 onError={() => setVideoError(true)}
                                 className="absolute inset-0 w-full h-full object-contain z-20 mix-blend-screen"

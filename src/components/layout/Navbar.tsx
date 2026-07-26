@@ -197,12 +197,13 @@ export default function Navbar() {
                     <div className="absolute left-1/2 -translate-x-1/2 flex items-center h-full max-h-20 pt-1 z-10 pointer-events-none">
                         <Link href="/" className="relative h-[80px] w-[200px] sm:h-[90px] sm:w-[250px] md:h-24 md:w-[320px] flex items-center justify-center pointer-events-auto">
                             <Image
-                                src="/LOGOO.png"
+                                src="/logo.png"
                                 alt="Yubby Dubby Logo"
                                 fill
                                 sizes="(max-width: 640px) 200px, (max-width: 768px) 250px, 320px"
                                 className="object-contain scale-100"
                                 priority
+                                unoptimized
                             />
                         </Link>
                     </div>
