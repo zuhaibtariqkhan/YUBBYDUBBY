@@ -1,0 +1,329 @@
+import { WooCommerceProduct } from "./woocommerce";
+
+export interface FormattedProduct {
+    id: string;
+    name: string;
+    price: number;
+    regularPrice?: number;
+    image: string;
+    tag: string;
+    category: string;
+    categorySlugs: string[];
+    dateCreated?: string;
+    raw?: any;
+}
+
+export interface CategoryTreeItem {
+    id: number;
+    name: string;
+    slug: string;
+    parent: number;
+}
+
+export interface SectionDistributionResult {
+    newArrivals: FormattedProduct[];
+    categoryProducts: Record<string, FormattedProduct[]>;
+    featuredProducts: FormattedProduct[];
+}
+
+/**
+ * Fast Mulberry32 Pseudo-Random Number Generator for deterministic seeded randomness.
+ */
+export function mulberry32(seed: number) {
+    return function () {
+        let t = (seed += 0x6d2b79f5);
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+}
+
+/**
+ * Seeded array shuffle using Fisher-Yates and PRNG
+ */
+export function seededShuffle<T>(array: T[], seed: number): T[] {
+    const copy = [...array];
+    const random = mulberry32(seed);
+    for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+}
+
+/**
+ * Helper to normalize and format raw WooCommerce or API product objects
+ */
+export function formatProduct(prod: any): FormattedProduct {
+    let image = prod.image || (prod.images && prod.images.length > 0 && prod.images[0]?.src ? prod.images[0].src : "");
+    if (!image) {
+        image = "/prod-hoodie.png";
+        const title = (prod.name || "").toLowerCase();
+        if (title.includes("iphone") || title.includes("phone") || title.includes("case")) {
+            image = "/prod-phone-case.png";
+        } else if (title.includes("airpod")) {
+            image = "/prod-airpods-cover.png";
+        } else if (title.includes("cap") || title.includes("hat")) {
+            image = "/prod-cap.png";
+        } else if (title.includes("sunglass") || title.includes("glasses")) {
+            image = "/prod-sunglasses.png";
+        } else if (title.includes("sticker")) {
+            image = "/prod-stickers.png";
+        }
+    }
+
+    let tag = prod.tag || "";
+    if (!tag) {
+        if (prod.on_sale || prod.onSale) {
+            tag = "SALE";
+        } else if (prod.tags?.some((t: any) => (typeof t === "string" ? t : t.slug).includes("new"))) {
+            tag = "NEW";
+        } else if (prod.tags?.some((t: any) => (typeof t === "string" ? t : t.slug).includes("best-seller") || (typeof t === "string" ? t : t.slug).includes("featured"))) {
+            tag = "BEST SELLER";
+        } else if (prod.tags?.some((t: any) => (typeof t === "string" ? t : t.slug).includes("limited"))) {
+            tag = "LIMITED";
+        } else {
+            tag = "EXCLUSIVE";
+        }
+    }
+
+    let categoryName = "Accessories";
+    const categorySlugs: string[] = [];
+
+    if (typeof prod.category === "string" && prod.category) {
+        categoryName = prod.category;
+        categorySlugs.push(prod.category.toLowerCase().replace(/\s+/g, "-"));
+    }
+    
+    if (prod.categories && Array.isArray(prod.categories) && prod.categories.length > 0) {
+        categoryName = typeof prod.categories[0] === "string" ? prod.categories[0] : prod.categories[0].name || "Accessories";
+        prod.categories.forEach((cat: any) => {
+            const slug = typeof cat === "string" ? cat.toLowerCase() : (cat.slug || cat.name || "").toLowerCase();
+            if (slug) categorySlugs.push(slug);
+        });
+    }
+
+    return {
+        id: prod.id.toString(),
+        name: (prod.name || "").toUpperCase(),
+        price: typeof prod.price === "number" ? prod.price : parseFloat(prod.price) || 0,
+        regularPrice: prod.regularPrice || (prod.regular_price ? parseFloat(prod.regular_price) : undefined),
+        image,
+        tag,
+        category: categoryName,
+        categorySlugs,
+        dateCreated: prod.date_created || prod.dateCreated,
+        raw: prod
+    };
+}
+
+/**
+ * Fallback subcategory mappings if dynamic category tree is loading
+ */
+const DEFAULT_SUBCATEGORY_MAP: Record<string, string[]> = {
+    mens: ["mens-t-shirts", "mens-hoodies", "mens-jackets", "mens-sweatshirts", "mens-tracksuits", "mens-accessories"],
+    womens: ["womens-t-shirts", "womens-dresses", "womens-hoodies", "womens-tops", "womens-accessories"],
+    kids: ["kids-boys-clothing", "kids-girls-clothing", "kids-school-essentials", "kids-accessories"],
+    "home-living": ["home-wall-art", "home-posters", "home-mugs", "home-cushions", "home-bedding", "home-decor"],
+    accessories: ["accessories-tech-cases", "accessories-headwear", "accessories-misc"]
+};
+
+/**
+ * Checks if a product belongs to a specific subcategory slug or keywords
+ */
+function productMatchesSubcategory(prod: FormattedProduct, subcatSlug: string): boolean {
+    const slugs = prod.categorySlugs.map(s => s.toLowerCase());
+    const catName = prod.category.toLowerCase();
+    const prodName = prod.name.toLowerCase();
+    const sub = subcatSlug.toLowerCase();
+
+    if (slugs.some(s => s === sub || s.includes(sub))) return true;
+    if (catName.includes(sub.replace(/-/g, " "))) return true;
+
+    // Keyword heuristics
+    if (sub.includes("t-shirt") || sub.includes("tshirt") || sub.includes("tee")) {
+        return prodName.includes("tee") || prodName.includes("t-shirt") || prodName.includes("shirt");
+    }
+    if (sub.includes("hoodie")) return prodName.includes("hoodie");
+    if (sub.includes("jacket") || sub.includes("coat")) return prodName.includes("jacket") || prodName.includes("overcoat") || prodName.includes("vest");
+    if (sub.includes("dress")) return prodName.includes("dress") || prodName.includes("skirt");
+    if (sub.includes("cargo") || sub.includes("pant") || sub.includes("jogger")) return prodName.includes("cargo") || prodName.includes("pant") || prodName.includes("jogger");
+    if (sub.includes("case") || sub.includes("cover")) return prodName.includes("case") || prodName.includes("cover");
+    if (sub.includes("cap") || sub.includes("hat") || sub.includes("beanie") || sub.includes("headwear")) return prodName.includes("cap") || prodName.includes("beanie") || prodName.includes("hat");
+    if (sub.includes("sunglass") || sub.includes("sticker") || sub.includes("misc")) return prodName.includes("sunglass") || prodName.includes("sticker") || prodName.includes("mat") || prodName.includes("rug");
+
+    return false;
+}
+
+/**
+ * Checks if a product matches a parent category
+ */
+function productMatchesParentCategory(prod: FormattedProduct, tabSlug: string): boolean {
+    if (tabSlug === "all") return true;
+
+    const slugs = prod.categorySlugs.map(s => s.toLowerCase());
+    const catName = prod.category.toLowerCase();
+    const prodName = prod.name.toLowerCase();
+
+    switch (tabSlug) {
+        case "mens":
+            return slugs.some(s => s.includes("men") || s.includes("man")) || catName.includes("men") || prodName.includes("men") || prodName.includes("cargo") || prodName.includes("overcoat") || prodName.includes("jacket") || prodName.includes("vest");
+        case "womens":
+            return slugs.some(s => s.includes("women") || s.includes("female") || s.includes("lady")) || catName.includes("women") || prodName.includes("women") || prodName.includes("skirt") || prodName.includes("top") || prodName.includes("dress");
+        case "kids":
+            return slugs.some(s => s.includes("kid") || s.includes("youth") || s.includes("child")) || catName.includes("kid") || prodName.includes("youth") || prodName.includes("kid");
+        case "home-living":
+            return slugs.some(s => s.includes("home") || s.includes("living") || s.includes("decor") || s.includes("rug") || s.includes("mat")) || catName.includes("home") || catName.includes("living");
+        case "accessories":
+            return slugs.some(s => s.includes("accessori") || s.includes("gadget") || s.includes("tech")) || catName.includes("accessori") || prodName.includes("case") || prodName.includes("cover") || prodName.includes("cap") || prodName.includes("sunglass") || prodName.includes("sticker") || prodName.includes("beanie");
+        default:
+            return slugs.some(s => s.includes(tabSlug)) || catName.includes(tabSlug);
+    }
+}
+
+const CATEGORY_TAB_SLUGS = ["all", "mens", "womens", "kids", "home-living", "accessories"];
+
+/**
+ * Core distribution engine with subcategory round-robin interleaving
+ */
+export function distributeHomepageProducts(
+    rawProducts: any[],
+    seed: number = 42,
+    categoriesList: CategoryTreeItem[] = []
+): SectionDistributionResult {
+    const formatted = rawProducts.map(formatProduct);
+    const seenProductIds = new Set<string>();
+
+    // Step 1: New Arrivals (4 items)
+    const newArrivalPool = [...formatted].slice(0, Math.min(10, formatted.length));
+    const shuffledNew = seededShuffle(newArrivalPool, seed);
+    const newArrivals = shuffledNew.slice(0, 4);
+    newArrivals.forEach(p => seenProductIds.add(p.id));
+
+    // Step 2: Resolve subcategory mapping per parent tab dynamically from backend or fallback
+    const parentSubcatsMap: Record<string, string[]> = {};
+    for (const tabSlug of CATEGORY_TAB_SLUGS) {
+        if (tabSlug === "all") continue;
+
+        // Try matching dynamic backend category tree first
+        const parentObj = categoriesList.find(c => c.slug === tabSlug || c.slug.includes(tabSlug));
+        let childSlugs: string[] = [];
+
+        if (parentObj) {
+            childSlugs = categoriesList
+                .filter(c => c.parent === parentObj.id)
+                .map(c => c.slug);
+        }
+
+        if (childSlugs.length === 0) {
+            childSlugs = DEFAULT_SUBCATEGORY_MAP[tabSlug] || [];
+        }
+
+        parentSubcatsMap[tabSlug] = childSlugs;
+    }
+
+    // Step 3: Shop By Category Tabs (8 items per tab with Round-Robin Subcategory Interleaving)
+    const categoryProducts: Record<string, FormattedProduct[]> = {};
+
+    for (const tabSlug of CATEGORY_TAB_SLUGS) {
+        const targetCount = 8;
+        const allParentMatching = formatted.filter(p => productMatchesParentCategory(p, tabSlug));
+
+        if (tabSlug === "all") {
+            const unseen = allParentMatching.filter(p => !seenProductIds.has(p.id));
+            const seen = allParentMatching.filter(p => seenProductIds.has(p.id));
+            const shuffledUnseen = seededShuffle(unseen, seed + 1);
+            const selected = shuffledUnseen.slice(0, targetCount);
+            selected.forEach(p => seenProductIds.add(p.id));
+
+            if (selected.length < targetCount) {
+                const needed = targetCount - selected.length;
+                const shuffledSeen = seededShuffle(seen, seed + 10);
+                categoryProducts["all"] = [...selected, ...shuffledSeen.slice(0, needed)];
+            } else {
+                categoryProducts["all"] = selected;
+            }
+            continue;
+        }
+
+        const childSlugs = parentSubcatsMap[tabSlug] || [];
+
+        // Build buckets per subcategory containing unseen products
+        const subcatBuckets: FormattedProduct[][] = [];
+        const subcatSeenProductIds = new Set<string>();
+
+        if (childSlugs.length > 0) {
+            childSlugs.forEach((subSlug, idx) => {
+                const subMatching = allParentMatching.filter(p => productMatchesSubcategory(p, subSlug));
+                const unseenSub = subMatching.filter(p => !seenProductIds.has(p.id) && !subcatSeenProductIds.has(p.id));
+                const shuffledSub = seededShuffle(unseenSub, seed + tabSlug.length + idx);
+                if (shuffledSub.length > 0) {
+                    subcatBuckets.push(shuffledSub);
+                }
+            });
+        }
+
+        // Round-Robin Interleaving across subcategory buckets
+        const interleavedSelected: FormattedProduct[] = [];
+        let bucketIndex = 0;
+        let activeBucketsCount = subcatBuckets.length;
+
+        while (interleavedSelected.length < targetCount && activeBucketsCount > 0) {
+            const currentBucket = subcatBuckets[bucketIndex % subcatBuckets.length];
+            if (currentBucket && currentBucket.length > 0) {
+                const nextProd = currentBucket.shift()!;
+                if (!interleavedSelected.some(p => p.id === nextProd.id)) {
+                    interleavedSelected.push(nextProd);
+                    subcatSeenProductIds.add(nextProd.id);
+                    seenProductIds.add(nextProd.id);
+                }
+            }
+
+            // Check how many non-empty buckets remain
+            activeBucketsCount = subcatBuckets.filter(b => b.length > 0).length;
+            bucketIndex++;
+        }
+
+        // If subcategory interleaving yielded fewer than targetCount, fill remaining slots from unseen parent matches
+        if (interleavedSelected.length < targetCount) {
+            const remainingUnseen = allParentMatching.filter(p => !seenProductIds.has(p.id) && !interleavedSelected.some(sp => sp.id === p.id));
+            const shuffledRemaining = seededShuffle(remainingUnseen, seed + 50);
+            for (const p of shuffledRemaining) {
+                if (interleavedSelected.length >= targetCount) break;
+                interleavedSelected.push(p);
+                seenProductIds.add(p.id);
+            }
+        }
+
+        // Final Fallback: If still under targetCount due to inventory size, backfill from seen parent matches
+        if (interleavedSelected.length < targetCount) {
+            const remainingSeen = allParentMatching.filter(p => !interleavedSelected.some(sp => sp.id === p.id));
+            const shuffledSeen = seededShuffle(remainingSeen, seed + 100);
+            for (const p of shuffledSeen) {
+                if (interleavedSelected.length >= targetCount) break;
+                interleavedSelected.push(p);
+            }
+        }
+
+        categoryProducts[tabSlug] = interleavedSelected;
+    }
+
+    // Step 4: Featured Products (12 items)
+    const unusedForFeatured = formatted.filter(p => !seenProductIds.has(p.id));
+    const shuffledFeaturedUnused = seededShuffle(unusedForFeatured, seed + 999);
+    let featuredProducts = shuffledFeaturedUnused.slice(0, 12);
+
+    if (featuredProducts.length < 12) {
+        const remainingNeeded = 12 - featuredProducts.length;
+        const featuredIds = new Set(featuredProducts.map(p => p.id));
+        const fallbackPool = formatted.filter(p => !featuredIds.has(p.id));
+        const shuffledFallback = seededShuffle(fallbackPool, seed + 888);
+        featuredProducts = [...featuredProducts, ...shuffledFallback.slice(0, remainingNeeded)];
+    }
+
+    return {
+        newArrivals,
+        categoryProducts,
+        featuredProducts
+    };
+}

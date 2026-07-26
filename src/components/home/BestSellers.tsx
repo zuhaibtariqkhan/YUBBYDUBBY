@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import TextReveal from "../ui/TextReveal";
 import ProductCard from "../ui/ProductCard";
 import { WooCommerceProduct } from "@/lib/woocommerce";
 import { PackageSearch } from "lucide-react";
+import { useHomepageProducts } from "@/context/HomepageContext";
 
 interface CategoryTab {
     label: string;
@@ -21,132 +22,15 @@ const CATEGORY_TABS: CategoryTab[] = [
     { label: "Accessories", slug: "accessories" },
 ];
 
-interface FormattedProduct {
-    id: string;
-    name: string;
-    price: number;
-    regularPrice?: number;
-    image: string;
-    tag?: string;
-    category?: string;
-}
-
 interface BestSellersProps {
     initialProducts?: WooCommerceProduct[];
 }
 
 export default function BestSellers({ initialProducts }: BestSellersProps) {
     const [activeTab, setActiveTab] = useState<CategoryTab>(CATEGORY_TABS[0]);
-    const [productsCache, setProductsCache] = useState<Record<string, FormattedProduct[]>>({});
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const { categoryProducts, isLoading } = useHomepageProducts();
 
-    // Formatter helper for raw WooCommerce products or API objects
-    const formatProduct = (prod: any): FormattedProduct => {
-        let image = prod.image || (prod.images && prod.images.length > 0 && prod.images[0]?.src ? prod.images[0].src : "");
-        if (!image) {
-            image = "/prod-hoodie.png";
-            const title = (prod.name || "").toLowerCase();
-            if (title.includes("iphone") || title.includes("phone") || title.includes("case")) {
-                image = "/prod-phone-case.png";
-            } else if (title.includes("airpod")) {
-                image = "/prod-airpods-cover.png";
-            } else if (title.includes("cap") || title.includes("hat")) {
-                image = "/prod-cap.png";
-            } else if (title.includes("sunglass") || title.includes("glasses")) {
-                image = "/prod-sunglasses.png";
-            } else if (title.includes("sticker")) {
-                image = "/prod-stickers.png";
-            }
-        }
-
-        let tag = prod.tag || "";
-        if (!tag) {
-            if (prod.on_sale || prod.onSale) {
-                tag = "SALE";
-            } else if (prod.tags?.some((t: any) => (typeof t === "string" ? t : t.slug).includes("new"))) {
-                tag = "NEW";
-            } else if (prod.tags?.some((t: any) => (typeof t === "string" ? t : t.slug).includes("best-seller") || (typeof t === "string" ? t : t.slug).includes("featured"))) {
-                tag = "BEST SELLER";
-            } else if (prod.tags?.some((t: any) => (typeof t === "string" ? t : t.slug).includes("limited"))) {
-                tag = "LIMITED";
-            }
-        }
-
-        let categoryName = "Accessories";
-        if (typeof prod.category === "string" && prod.category) {
-            categoryName = prod.category;
-        } else if (prod.categories && Array.isArray(prod.categories) && prod.categories.length > 0) {
-            categoryName = typeof prod.categories[0] === "string" ? prod.categories[0] : prod.categories[0].name || "Accessories";
-        }
-
-        return {
-            id: prod.id.toString(),
-            name: (prod.name || "").toUpperCase(),
-            price: typeof prod.price === "number" ? prod.price : parseFloat(prod.price) || 0,
-            regularPrice: prod.regularPrice || (prod.regular_price ? parseFloat(prod.regular_price) : undefined),
-            image,
-            tag,
-            category: categoryName
-        };
-    };
-
-    // Populate initial cache on mount from initialProducts prop
-    useEffect(() => {
-        if (initialProducts && initialProducts.length > 0) {
-            const formatted = initialProducts.map(formatProduct);
-            setProductsCache(prev => ({
-                ...prev,
-                all: formatted
-            }));
-        }
-    }, [initialProducts]);
-
-    // Fetch products dynamically from WooCommerce API for category tab
-    const fetchCategoryProducts = useCallback(async (tabSlug: string) => {
-        if (productsCache[tabSlug]) {
-            return; // Cache hit - no redundant API calls
-        }
-
-        setIsLoading(true);
-
-        try {
-            const url = tabSlug === "all"
-                ? "/api/shop/products?limit=16"
-                : `/api/shop/products?category=${encodeURIComponent(tabSlug)}&limit=16`;
-
-            const res = await fetch(url);
-            if (!res.ok) {
-                throw new Error(`API error ${res.status}`);
-            }
-
-            const data = await res.json();
-            const rawProducts = data.products || [];
-            const formattedList = rawProducts.map(formatProduct);
-
-            setProductsCache(prev => ({
-                ...prev,
-                [tabSlug]: formattedList
-            }));
-        } catch (err) {
-            console.error(`Failed to load category products for tab "${tabSlug}":`, err);
-            // Handle error gracefully by setting empty list for this tab to avoid breaking the UI
-            setProductsCache(prev => ({
-                ...prev,
-                [tabSlug]: prev[tabSlug] || []
-            }));
-        } finally {
-            setIsLoading(false);
-        }
-    }, [productsCache]);
-
-    // Trigger fetch whenever active tab changes if not already cached
-    useEffect(() => {
-        if (!productsCache[activeTab.slug]) {
-            fetchCategoryProducts(activeTab.slug);
-        }
-    }, [activeTab, fetchCategoryProducts, productsCache]);
-
-    const displayedProducts = productsCache[activeTab.slug] || [];
+    const displayedProducts = categoryProducts[activeTab.slug] || [];
 
     return (
         <section className="bg-brand-black text-brand-white py-10 px-4 sm:px-6 md:py-20 md:px-12 lg:px-24 border-t border-white/10">
