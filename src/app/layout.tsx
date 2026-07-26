@@ -20,6 +20,11 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
   title: "YUBBY DUBBY | Futuristic E-Commerce",
   description: "Next Generation Streetwear",
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({
