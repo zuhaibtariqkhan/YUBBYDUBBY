@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Oswald, Montserrat } from "next/font/google";
 import CustomCursor from "@/components/ui/CustomCursor";
-import SplashScreen from "@/components/ui/SplashScreen";
 import BackToTop from "@/components/ui/BackToTop";
 import Grain from "@/components/ui/Grain";
 import { CartProvider } from "@/context/CartContext";
@@ -45,7 +44,6 @@ export default function RootLayout({
           shadow="0 0 10px #B1F310, 0 0 5px #B1F310"
         />
         <CartProvider>
-          <SplashScreen />
           <CustomCursor />
           <BackToTop />
           <Grain />
