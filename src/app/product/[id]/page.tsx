@@ -8,30 +8,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { ChevronRight } from "lucide-react";
 
-// Mock fallbacks if WooCommerce is empty or not configured
-const mockProducts = [
-  { id: "p1", name: "0-GRAVITY HOODIE", price: 120, image: "/prod-hoodie.png", tag: "NEW", category: "Mens", description: "Engineered for pure weightlessness. The 0-Gravity Hoodie combines a dense structural weave with hyper-breathable fabrics for ultimate street warmth." },
-  { id: "p2", name: "VOID CARGO PANTS", price: 145, image: "/prod-cargo.png", tag: "", category: "Mens", description: "Structured silhouette cargo pants featuring water-resistant synthetic blend construction and multi-pocket configuration." },
-  { id: "p3", name: "NEBULA OVERSIZED TEE", price: 65, image: "/prod-tee.png", tag: "BEST SELLER", category: "Womens", description: "Heavyweight drop-shoulder tee. Double-stitched seams and custom washed cotton construct a rugged yet refined drape." },
-  { id: "p4", name: "STRUCTURAL JACKET", price: 210, image: "/prod-jacket.png", tag: "LIMITED", category: "Mens", description: "Futuristic panels and reinforced stitching compose the signature Yubby Dubby outer shell structure." },
-  { id: "p5", name: "SYNTHETIC BEANIE", price: 35, image: "/prod-hoodie.png", tag: "", category: "Accessories", description: "A tight double-knit acrylic beanie featuring our embroidered core branding logo. Perfect for cold structure protection." },
-  { id: "p6", name: "TECH-WEAR SKIRT", price: 95, image: "/prod-cargo.png", tag: "NEW", category: "Womens", description: "Asymmetric micro-grid panel skirt with quick-release nylon buckle belt and micro-pocketing." },
-  { id: "p7", name: "HEAVY METAL CHAIN", price: 55, image: "/prod-tee.png", tag: "", category: "Accessories", description: "Industrial grade raw finish hardware. Each link is hand-polished with micro-engravings." },
-  { id: "p8", name: "CYBERPUNK VEST", price: 180, image: "/prod-jacket.png", tag: "LIMITED", category: "Mens", description: "Sleeveless tactical shell with modular chest attachment locks and custom branding details." },
-  { id: "p9", name: "FUTURE YOUTH HOODIE", price: 75, image: "/prod-hoodie.png", tag: "NEW", category: "Kids", description: "Premium street sizing for the next generation. Extremely soft, loopback interior terry." },
-  { id: "p10", name: "NEO-CARGO SHORTS", price: 60, image: "/prod-cargo.png", tag: "", category: "Kids", description: "Durable kid-friendly active construction. Easy elastic waist, side webbing straps." },
-  { id: "p11", name: "MINIMALIST RUG", price: 250, image: "/cat-home.png", tag: "BEST SELLER", category: "Home & Living", description: "High-density weave rug featuring the blueprint grid graphics of our master design plan." },
-  { id: "p12", name: "STEEL DESK LAMP", price: 120, image: "/prod-jacket.png", tag: "LIMITED", category: "Home & Living", description: "Industrial articulating frame, custom neon accents, designed to cast the optimal aesthetic work glow." },
-  { id: "p13", name: "CYBERPUNK IPHONE CASE", price: 40, image: "/prod-phone-case.png", tag: "NEW", category: "Accessories", description: "Futuristic iPhone case constructed with military-grade drop protection, glossy outer layer, and high-contrast streetwear graphics." },
-  { id: "p14", name: "CYBERPUNK AIRPODS COVER", price: 30, image: "/prod-airpods-cover.png", tag: "NEW", category: "Accessories", description: "Premium AirPods case cover constructed with shockproof silicone and glowing brand accents." },
-  { id: "p15", name: "STREETWEAR SNAPBACK CAP", price: 45, image: "/prod-cap.png", tag: "POPULAR", category: "Accessories", description: "Futuristic streetwear snapback cap with a structured paneled design and neon green embroidered logo details." },
-  { id: "p16", name: "TECHWEAR SUNGLASSES", price: 60, image: "/prod-sunglasses.png", tag: "LIMITED", category: "Accessories", description: "Premium techwear sunglasses with high-definition neon green lenses and sturdy industrial frames." },
-  { id: "p17", name: "AESTHETIC STICKER PACK", price: 15, image: "/prod-stickers.png", tag: "BUDGET", category: "Accessories", description: "An exclusive pack of die-cut vinyl stickers featuring neon cyberpunk branding and typography elements." },
-  { id: "a1", name: "YUBBY DUBBY x ADIDAS ULTRA-BOOST CYBER", price: 220, image: "/prod-cargo.png", tag: "COLLAB", category: "Accessories", description: "Exclusive collaboration sneakers featuring the Primeknit mesh design and energy-returning Boost midsole." },
-  { id: "a2", name: "ADIDAS ZERO-G HOODIE GREEN", price: 160, image: "/prod-hoodie.png", tag: "NEW", category: "Mens", description: "Dual-branded heavyweight hoodie in the signature accent green hue. Engineered with performance sports details." },
-  { id: "a3", name: "ADIDAS VOID TRACK PANTS", price: 140, image: "/prod-cargo.png", tag: "", category: "Mens", description: "Slim-fit performance track pants with high-contrast neon details and standard pocket configuration." },
-  { id: "a4", name: "ADIDAS NEBULA COLLAB TEE", price: 80, image: "/prod-tee.png", tag: "LIMITED", category: "Womens", description: "Premium cotton blend athletic collab tee with dynamic geometric print across chest." },
-];
+// Mock fallbacks array (empty - products fetched from WooCommerce API)
+const mockProducts: any[] = [];
 
 interface ProductPageProps {
   params: Promise<{ id: string }>;

@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
-import Image from "next/image";
 
 export default function SplashScreen() {
     const pathname = usePathname();
@@ -102,7 +101,7 @@ export default function SplashScreen() {
                     <div className="absolute bottom-6 left-6 sm:bottom-10 sm:left-10 w-8 h-8 sm:w-12 sm:h-12 border-b-2 border-l-2 border-brand-green/50 z-20" />
                     <div className="absolute bottom-6 right-6 sm:bottom-10 sm:right-10 w-8 h-8 sm:w-12 sm:h-12 border-b-2 border-r-2 border-brand-green/50 z-20" />
 
-                    {/* Logo & Icon Container */}
+                    {/* Video Animation Container */}
                     <motion.div
                         initial={{ opacity: 0, scale: 0.85 }}
                         animate={
@@ -116,20 +115,6 @@ export default function SplashScreen() {
                         }}
                         className="relative z-10 w-[280px] h-[280px] sm:w-[360px] sm:h-[360px] md:w-[420px] md:h-[420px] flex items-center justify-center will-change-transform"
                     >
-                        {/* Always visible brand logo icon with pulsing neon glow */}
-                        <div className="absolute inset-0 flex items-center justify-center p-6 z-10">
-                            <Image
-                                src="/logo.png"
-                                alt="Yubby Dubby Logo"
-                                width={360}
-                                height={360}
-                                priority
-                                unoptimized
-                                className="w-full h-full object-contain drop-shadow-[0_0_25px_rgba(177,243,16,0.6)]"
-                            />
-                        </div>
-
-                        {/* Video animation layer */}
                         {!videoError && (
                             <video
                                 ref={videoRef}
@@ -137,11 +122,10 @@ export default function SplashScreen() {
                                 muted
                                 playsInline
                                 preload="auto"
-                                poster="/logo.png"
                                 src="/load-screen.mp4"
                                 onEnded={handleVideoEnd}
                                 onError={() => setVideoError(true)}
-                                className="absolute inset-0 w-full h-full object-contain z-20 mix-blend-screen"
+                                className="w-full h-full object-contain drop-shadow-[0_0_25px_rgba(177,243,16,0.6)]"
                             />
                         )}
                     </motion.div>

@@ -1,58 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getProducts, isWooCommerceConfigured, fetchWooCommerce, getCategoriesBySlug } from '@/lib/woocommerce';
 
-// Fallback mock products categorized by subcategory IDs for robust offline sandbox browsing
-const MOCK_PRODUCTS = [
-  // Mens T-Shirts (111)
-  { id: "p20", name: "CYBERSTREET GRAPHIC TEE", price: 55, image: "/prod-tee.png", tag: "NEW", categoryId: 111, rating: 4.5, onSale: false, availability: "instock", discount: 0, color: "Black", size: "M", material: "Cotton", brand: "Yubby Dubby" },
-  { id: "p21", name: "TOKYO OVERSIZED TEE", price: 60, image: "/prod-tee.png", tag: "BEST SELLER", categoryId: 111, rating: 4.8, onSale: true, regularPrice: 80, availability: "instock", discount: 25, color: "Stone", size: "L", material: "Cotton", brand: "Yubby Dubby" },
-
-  // Mens Hoodies (112)
-  { id: "p1", name: "0-GRAVITY HOODIE", price: 120, image: "/prod-hoodie.png", tag: "NEW", categoryId: 112, rating: 5.0, onSale: false, availability: "instock", discount: 0, color: "Black", size: "XL", material: "Cotton", brand: "Yubby Dubby" },
-  { id: "p22", name: "HEAVY BRUSHED HOODIE", price: 110, image: "/prod-hoodie.png", tag: "", categoryId: 112, rating: 4.2, onSale: false, availability: "instock", discount: 0, color: "French Navy", size: "M", material: "Cotton", brand: "Yubby Dubby" },
-
-  // Mens Jackets (113)
-  { id: "p4", name: "STRUCTURAL JACKET", price: 210, image: "/prod-jacket.png", tag: "LIMITED", categoryId: 113, rating: 4.9, onSale: false, availability: "instock", discount: 0, color: "Black", size: "L", material: "Polyester", brand: "Yubby Dubby" },
-
-  // Mens Sweatshirts (114)
-  { id: "p8", name: "CYBERPUNK VEST", price: 180, image: "/prod-jacket.png", tag: "LIMITED", categoryId: 114, rating: 4.6, onSale: true, regularPrice: 240, availability: "instock", discount: 25, color: "Black", size: "M", material: "Polyester", brand: "Yubby Dubby" },
-
-  // Mens Tracksuits (115)
-  { id: "p2", name: "VOID CARGO PANTS", price: 145, image: "/prod-cargo.png", tag: "", categoryId: 115, rating: 4.4, onSale: false, availability: "instock", discount: 0, color: "Stone", size: "M", material: "Polyester", brand: "Yubby Dubby" },
-
-  // Mens Accessories (116)
-  { id: "p5", name: "SYNTHETIC BEANIE", price: 35, image: "/prod-hoodie.png", tag: "", categoryId: 116, rating: 4.0, onSale: false, availability: "instock", discount: 0, color: "Black", size: "S", material: "Polyester", brand: "Yubby Dubby" },
-
-  // Womens T-Shirts (221)
-  { id: "p3", name: "NEBULA OVERSIZED TEE", price: 65, image: "/prod-tee.png", tag: "BEST SELLER", categoryId: 221, rating: 4.7, onSale: false, availability: "instock", discount: 0, color: "Stone", size: "S", material: "Cotton", brand: "Yubby Dubby" },
-
-  // Womens Dresses (222)
-  { id: "p6", name: "TECH-WEAR SKIRT", price: 95, image: "/prod-cargo.png", tag: "NEW", categoryId: 222, rating: 4.5, onSale: false, availability: "instock", discount: 0, color: "Black", size: "S", material: "Polyester", brand: "Yubby Dubby" },
-
-  // Kids Boys Clothing (331)
-  { id: "p9", name: "FUTURE YOUTH HOODIE", price: 75, image: "/prod-hoodie.png", tag: "NEW", categoryId: 331, rating: 4.3, onSale: false, availability: "instock", discount: 0, color: "Black", size: "S", material: "Cotton", brand: "Adidas" },
-
-  // Kids Girls Clothing (332)
-  { id: "p10", name: "NEO-CARGO SHORTS", price: 60, image: "/prod-cargo.png", tag: "", categoryId: 332, rating: 4.1, onSale: false, availability: "outofstock", discount: 0, color: "Stone", size: "M", material: "Cotton", brand: "Adidas" },
-
-  // Kids School Essentials (333)
-  { id: "p13", name: "CYBERPUNK IPHONE CASE", price: 40, image: "/prod-phone-case.png", tag: "NEW", categoryId: 333, rating: 4.8, onSale: false, availability: "instock", discount: 0, color: "Black", size: "M", material: "Silicone", brand: "Adidas" },
-
-  // Home & Living Wall Art (441)
-  { id: "p11", name: "MINIMALIST RUG", price: 250, image: "/cat-home.png", tag: "BEST SELLER", categoryId: 441, rating: 4.9, onSale: false, availability: "instock", discount: 0, color: "Stone", size: "L", material: "Canvas", brand: "Yubby Dubby" },
-
-  // Home & Living Posters (442)
-  { id: "p23", name: "AESTHETIC POSTER PRINT", price: 30, image: "/create-your-own.png", tag: "NEW", categoryId: 442, rating: 4.4, onSale: false, availability: "instock", discount: 0, color: "White", size: "M", material: "Canvas", brand: "Yubby Dubby" },
-
-  // Home & Living Mugs (443)
-  { id: "p24", name: "MATTE BLACK SIGNATURE MUG", price: 25, image: "/cat-accessories.png", tag: "POPULAR", categoryId: 443, rating: 4.5, onSale: false, availability: "instock", discount: 0, color: "Black", size: "S", material: "Glass", brand: "Yubby Dubby" },
-
-  // Home & Living Cushions (444)
-  { id: "p25", name: "NEON STREET THROW CUSHION", price: 45, image: "/cat-home.png", tag: "NEW", categoryId: 444, rating: 4.6, onSale: false, availability: "instock", discount: 0, color: "Black", size: "M", material: "Canvas", brand: "Yubby Dubby" },
-
-  // Default fallback accessories
-  { id: "p7", name: "HEAVY METAL CHAIN", price: 55, image: "/prod-tee.png", tag: "", categoryId: 553, rating: 4.2, onSale: false, availability: "instock", discount: 0, color: "Stone", size: "M", material: "Glass", brand: "Yubby Dubby" },
-];
+// Fallback mock products array (empty - products fetched from WooCommerce API)
+const MOCK_PRODUCTS: any[] = [];
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
