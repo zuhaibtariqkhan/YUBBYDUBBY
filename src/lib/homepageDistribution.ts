@@ -168,7 +168,14 @@ export function formatProduct(prod: any): FormattedProduct {
  * Fallback subcategory mappings if dynamic category tree is loading
  */
 const DEFAULT_SUBCATEGORY_MAP: Record<string, string[]> = {
-    mens: ["mens-t-shirts", "mens-hoodies", "mens-jackets", "mens-sweatshirts", "mens-tracksuits", "mens-accessories", "mens-fashion", "men-fashion", "mens", "men"],
+    mens: [
+        "t-shirts", "mens-t-shirts", "tees",
+        "shirts", "mens-shirts", "polos",
+        "hoodies", "mens-hoodies", "sweatshirts",
+        "bottomwear", "mens-bottomwear", "pants", "shorts", "cargos", "joggers",
+        "jackets", "mens-jackets", "outerwear",
+        "mens-fashion", "men-fashion", "mens", "men"
+    ],
     womens: ["womens-t-shirts", "womens-dresses", "womens-hoodies", "womens-tops", "womens-accessories", "womens-fashion", "women-fashion", "womens", "women"],
     kids: ["kids-boys-clothing", "kids-girls-clothing", "kids-school-essentials", "kids-accessories", "kids-fashion", "kids"],
     "home-living": ["home-wall-art", "home-posters", "home-mugs", "home-cushions", "home-bedding", "home-decor", "home-living"],
@@ -211,15 +218,22 @@ function productMatchesSubcategory(prod: FormattedProduct, subcatSlug: string): 
         }
     }
 
-    // 4. Keyword heuristics
+    // 4. Keyword heuristics for Men's subcategories (T-Shirts, Shirts, Hoodies, Bottomwear, Pants, Shorts)
     if (sub.includes("t-shirt") || sub.includes("tshirt") || sub.includes("tee")) {
         return prodName.includes("tee") || prodName.includes("t-shirt") || prodName.includes("shirt");
     }
-    if (sub.includes("hoodie")) return prodName.includes("hoodie");
-    if (sub.includes("jacket") || sub.includes("coat")) return prodName.includes("jacket") || prodName.includes("overcoat") || prodName.includes("vest");
+    if (sub.includes("shirt") || sub.includes("polo")) {
+        return prodName.includes("shirt") || prodName.includes("polo");
+    }
+    if (sub.includes("hoodie") || sub.includes("sweatshirt")) {
+        return prodName.includes("hoodie") || prodName.includes("sweatshirt");
+    }
+    if (sub.includes("jacket") || sub.includes("coat") || sub.includes("outerwear")) {
+        return prodName.includes("jacket") || prodName.includes("overcoat") || prodName.includes("vest") || prodName.includes("coat");
+    }
     if (sub.includes("dress")) return prodName.includes("dress") || prodName.includes("skirt");
-    if (sub.includes("cargo") || sub.includes("pant") || sub.includes("jogger") || sub.includes("tracksuit")) {
-        return prodName.includes("cargo") || prodName.includes("pant") || prodName.includes("jogger") || prodName.includes("track");
+    if (sub.includes("cargo") || sub.includes("pant") || sub.includes("jogger") || sub.includes("tracksuit") || sub.includes("bottomwear") || sub.includes("short")) {
+        return prodName.includes("cargo") || prodName.includes("pant") || prodName.includes("jogger") || prodName.includes("track") || prodName.includes("short") || prodName.includes("bottom");
     }
     if (sub.includes("case") || sub.includes("cover")) {
         if (sub.startsWith("mens") && !isMen) return false;
@@ -255,9 +269,6 @@ function productMatchesSubcategory(prod: FormattedProduct, subcatSlug: string): 
 /**
  * Checks if a product matches a parent category
  */
-/**
- * Checks if a product matches a parent category
- */
 function productMatchesParentCategory(
     prod: FormattedProduct,
     tabSlug: string,
@@ -280,13 +291,13 @@ function productMatchesParentCategory(
             // Strictly exclude Women's, Kids, Accessories, or Home & Living products
             if (isWomen || isKids || isAccessory || isHome) return false;
 
-            // Check if product belongs to Men's Fashion parent category or its child categories in categoriesList
+            // 1. Check if product belongs to Men's Fashion parent category or its child categories in categoriesList
             const parentObj = categoriesList.find(c => {
                 const s = (c.slug || "").toLowerCase();
                 const n = (c.name || "").toLowerCase();
                 return (
-                    n === "men's fashion" || n === "mens fashion" || n === "men fashion" ||
-                    s === "mens-fashion" || s === "men-fashion" || s === "menswear" ||
+                    n === "men's fashion" || n === "mens fashion" || n === "men fashion" || n.includes("men's") || n.includes("mens") ||
+                    s === "mens-fashion" || s === "men-fashion" || s === "menswear" || s === "mens" || s === "men" ||
                     ((s.includes("men") || n.includes("men")) && !s.includes("women") && !n.includes("women"))
                 );
             });
@@ -310,14 +321,27 @@ function productMatchesParentCategory(
                 if (matchesCategoryList) return true;
             }
 
-            // Fallback match: Category slug or name contains explicit men's fashion identifier
+            // 2. Direct category slug / name matching for Men's Fashion and subcategories
             const isExplicitMenCategory = slugs.some(s => 
                 s === "mens" || s.startsWith("mens-") || 
                 s === "men" || s.startsWith("men-") ||
-                s.includes("mens-fashion") || s.includes("men-fashion") || s.includes("menswear")
+                s.includes("mens-fashion") || s.includes("men-fashion") || s.includes("menswear") || s.includes("men-s-fashion")
             ) || (catName.includes("men") && !catName.includes("women"));
 
-            return isExplicitMenCategory;
+            if (isExplicitMenCategory) return true;
+
+            // 3. Subcategory heuristics for Men's subcategories (T-Shirts, Shirts, Hoodies, Bottomwear, Pants, Shorts, Jackets)
+            const isMenSubcategory = slugs.some(s => 
+                s.includes("t-shirt") || s.includes("tshirt") || s.includes("tee") ||
+                s.includes("shirt") || s.includes("polo") ||
+                s.includes("hoodie") || s.includes("sweatshirt") ||
+                s.includes("bottomwear") || s.includes("pant") || s.includes("short") || s.includes("jogger") || s.includes("cargo") || s.includes("jean") || s.includes("trouser") ||
+                s.includes("jacket") || s.includes("outerwear") || s.includes("coat") || s.includes("vest")
+            ) || catName.includes("t-shirt") || catName.includes("shirt") || catName.includes("hoodie") || catName.includes("bottomwear") || catName.includes("pant") || catName.includes("short") || catName.includes("jacket");
+
+            const isMenApparelName = prodName.includes("tee") || prodName.includes("t-shirt") || prodName.includes("shirt") || prodName.includes("hoodie") || prodName.includes("sweatshirt") || prodName.includes("pant") || prodName.includes("short") || prodName.includes("cargo") || prodName.includes("jogger") || prodName.includes("jacket") || prodName.includes("overcoat") || prodName.includes("vest");
+
+            return isMenSubcategory || isMenApparelName;
         }
 
         case "womens": {
