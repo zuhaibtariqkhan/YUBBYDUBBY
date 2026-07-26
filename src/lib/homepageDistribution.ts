@@ -351,10 +351,18 @@ export function distributeHomepageProducts(
             const s = (c.slug || "").toLowerCase();
             const n = (c.name || "").toLowerCase();
             if (tabSlug === "mens") {
-                return (s.includes("men") || n.includes("men")) && !s.includes("women") && !n.includes("women");
+                return (
+                    n === "men's fashion" || n === "mens fashion" || n === "men fashion" ||
+                    s === "mens-fashion" || s === "men-fashion" || s === "menswear" ||
+                    ((s.includes("men") || n.includes("men")) && !s.includes("women") && !n.includes("women"))
+                );
             }
             if (tabSlug === "womens") {
-                return s.includes("women") || n.includes("women");
+                return (
+                    n === "women's fashion" || n === "womens fashion" || n === "women fashion" ||
+                    s === "womens-fashion" || s === "women-fashion" || s === "womenswear" ||
+                    s.includes("women") || n.includes("women")
+                );
             }
             if (tabSlug === "kids") {
                 return s.includes("kid") || n.includes("kid") || s.includes("child") || n.includes("child");

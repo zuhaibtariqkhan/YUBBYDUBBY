@@ -101,7 +101,7 @@ export default function BestSellers({ initialProducts }: BestSellersProps) {
                             </div>
                             <div className="space-y-1 max-w-sm">
                                 <h3 className="font-heading font-bold text-base md:text-lg uppercase tracking-wider text-white">
-                                    No products available in this category.
+                                    {activeTab.slug === "mens" ? "No Men's products available." : `No products available in ${activeTab.label}.`}
                                 </h3>
                                 <p className="text-gray-400 text-xs font-sans leading-relaxed">
                                     We couldn&apos;t find any active products in {activeTab.label} right now. Check back soon for new drop coordinates.

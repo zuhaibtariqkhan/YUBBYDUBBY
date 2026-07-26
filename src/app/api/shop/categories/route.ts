@@ -117,10 +117,13 @@ export async function GET(request: Request) {
   // If WooCommerce is configured, query live WordPress subcategories
   if (isWooCommerceConfigured()) {
     try {
-      let queryParentId = parentId;
+      const categoryOptions: any = { per_page: 100 };
+      if (parentStr !== null) {
+        categoryOptions.parent = parentId;
+      }
 
       const [categories, products]: [any, any] = await Promise.all([
-        getProductCategories({ parent: queryParentId }),
+        getProductCategories(categoryOptions),
         fetchWooCommerce('products?per_page=100')
       ]);
 
@@ -140,7 +143,7 @@ export async function GET(request: Request) {
 
       // Exclude admin categories or internal ones from Level 1
       let filtered = categories;
-      if (queryParentId === 0) {
+      if (parentId === 0) {
         filtered = categories.filter((c: any) => {
           const slug = c.slug ? c.slug.toLowerCase() : '';
           const name = c.name ? c.name.toLowerCase() : '';
