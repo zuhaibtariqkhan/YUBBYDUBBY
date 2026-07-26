@@ -8,28 +8,7 @@ import {
     CategoryTreeItem
 } from "@/lib/homepageDistribution";
 
-const MOCK_MASTER_PRODUCTS = [
-    { id: "p1", name: "0-GRAVITY HOODIE", price: 120, image: "/prod-hoodie.png", tag: "HOT", category: "Mens", categories: [{ slug: "mens", name: "Mens" }, { slug: "mens-hoodies", name: "Hoodies" }] },
-    { id: "p2", name: "VOID CARGO PANTS", price: 145, image: "/prod-cargo.png", tag: "ESSENTIAL", category: "Mens", categories: [{ slug: "mens", name: "Mens" }, { slug: "mens-pants", name: "Pants" }] },
-    { id: "p3", name: "NEBULA OVERSIZED TEE", price: 65, image: "/prod-tee.png", tag: "BEST SELLER", category: "Womens", categories: [{ slug: "womens", name: "Womens" }, { slug: "womens-t-shirts", name: "T-Shirts" }] },
-    { id: "p4", name: "STRUCTURAL JACKET", price: 210, image: "/prod-jacket.png", tag: "EXCLUSIVE", category: "Mens", categories: [{ slug: "mens", name: "Mens" }, { slug: "mens-jackets", name: "Jackets" }] },
-    { id: "p5", name: "CYBERPUNK BEANIE", price: 35, image: "/prod-cap.png", tag: "LIMITED", category: "Accessories", categories: [{ slug: "accessories", name: "Accessories" }, { slug: "accessories-headwear", name: "Headwear" }] },
-    { id: "p6", name: "TECH-WEAR SKIRT", price: 95, image: "/prod-cargo.png", tag: "NEW", category: "Womens", categories: [{ slug: "womens", name: "Womens" }, { slug: "womens-dresses", name: "Dresses" }] },
-    { id: "p7", name: "ASTRID MINI DRESS", price: 110, image: "/prod-tee.png", tag: "POPULAR", category: "Womens", categories: [{ slug: "womens", name: "Womens" }, { slug: "womens-dresses", name: "Dresses" }] },
-    { id: "p8", name: "CHRONO KIDS TEE", price: 45, image: "/prod-tee.png", tag: "BEST SELLER", category: "Kids", categories: [{ slug: "kids", name: "Kids" }, { slug: "kids-boys-clothing", name: "Boys Clothing" }] },
-    { id: "p9", name: "FUTURE YOUTH HOODIE", price: 75, image: "/prod-hoodie.png", tag: "NEW", category: "Kids", categories: [{ slug: "kids", name: "Kids" }, { slug: "kids-girls-clothing", name: "Girls Clothing" }] },
-    { id: "p10", name: "KIDS CARGO JOGGERS", price: 60, image: "/prod-cargo.png", tag: "ESSENTIAL", category: "Kids", categories: [{ slug: "kids", name: "Kids" }, { slug: "kids-boys-clothing", name: "Boys Clothing" }] },
-    { id: "p11", name: "NEON HOME RUG", price: 180, image: "/prod-stickers.png", tag: "LIMITED", category: "Home & Living", categories: [{ slug: "home-living", name: "Home & Living" }, { slug: "home-decor", name: "Decor" }] },
-    { id: "p12", name: "AESTHETIC DESK MAT", price: 50, image: "/prod-stickers.png", tag: "POPULAR", category: "Home & Living", categories: [{ slug: "home-living", name: "Home & Living" }, { slug: "home-mugs", name: "Mugs" }] },
-    { id: "p13", name: "CYBERPUNK IPHONE CASE", price: 40, image: "/prod-phone-case.png", tag: "NEW", category: "Accessories", categories: [{ slug: "accessories", name: "Accessories" }, { slug: "accessories-tech-cases", name: "Tech Cases" }] },
-    { id: "p14", name: "CYBERPUNK AIRPODS COVER", price: 30, image: "/prod-airpods-cover.png", tag: "NEW", category: "Accessories", categories: [{ slug: "accessories", name: "Accessories" }, { slug: "accessories-tech-cases", name: "Tech Cases" }] },
-    { id: "p15", name: "STREETWEAR SNAPBACK CAP", price: 45, image: "/prod-cap.png", tag: "POPULAR", category: "Accessories", categories: [{ slug: "accessories", name: "Accessories" }, { slug: "accessories-headwear", name: "Headwear" }] },
-    { id: "p16", name: "TECHWEAR SUNGLASSES", price: 60, image: "/prod-sunglasses.png", tag: "LIMITED", category: "Accessories", categories: [{ slug: "accessories", name: "Accessories" }, { slug: "accessories-misc", name: "Miscellaneous" }] },
-    { id: "p17", name: "AESTHETIC STICKER PACK", price: 15, image: "/prod-stickers.png", tag: "BUDGET", category: "Accessories", categories: [{ slug: "accessories", name: "Accessories" }, { slug: "accessories-misc", name: "Miscellaneous" }] },
-    { id: "p18", name: "METROPOLIS OVERCOAT", price: 280, image: "/prod-jacket.png", tag: "NEW", category: "Mens", categories: [{ slug: "mens", name: "Mens" }, { slug: "mens-jackets", name: "Jackets" }] },
-    { id: "p19", name: "MODULAR UTILITY VEST", price: 160, image: "/prod-jacket.png", tag: "HOT", category: "Mens", categories: [{ slug: "mens", name: "Mens" }, { slug: "mens-jackets", name: "Jackets" }] },
-    { id: "p20", name: "ORBITAL CROPPED HOODIE", price: 90, image: "/prod-hoodie.png", tag: "TRENDING", category: "Womens", categories: [{ slug: "womens", name: "Womens" }, { slug: "womens-hoodies", name: "Hoodies" }] }
-];
+const MOCK_MASTER_PRODUCTS: any[] = [];
 
 interface HomepageContextType {
     newArrivals: FormattedProduct[];

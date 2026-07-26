@@ -52,6 +52,45 @@ export function seededShuffle<T>(array: T[], seed: number): T[] {
 }
 
 /**
+ * Category ID to Slug & Name mapping helper for fallback or API products
+ */
+const CATEGORY_ID_MAP: Record<number, { slug: string; name: string; parentSlug?: string }> = {
+    11: { slug: "mens", name: "Mens" },
+    111: { slug: "mens-t-shirts", name: "T-Shirts", parentSlug: "mens" },
+    112: { slug: "mens-hoodies", name: "Hoodies", parentSlug: "mens" },
+    113: { slug: "mens-jackets", name: "Jackets", parentSlug: "mens" },
+    114: { slug: "mens-sweatshirts", name: "Sweatshirts", parentSlug: "mens" },
+    115: { slug: "mens-tracksuits", name: "Tracksuits", parentSlug: "mens" },
+    116: { slug: "mens-accessories", name: "Accessories", parentSlug: "mens" },
+
+    22: { slug: "womens", name: "Womens" },
+    221: { slug: "womens-t-shirts", name: "T-Shirts", parentSlug: "womens" },
+    222: { slug: "womens-dresses", name: "Dresses", parentSlug: "womens" },
+    223: { slug: "womens-hoodies", name: "Hoodies", parentSlug: "womens" },
+    224: { slug: "womens-tops", name: "Tops", parentSlug: "womens" },
+    225: { slug: "womens-accessories", name: "Accessories", parentSlug: "womens" },
+
+    33: { slug: "kids", name: "Kids" },
+    331: { slug: "kids-boys-clothing", name: "Boys Clothing", parentSlug: "kids" },
+    332: { slug: "kids-girls-clothing", name: "Girls Clothing", parentSlug: "kids" },
+    333: { slug: "kids-school-essentials", name: "School Essentials", parentSlug: "kids" },
+    334: { slug: "kids-accessories", name: "Accessories", parentSlug: "kids" },
+
+    44: { slug: "home-living", name: "Home & Living" },
+    441: { slug: "home-wall-art", name: "Wall Art", parentSlug: "home-living" },
+    442: { slug: "home-posters", name: "Posters", parentSlug: "home-living" },
+    443: { slug: "home-mugs", name: "Mugs", parentSlug: "home-living" },
+    444: { slug: "home-cushions", name: "Cushions", parentSlug: "home-living" },
+    445: { slug: "home-bedding", name: "Bedding", parentSlug: "home-living" },
+    446: { slug: "home-decor", name: "Decor", parentSlug: "home-living" },
+
+    55: { slug: "accessories", name: "Accessories" },
+    551: { slug: "accessories-tech-cases", name: "Tech Cases", parentSlug: "accessories" },
+    552: { slug: "accessories-headwear", name: "Headwear", parentSlug: "accessories" },
+    553: { slug: "accessories-misc", name: "Miscellaneous", parentSlug: "accessories" },
+};
+
+/**
  * Helper to normalize and format raw WooCommerce or API product objects
  */
 export function formatProduct(prod: any): FormattedProduct {
@@ -89,6 +128,14 @@ export function formatProduct(prod: any): FormattedProduct {
 
     let categoryName = "Accessories";
     const categorySlugs: string[] = [];
+
+    // Check categoryId mapping if provided
+    if (prod.categoryId && CATEGORY_ID_MAP[prod.categoryId]) {
+        const catInfo = CATEGORY_ID_MAP[prod.categoryId];
+        categorySlugs.push(catInfo.slug);
+        if (catInfo.parentSlug) categorySlugs.push(catInfo.parentSlug);
+        categoryName = catInfo.name;
+    }
 
     if (typeof prod.category === "string" && prod.category) {
         categoryName = prod.category;
@@ -137,20 +184,50 @@ function productMatchesSubcategory(prod: FormattedProduct, subcatSlug: string): 
     const prodName = prod.name.toLowerCase();
     const sub = subcatSlug.toLowerCase();
 
-    if (slugs.some(s => s === sub || s.includes(sub))) return true;
-    if (catName.includes(sub.replace(/-/g, " "))) return true;
+    // 1. Direct or partial slug match
+    if (slugs.some(s => s === sub || s.includes(sub) || sub.includes(s))) return true;
 
-    // Keyword heuristics
+    // 2. Clean category name match
+    const cleanSub = sub.replace(/^(home|mens|womens|kids|accessories)-/, "").replace(/-/g, " ");
+    if (catName.includes(cleanSub) || catName.includes(sub.replace(/-/g, " "))) return true;
+
+    // 3. Keyword heuristics
     if (sub.includes("t-shirt") || sub.includes("tshirt") || sub.includes("tee")) {
         return prodName.includes("tee") || prodName.includes("t-shirt") || prodName.includes("shirt");
     }
     if (sub.includes("hoodie")) return prodName.includes("hoodie");
     if (sub.includes("jacket") || sub.includes("coat")) return prodName.includes("jacket") || prodName.includes("overcoat") || prodName.includes("vest");
     if (sub.includes("dress")) return prodName.includes("dress") || prodName.includes("skirt");
-    if (sub.includes("cargo") || sub.includes("pant") || sub.includes("jogger")) return prodName.includes("cargo") || prodName.includes("pant") || prodName.includes("jogger");
+    if (sub.includes("cargo") || sub.includes("pant") || sub.includes("jogger") || sub.includes("tracksuit")) {
+        return prodName.includes("cargo") || prodName.includes("pant") || prodName.includes("jogger") || prodName.includes("track");
+    }
     if (sub.includes("case") || sub.includes("cover")) return prodName.includes("case") || prodName.includes("cover");
-    if (sub.includes("cap") || sub.includes("hat") || sub.includes("beanie") || sub.includes("headwear")) return prodName.includes("cap") || prodName.includes("beanie") || prodName.includes("hat");
-    if (sub.includes("sunglass") || sub.includes("sticker") || sub.includes("misc")) return prodName.includes("sunglass") || prodName.includes("sticker") || prodName.includes("mat") || prodName.includes("rug");
+    if (sub.includes("cap") || sub.includes("hat") || sub.includes("beanie") || sub.includes("headwear")) {
+        return prodName.includes("cap") || prodName.includes("beanie") || prodName.includes("hat");
+    }
+    if (sub.includes("sunglass") || sub.includes("sticker") || sub.includes("misc")) {
+        return prodName.includes("sunglass") || prodName.includes("sticker") || prodName.includes("chain");
+    }
+
+    // Home & Living subcategories keyword heuristics
+    if (sub.includes("wall-art") || sub.includes("art")) {
+        return prodName.includes("art") || prodName.includes("canvas") || prodName.includes("wall");
+    }
+    if (sub.includes("poster")) {
+        return prodName.includes("poster") || prodName.includes("print");
+    }
+    if (sub.includes("mug")) {
+        return prodName.includes("mug") || prodName.includes("cup");
+    }
+    if (sub.includes("cushion")) {
+        return prodName.includes("cushion") || prodName.includes("pillow") || prodName.includes("throw");
+    }
+    if (sub.includes("bedding")) {
+        return prodName.includes("bedding") || prodName.includes("duvet") || prodName.includes("bed");
+    }
+    if (sub.includes("decor")) {
+        return prodName.includes("decor") || prodName.includes("lamp") || prodName.includes("light") || prodName.includes("rug") || prodName.includes("mat");
+    }
 
     return false;
 }
@@ -166,16 +243,54 @@ function productMatchesParentCategory(prod: FormattedProduct, tabSlug: string): 
     const prodName = prod.name.toLowerCase();
 
     switch (tabSlug) {
-        case "mens":
-            return slugs.some(s => s.includes("men") || s.includes("man")) || catName.includes("men") || prodName.includes("men") || prodName.includes("cargo") || prodName.includes("overcoat") || prodName.includes("jacket") || prodName.includes("vest");
-        case "womens":
-            return slugs.some(s => s.includes("women") || s.includes("female") || s.includes("lady")) || catName.includes("women") || prodName.includes("women") || prodName.includes("skirt") || prodName.includes("top") || prodName.includes("dress");
-        case "kids":
-            return slugs.some(s => s.includes("kid") || s.includes("youth") || s.includes("child")) || catName.includes("kid") || prodName.includes("youth") || prodName.includes("kid");
-        case "home-living":
-            return slugs.some(s => s.includes("home") || s.includes("living") || s.includes("decor") || s.includes("rug") || s.includes("mat")) || catName.includes("home") || catName.includes("living");
-        case "accessories":
-            return slugs.some(s => s.includes("accessori") || s.includes("gadget") || s.includes("tech")) || catName.includes("accessori") || prodName.includes("case") || prodName.includes("cover") || prodName.includes("cap") || prodName.includes("sunglass") || prodName.includes("sticker") || prodName.includes("beanie");
+        case "mens": {
+            // Strictly exclude Women's products to prevent women's items appearing in Men's
+            const isWomen = slugs.some(s => s.includes("women") || s.includes("female") || s.includes("lady")) || catName.includes("women");
+            if (isWomen) return false;
+
+            const isMenSlug = slugs.some(s => s === "mens" || s.startsWith("mens-") || s === "men" || s.startsWith("men-"));
+            const isMenCat = catName === "mens" || catName === "men" || (catName.includes("men") && !catName.includes("women"));
+            const isMenProd = prodName.includes("men ") || prodName.includes("mens ") || prodName.includes("men's");
+            
+            // Allow general men's apparel if not tagged kids or women
+            const isKids = slugs.some(s => s.includes("kid") || s.includes("youth") || s.includes("child")) || catName.includes("kid") || prodName.includes("youth") || prodName.includes("kid");
+            const isMenApparel = prodName.includes("cargo") || prodName.includes("overcoat") || prodName.includes("jacket") || prodName.includes("vest") || prodName.includes("0-gravity hoodie");
+
+            return isMenSlug || isMenCat || isMenProd || (isMenApparel && !isKids);
+        }
+        case "womens": {
+            const isWomenSlug = slugs.some(s => s.includes("women") || s.includes("female") || s.includes("lady"));
+            const isWomenCat = catName.includes("women");
+            const isWomenProd = prodName.includes("women") || prodName.includes("women's") || prodName.includes("skirt") || prodName.includes("dress") || prodName.includes("nebula");
+            return isWomenSlug || isWomenCat || isWomenProd;
+        }
+        case "kids": {
+            const isKidsSlug = slugs.some(s => s.includes("kid") || s.includes("youth") || s.includes("child"));
+            const isKidsCat = catName.includes("kid");
+            const isKidsProd = prodName.includes("youth") || prodName.includes("kid") || prodName.includes("child");
+            return isKidsSlug || isKidsCat || isKidsProd;
+        }
+        case "home-living": {
+            const isHomeSlug = slugs.some(s => 
+                s.includes("home") || s.includes("living") || s.includes("decor") || 
+                s.includes("rug") || s.includes("mat") || s.includes("art") || 
+                s.includes("poster") || s.includes("mug") || s.includes("cushion") || 
+                s.includes("bedding") || s.includes("lamp")
+            );
+            const isHomeCat = catName.includes("home") || catName.includes("living");
+            const isHomeProd = 
+                prodName.includes("home") || prodName.includes("rug") || prodName.includes("mat") || 
+                prodName.includes("poster") || prodName.includes("mug") || prodName.includes("cushion") || 
+                prodName.includes("lamp") || prodName.includes("art") || prodName.includes("decor") || 
+                prodName.includes("bedding") || prodName.includes("duvet") || prodName.includes("print");
+            return isHomeSlug || isHomeCat || isHomeProd;
+        }
+        case "accessories": {
+            const isAccSlug = slugs.some(s => s.includes("accessori") || s.includes("gadget") || s.includes("tech"));
+            const isAccCat = catName.includes("accessori");
+            const isAccProd = prodName.includes("case") || prodName.includes("cover") || prodName.includes("cap") || prodName.includes("sunglass") || prodName.includes("sticker") || prodName.includes("beanie") || prodName.includes("chain");
+            return isAccSlug || isAccCat || isAccProd;
+        }
         default:
             return slugs.some(s => s.includes(tabSlug)) || catName.includes(tabSlug);
     }
