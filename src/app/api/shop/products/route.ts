@@ -83,7 +83,19 @@ export async function GET(request: Request) {
         queryParams.append('order', 'desc');
       }
 
-      const wcProducts: any = await fetchWooCommerce(`products?${queryParams.toString()}`);
+      let wcProducts: any[] = [];
+      if (!categorySlugParam && !categoriesParam && !searchStr) {
+        const [p1, p2]: [any, any] = await Promise.all([
+          fetchWooCommerce(`products?${queryParams.toString()}&page=1`).catch(() => []),
+          fetchWooCommerce(`products?${queryParams.toString()}&page=2`).catch(() => [])
+        ]);
+        const p1Arr = Array.isArray(p1) ? p1 : [];
+        const p2Arr = Array.isArray(p2) ? p2 : [];
+        wcProducts = [...p1Arr, ...p2Arr];
+      } else {
+        const res: any = await fetchWooCommerce(`products?${queryParams.toString()}`);
+        wcProducts = Array.isArray(res) ? res : [];
+      }
       
       productsList = wcProducts.map((p: any) => {
         let image = p.images[0]?.src;

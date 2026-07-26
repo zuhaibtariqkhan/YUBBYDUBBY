@@ -295,8 +295,9 @@ function productMatchesParentCategory(
             const parentObj = categoriesList.find(c => {
                 const s = (c.slug || "").toLowerCase();
                 const n = (c.name || "").toLowerCase();
-                return (
-                    n === "men's fashion" || n === "mens fashion" || n === "men fashion" || n.includes("men's") || n.includes("mens") ||
+                const isTopLevel = c.parent === 0 || c.parent === undefined;
+                return isTopLevel && (
+                    n === "men's fashion" || n === "mens fashion" || n === "men fashion" ||
                     s === "mens-fashion" || s === "men-fashion" || s === "menswear" || s === "mens" || s === "men" ||
                     ((s.includes("men") || n.includes("men")) && !s.includes("women") && !n.includes("women"))
                 );
@@ -401,17 +402,20 @@ export function distributeHomepageProducts(
         const parentObj = categoriesList.find(c => {
             const s = (c.slug || "").toLowerCase();
             const n = (c.name || "").toLowerCase();
+            const isTopLevel = c.parent === 0 || c.parent === undefined;
+            if (!isTopLevel) return false;
+
             if (tabSlug === "mens") {
                 return (
                     n === "men's fashion" || n === "mens fashion" || n === "men fashion" ||
-                    s === "mens-fashion" || s === "men-fashion" || s === "menswear" ||
+                    s === "mens-fashion" || s === "men-fashion" || s === "menswear" || s === "mens" || s === "men" ||
                     ((s.includes("men") || n.includes("men")) && !s.includes("women") && !n.includes("women"))
                 );
             }
             if (tabSlug === "womens") {
                 return (
                     n === "women's fashion" || n === "womens fashion" || n === "women fashion" ||
-                    s === "womens-fashion" || s === "women-fashion" || s === "womenswear" ||
+                    s === "womens-fashion" || s === "women-fashion" || s === "womenswear" || s === "womens" || s === "women" ||
                     s.includes("women") || n.includes("women")
                 );
             }
