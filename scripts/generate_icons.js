@@ -6,7 +6,12 @@ const publicDir = path.join(__dirname, '../public');
 const appDir = path.join(__dirname, '../src/app');
 
 async function generateIcons() {
-  console.log('Generating favicon sizes from:', sourceLogo);
+  console.log('Trimming transparent padding and generating BIG favicon sizes from:', sourceLogo);
+
+  // Trim empty transparent padding so logo emblem fills max tab space
+  const trimmedLogoBuffer = await sharp(sourceLogo)
+    .trim()
+    .toBuffer();
 
   const targets = [
     { dest: path.join(publicDir, 'favicon-16x16.png'), size: 16 },
@@ -21,16 +26,16 @@ async function generateIcons() {
   ];
 
   for (const t of targets) {
-    await sharp(sourceLogo)
+    await sharp(trimmedLogoBuffer)
       .resize(t.size, t.size, {
         fit: 'contain',
         background: { r: 0, g: 0, b: 0, alpha: 0 }
       })
       .png()
       .toFile(t.dest);
-    console.log(`Generated: ${t.dest} (${t.size}x${t.size})`);
+    console.log(`Generated BIG icon: ${t.dest} (${t.size}x${t.size})`);
   }
-  console.log('All favicon icons generated successfully!');
+  console.log('All BIG favicon icons generated successfully!');
 }
 
 generateIcons().catch(err => {
