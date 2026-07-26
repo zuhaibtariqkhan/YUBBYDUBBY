@@ -255,68 +255,95 @@ function productMatchesSubcategory(prod: FormattedProduct, subcatSlug: string): 
 /**
  * Checks if a product matches a parent category
  */
-function productMatchesParentCategory(prod: FormattedProduct, tabSlug: string): boolean {
+/**
+ * Checks if a product matches a parent category
+ */
+function productMatchesParentCategory(
+    prod: FormattedProduct,
+    tabSlug: string,
+    categoriesList: CategoryTreeItem[] = []
+): boolean {
     if (tabSlug === "all") return true;
 
     const slugs = prod.categorySlugs.map(s => s.toLowerCase());
     const catName = prod.category.toLowerCase();
     const prodName = prod.name.toLowerCase();
 
+    // Cross-category markers
+    const isWomen = slugs.some(s => s.includes("women") || s.includes("female") || s.includes("lady")) || catName.includes("women");
+    const isKids = slugs.some(s => s.includes("kid") || s.includes("youth") || s.includes("child")) || catName.includes("kid");
+    const isAccessory = slugs.some(s => s === "accessories" || s.startsWith("accessories") || s.includes("tech-case") || s.includes("misc")) || catName.includes("accessories");
+    const isHome = slugs.some(s => s === "home-living" || s.startsWith("home-") || s.includes("wall-art") || s.includes("decor") || s.includes("cushion") || s.includes("poster") || s.includes("mug")) || catName.includes("home") || catName.includes("living");
+
     switch (tabSlug) {
         case "mens": {
-            // Strictly exclude Women's, Kids, or general Accessories products
-            const isWomen = slugs.some(s => s.includes("women") || s.includes("female") || s.includes("lady")) || catName.includes("women");
-            const isKids = slugs.some(s => s.includes("kid") || s.includes("youth") || s.includes("child")) || catName.includes("kid") || prodName.includes("youth") || prodName.includes("kid");
-            if (isWomen || isKids) return false;
+            // Strictly exclude Women's, Kids, Accessories, or Home & Living products
+            if (isWomen || isKids || isAccessory || isHome) return false;
 
-            // Exclude general tech cases, stickers, rugs, posters, mugs unless explicitly tagged for Men
-            const isGeneralAccessory = (slugs.some(s => s === "accessories" || s.includes("tech") || s.includes("misc") || s.includes("decor") || s.includes("home")) || catName.includes("accessories") || catName.includes("home")) && !slugs.some(s => s.includes("men")) && !catName.includes("men");
-            if (isGeneralAccessory && !prodName.includes("men")) return false;
+            // Check if product belongs to Men's Fashion parent category or its child categories in categoriesList
+            const parentObj = categoriesList.find(c => {
+                const s = (c.slug || "").toLowerCase();
+                const n = (c.name || "").toLowerCase();
+                return (
+                    n === "men's fashion" || n === "mens fashion" || n === "men fashion" ||
+                    s === "mens-fashion" || s === "men-fashion" || s === "menswear" ||
+                    ((s.includes("men") || n.includes("men")) && !s.includes("women") && !n.includes("women"))
+                );
+            });
 
-            const isMenSlug = slugs.some(s => 
-                s === "mens" || s.startsWith("mens") || 
-                s === "men" || s.startsWith("men-") || s.startsWith("man") ||
-                s.includes("mens-fashion") || s.includes("men-fashion") || s.includes("menswear") || s.includes("men-s-fashion")
-            );
-            const isMenCat = catName.includes("men") && !catName.includes("women");
-            const isMenProd = prodName.includes("men ") || prodName.includes("mens ") || prodName.includes("men's") || prodName.includes("man ") || prodName.includes("men's fashion");
-            const isMenApparel = prodName.includes("cargo") || prodName.includes("overcoat") || prodName.includes("jacket") || prodName.includes("vest") || prodName.includes("hoodie") || prodName.includes("tee") || prodName.includes("shirt") || prodName.includes("pant") || prodName.includes("suit");
+            if (parentObj) {
+                const validCatIds = new Set<number>([parentObj.id]);
+                const validCatSlugs = new Set<string>([parentObj.slug.toLowerCase()]);
+                categoriesList.filter(c => c.parent === parentObj.id).forEach(c => {
+                    validCatIds.add(c.id);
+                    validCatSlugs.add(c.slug.toLowerCase());
+                });
 
-            return isMenSlug || isMenCat || isMenProd || isMenApparel;
+                // Check raw categories array from WooCommerce
+                const prodCatObjects = prod.raw?.categories || [];
+                const matchesCategoryList = prodCatObjects.some((catObj: any) => {
+                    const id = typeof catObj === "object" ? catObj.id : catObj;
+                    const slug = (typeof catObj === "object" ? catObj.slug || catObj.name : catObj.toString()).toLowerCase();
+                    return validCatIds.has(id) || validCatSlugs.has(slug);
+                });
+
+                if (matchesCategoryList) return true;
+            }
+
+            // Fallback match: Category slug or name contains explicit men's fashion identifier
+            const isExplicitMenCategory = slugs.some(s => 
+                s === "mens" || s.startsWith("mens-") || 
+                s === "men" || s.startsWith("men-") ||
+                s.includes("mens-fashion") || s.includes("men-fashion") || s.includes("menswear")
+            ) || (catName.includes("men") && !catName.includes("women"));
+
+            return isExplicitMenCategory;
         }
+
         case "womens": {
+            if (isKids || isAccessory || isHome) return false;
             const isWomenSlug = slugs.some(s => s.includes("women") || s.includes("female") || s.includes("lady"));
             const isWomenCat = catName.includes("women");
-            const isWomenProd = prodName.includes("women") || prodName.includes("women's") || prodName.includes("skirt") || prodName.includes("dress") || prodName.includes("nebula");
-            return isWomenSlug || isWomenCat || isWomenProd;
+            return isWomenSlug || isWomenCat;
         }
+
         case "kids": {
+            if (isWomen || isAccessory || isHome) return false;
             const isKidsSlug = slugs.some(s => s.includes("kid") || s.includes("youth") || s.includes("child"));
             const isKidsCat = catName.includes("kid");
-            const isKidsProd = prodName.includes("youth") || prodName.includes("kid") || prodName.includes("child");
-            return isKidsSlug || isKidsCat || isKidsProd;
+            return isKidsSlug || isKidsCat;
         }
+
         case "home-living": {
-            const isHomeSlug = slugs.some(s => 
-                s.includes("home") || s.includes("living") || s.includes("decor") || 
-                s.includes("rug") || s.includes("mat") || s.includes("art") || 
-                s.includes("poster") || s.includes("mug") || s.includes("cushion") || 
-                s.includes("bedding") || s.includes("lamp")
-            );
-            const isHomeCat = catName.includes("home") || catName.includes("living");
-            const isHomeProd = 
-                prodName.includes("home") || prodName.includes("rug") || prodName.includes("mat") || 
-                prodName.includes("poster") || prodName.includes("mug") || prodName.includes("cushion") || 
-                prodName.includes("lamp") || prodName.includes("art") || prodName.includes("decor") || 
-                prodName.includes("bedding") || prodName.includes("duvet") || prodName.includes("print");
-            return isHomeSlug || isHomeCat || isHomeProd;
+            if (isWomen || isKids) return false;
+            return isHome;
         }
+
         case "accessories": {
-            const isAccSlug = slugs.some(s => s.includes("accessori") || s.includes("gadget") || s.includes("tech"));
-            const isAccCat = catName.includes("accessori");
-            const isAccProd = prodName.includes("case") || prodName.includes("cover") || prodName.includes("cap") || prodName.includes("sunglass") || prodName.includes("sticker") || prodName.includes("beanie") || prodName.includes("chain");
-            return isAccSlug || isAccCat || isAccProd;
+            if (isWomen || isKids) return false;
+            return isAccessory;
         }
+
         default:
             return slugs.some(s => s.includes(tabSlug)) || catName.includes(tabSlug);
     }
@@ -395,7 +422,7 @@ export function distributeHomepageProducts(
 
     for (const tabSlug of CATEGORY_TAB_SLUGS) {
         const targetCount = 8;
-        const allParentMatching = formatted.filter(p => productMatchesParentCategory(p, tabSlug));
+        const allParentMatching = formatted.filter(p => productMatchesParentCategory(p, tabSlug, categoriesList));
 
         if (tabSlug === "all") {
             const unseen = allParentMatching.filter(p => !seenProductIds.has(p.id));
