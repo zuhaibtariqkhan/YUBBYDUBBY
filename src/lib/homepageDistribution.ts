@@ -168,11 +168,11 @@ export function formatProduct(prod: any): FormattedProduct {
  * Fallback subcategory mappings if dynamic category tree is loading
  */
 const DEFAULT_SUBCATEGORY_MAP: Record<string, string[]> = {
-    mens: ["mens-t-shirts", "mens-hoodies", "mens-jackets", "mens-sweatshirts", "mens-tracksuits", "mens-accessories"],
-    womens: ["womens-t-shirts", "womens-dresses", "womens-hoodies", "womens-tops", "womens-accessories"],
-    kids: ["kids-boys-clothing", "kids-girls-clothing", "kids-school-essentials", "kids-accessories"],
-    "home-living": ["home-wall-art", "home-posters", "home-mugs", "home-cushions", "home-bedding", "home-decor"],
-    accessories: ["accessories-tech-cases", "accessories-headwear", "accessories-misc"]
+    mens: ["mens-t-shirts", "mens-hoodies", "mens-jackets", "mens-sweatshirts", "mens-tracksuits", "mens-accessories", "mens-fashion", "men-fashion", "mens", "men"],
+    womens: ["womens-t-shirts", "womens-dresses", "womens-hoodies", "womens-tops", "womens-accessories", "womens-fashion", "women-fashion", "womens", "women"],
+    kids: ["kids-boys-clothing", "kids-girls-clothing", "kids-school-essentials", "kids-accessories", "kids-fashion", "kids"],
+    "home-living": ["home-wall-art", "home-posters", "home-mugs", "home-cushions", "home-bedding", "home-decor", "home-living"],
+    accessories: ["accessories-tech-cases", "accessories-headwear", "accessories-misc", "accessories"]
 };
 
 /**
@@ -229,6 +229,12 @@ function productMatchesSubcategory(prod: FormattedProduct, subcatSlug: string): 
         return prodName.includes("decor") || prodName.includes("lamp") || prodName.includes("light") || prodName.includes("rug") || prodName.includes("mat");
     }
 
+    // Main Men's category match
+    if (sub.includes("men")) {
+        const isWomen = slugs.some(s => s.includes("women") || s.includes("female") || s.includes("lady")) || catName.includes("women");
+        if (!isWomen && (catName.includes("men") || slugs.some(s => s.includes("men")))) return true;
+    }
+
     return false;
 }
 
@@ -248,13 +254,17 @@ function productMatchesParentCategory(prod: FormattedProduct, tabSlug: string): 
             const isWomen = slugs.some(s => s.includes("women") || s.includes("female") || s.includes("lady")) || catName.includes("women");
             if (isWomen) return false;
 
-            const isMenSlug = slugs.some(s => s === "mens" || s.startsWith("mens-") || s === "men" || s.startsWith("men-"));
-            const isMenCat = catName === "mens" || catName === "men" || (catName.includes("men") && !catName.includes("women"));
-            const isMenProd = prodName.includes("men ") || prodName.includes("mens ") || prodName.includes("men's");
+            const isMenSlug = slugs.some(s => 
+                s === "mens" || s.startsWith("mens") || 
+                s === "men" || s.startsWith("men-") || s.startsWith("man") ||
+                s.includes("mens-fashion") || s.includes("men-fashion") || s.includes("menswear") || s.includes("men-s-fashion")
+            );
+            const isMenCat = catName.includes("men") && !catName.includes("women");
+            const isMenProd = prodName.includes("men ") || prodName.includes("mens ") || prodName.includes("men's") || prodName.includes("man ") || prodName.includes("men's fashion");
             
             // Allow general men's apparel if not tagged kids or women
             const isKids = slugs.some(s => s.includes("kid") || s.includes("youth") || s.includes("child")) || catName.includes("kid") || prodName.includes("youth") || prodName.includes("kid");
-            const isMenApparel = prodName.includes("cargo") || prodName.includes("overcoat") || prodName.includes("jacket") || prodName.includes("vest") || prodName.includes("0-gravity hoodie");
+            const isMenApparel = prodName.includes("cargo") || prodName.includes("overcoat") || prodName.includes("jacket") || prodName.includes("vest") || prodName.includes("hoodie") || prodName.includes("tee") || prodName.includes("shirt") || prodName.includes("pant") || prodName.includes("suit");
 
             return isMenSlug || isMenCat || isMenProd || (isMenApparel && !isKids);
         }
@@ -321,7 +331,26 @@ export function distributeHomepageProducts(
         if (tabSlug === "all") continue;
 
         // Try matching dynamic backend category tree first
-        const parentObj = categoriesList.find(c => c.slug === tabSlug || c.slug.includes(tabSlug));
+        const parentObj = categoriesList.find(c => {
+            const s = (c.slug || "").toLowerCase();
+            const n = (c.name || "").toLowerCase();
+            if (tabSlug === "mens") {
+                return (s.includes("men") || n.includes("men")) && !s.includes("women") && !n.includes("women");
+            }
+            if (tabSlug === "womens") {
+                return s.includes("women") || n.includes("women");
+            }
+            if (tabSlug === "kids") {
+                return s.includes("kid") || n.includes("kid") || s.includes("child") || n.includes("child");
+            }
+            if (tabSlug === "home-living") {
+                return s.includes("home") || n.includes("home") || s.includes("living") || n.includes("living");
+            }
+            if (tabSlug === "accessories") {
+                return s.includes("accessori") || n.includes("accessori");
+            }
+            return s === tabSlug || s.includes(tabSlug);
+        });
         let childSlugs: string[] = [];
 
         if (parentObj) {
