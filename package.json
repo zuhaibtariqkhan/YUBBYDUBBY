@@ -7,7 +7,6 @@
   },
   "scripts": {
     "dev": "next dev",
-    "prebuild": "node -e \"const fs=require('fs');fs.readdirSync('.').filter(f=>f.includes('.next.config.')&&!f.startsWith('next.config.')).forEach(f=>{try{fs.unlinkSync(f);console.log('Cleaned stray config:',f)}catch(e){}})\"",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint"
