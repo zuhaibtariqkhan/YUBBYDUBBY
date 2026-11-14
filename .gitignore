@@ -41,6 +41,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# next.config temporary compilation artifacts
+*.next.config.*
+
 # local OTP store and logs
 otp-debug.log
 otp-store.json
