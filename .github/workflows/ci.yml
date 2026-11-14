@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Lint, Typecheck & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies (clean)
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Run TypeScript type check
+        run: npx tsc --noEmit
+
+      - name: Run Next.js production build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_APP_URL: "https://yubbydubby.com"
+          WOOCOMMERCE_API_URL: "https://shop.yubbydubby.com"
+          WOOCOMMERCE_CONSUMER_KEY: "dummy_ci_ck"
+          WOOCOMMERCE_CONSUMER_SECRET: "dummy_ci_cs"
+          JWT_SECRET: "dummy_ci_secret_token_verification_key_32chars"

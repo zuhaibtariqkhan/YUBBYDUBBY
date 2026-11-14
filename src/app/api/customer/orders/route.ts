@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
       // Determine order milestone state
       const wcStatus = order.status; // pending, processing, on-hold, completed, cancelled, refunded, failed
       let displayStatus = "Processing";
-      let isPlaced = true;
+      const isPlaced = true;
       let isPacked = false;
       let isShipped = false;
       let isOutForDelivery = false;

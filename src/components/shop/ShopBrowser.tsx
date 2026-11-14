@@ -448,7 +448,7 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps 
   };
 
   // --- Toggle Multi-select values ---
-  const toggleFilter = (list: any[], setList: Function, value: any) => {
+  const toggleFilter = (list: any[], setList: (val: any[]) => void, value: any) => {
     if (list.includes(value)) {
       setList(list.filter(item => item !== value));
     } else {
@@ -964,7 +964,7 @@ export default function ShopBrowser({ initialMainCategories }: ShopBrowserProps 
         {debouncedSearchQuery && (
           <>
             <ChevronRight size={12} className="text-gray-600" />
-            <span className="text-brand-green font-bold">Search: "{debouncedSearchQuery}"</span>
+            <span className="text-brand-green font-bold">Search: &quot;{debouncedSearchQuery}&quot;</span>
           </>
         )}
       </div>

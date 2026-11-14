@@ -39,7 +39,7 @@ export default async function ShopPage() {
     const categoriesOrder = ["mens", "womens", "kids", "home-living", "accessories"];
 
     // Filter and sort the standard categories
-    let sortedCategories = categoriesData
+    const sortedCategories = categoriesData
         .filter(c => categoriesOrder.includes(c.slug.toLowerCase()))
         .sort((a, b) => {
             const indexA = categoriesOrder.indexOf(a.slug.toLowerCase());

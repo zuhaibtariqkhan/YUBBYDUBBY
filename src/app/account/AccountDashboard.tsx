@@ -114,17 +114,23 @@ export default function AccountDashboard() {
   const [otpToken, setOtpToken] = useState("");
   const [verifiedToken, setVerifiedToken] = useState("");
 
-  // Load customer session on mount
-  useEffect(() => {
-    const savedToken = localStorage.getItem("cocart_token");
-    if (savedToken) {
-      setToken(savedToken);
-      setIsAuthenticated(true);
-      fetchCustomerData(savedToken);
-    } else {
-      setIsLoading(false);
-    }
-  }, []);
+  const handleLogout = () => {
+    localStorage.removeItem("cocart_token");
+    localStorage.removeItem("customer_email");
+    localStorage.removeItem("customer_display_name");
+    setToken(null);
+    setIsAuthenticated(false);
+    setPersonalInfo({
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      birthday: "",
+      gender: "Male"
+    });
+    setAddresses([]);
+    setOrders([]);
+  };
 
   const fetchCustomerData = async (authToken: string) => {
     setIsLoading(true);
@@ -191,6 +197,18 @@ export default function AccountDashboard() {
       setIsLoading(false);
     }
   };
+
+  // Load customer session on mount
+  useEffect(() => {
+    const savedToken = localStorage.getItem("cocart_token");
+    if (savedToken) {
+      setToken(savedToken);
+      setIsAuthenticated(true);
+      fetchCustomerData(savedToken);
+    } else {
+      setIsLoading(false);
+    }
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -495,24 +513,6 @@ export default function AccountDashboard() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("cocart_token");
-    localStorage.removeItem("customer_email");
-    localStorage.removeItem("customer_display_name");
-    setToken(null);
-    setIsAuthenticated(false);
-    setPersonalInfo({
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-      birthday: "",
-      gender: "Male"
-    });
-    setAddresses([]);
-    setOrders([]);
-  };
-
   // Time-based greetings
   useEffect(() => {
     const hrs = new Date().getHours();
@@ -778,7 +778,7 @@ export default function AccountDashboard() {
                       </div>
 
                       <div className="flex justify-between items-center text-[10px] font-mono px-1">
-                        <span className="text-gray-400">Didn't receive the code?</span>
+                        <span className="text-gray-400">Didn&apos;t receive the code?</span>
                         <button
                           type="button"
                           disabled={isAuthenticating}
@@ -906,7 +906,7 @@ export default function AccountDashboard() {
                       </div>
 
                       <div className="flex justify-between items-center text-[10px] font-mono px-1">
-                        <span className="text-gray-400">Didn't receive the code?</span>
+                        <span className="text-gray-400">Didn&apos;t receive the code?</span>
                         <button
                           type="button"
                           disabled={isAuthenticating}

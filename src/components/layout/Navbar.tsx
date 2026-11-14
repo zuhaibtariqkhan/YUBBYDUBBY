@@ -420,7 +420,7 @@ export default function Navbar() {
                                     </div>
                                 ) : searchResults.length === 0 ? (
                                     <div className="text-center py-16 text-gray-500 font-mono text-sm uppercase tracking-widest">
-                                        No items matching "{searchQuery}" found.
+                                        No items matching &quot;{searchQuery}&quot; found.
                                     </div>
                                 ) : (
                                     <div className="space-y-4">
