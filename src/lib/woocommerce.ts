@@ -120,7 +120,6 @@ export async function fetchWooCommerce<T>(endpoint: string, options: RequestInit
     throw new Error('WOOCOMMERCE_NOT_CONFIGURED');
   }
 
-  const separator = endpoint.includes('?') ? '&' : '?';
   const url = `${WOOCOMMERCE_URL}/wp-json/wc/v3/${endpoint}`;
 
   try {

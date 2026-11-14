@@ -244,15 +244,18 @@ export function Footer() {
                         </motion.span>
                     </span>
                     <span className="hidden md:inline">{" | "}</span>
-                    <motion.span
+                    <motion.a
+                        href="https://www.instagram.com/zuhahahaib/"
+                        target="_blank"
+                        rel="noopener noreferrer"
                         initial={{ opacity: 0 }}
                         whileInView={{ opacity: 1 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.6, duration: 0.8 }}
-                        className="text-brand-green font-bold block md:inline mt-2 md:mt-0"
+                        className="text-brand-green font-bold block md:inline mt-2 md:mt-0 hover:text-white hover:underline transition-colors cursor-pointer"
                     >
-                        DEVELOPED BY ZTK
-                    </motion.span>
+                        DEVELOPED BY ZTM
+                    </motion.a>
                     <span className="hidden md:inline">{" |"}</span>
                 </motion.p>
                 <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 mt-6 md:mt-0">

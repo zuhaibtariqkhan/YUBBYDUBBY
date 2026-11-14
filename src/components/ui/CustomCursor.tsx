@@ -8,129 +8,83 @@ export default function CustomCursor() {
 
     useEffect(() => {
         // Don't render on touch devices
-        if ("ontouchstart" in window) return;
+        if (typeof window === "undefined" || "ontouchstart" in window || window.matchMedia("(pointer: coarse)").matches) {
+            return;
+        }
 
         const dot = dotRef.current;
         const ring = ringRef.current;
         if (!dot || !ring) return;
 
-        let mouseX = 0;
-        let mouseY = 0;
-        let ringX = 0;
-        let ringY = 0;
+        let mouseX = -100;
+        let mouseY = -100;
+        let ringX = -100;
+        let ringY = -100;
         let isHovering = false;
-        let targetRect: DOMRect | null = null;
-        let targetRadius = "50%";
         let isIdle = false;
         let idleTimer: ReturnType<typeof setTimeout> | null = null;
+        let animationId: number;
 
         const handleMouseMove = (e: MouseEvent) => {
             mouseX = e.clientX;
             mouseY = e.clientY;
 
-            // Set opacity directly via DOM to avoid React re-renders on mousemove
+            // Set opacity directly via DOM
             dot.style.opacity = "1";
             ring.style.opacity = "1";
 
-            // Dot follows instantly
-            dot.style.transform = `translate(${mouseX - 4}px, ${mouseY - 4}px)`;
+            // Dot follows instantly using hardware-accelerated translate3d
+            dot.style.transform = `translate3d(${mouseX - 4}px, ${mouseY - 4}px, 0)`;
 
             // Restart animation loop if idle
             if (isIdle) {
                 isIdle = false;
                 animationId = requestAnimationFrame(animateRing);
             }
-            // Reset idle timer
             if (idleTimer) clearTimeout(idleTimer);
             idleTimer = setTimeout(() => { isIdle = true; }, 150);
         };
 
         const handleMouseOver = (e: MouseEvent) => {
-            const target = e.target as HTMLElement;
-            const clickable = target.closest("a") || target.closest("button") || (window.getComputedStyle(target).cursor === "pointer" ? target : null);
+            const target = e.target as HTMLElement | null;
+            if (!target) return;
 
-            if (clickable) {
-                isHovering = true;
-                const rect = clickable.getBoundingClientRect();
-
-                // Only apply magnetic snap for reasonably sized elements (e.g. not huge image links)
-                if (rect.width < 300 && rect.height < 100) {
-                    targetRect = rect;
-                    targetRadius = window.getComputedStyle(clickable).borderRadius || "8px";
-                    // If no border radius found, default to slight rounding
-                    if (targetRadius === "0px") targetRadius = "8px";
-                } else {
-                    targetRect = null;
-                }
-            } else {
-                isHovering = false;
-                targetRect = null;
-                targetRadius = "50%";
-            }
+            // Use native selector matching without calling getComputedStyle (prevents layout thrashing)
+            const clickable = target.closest("a, button, [role='button'], input, select, textarea, .cursor-pointer");
+            isHovering = !!clickable;
         };
 
         const handleMouseLeave = () => {
             dot.style.opacity = "0";
             ring.style.opacity = "0";
             isHovering = false;
-            targetRect = null;
         };
 
-        let animationId: number;
-
-        // Smooth ring trailing animation with magnetic morphing
+        // Smooth ring trailing animation with GPU-accelerated transforms
         const animateRing = () => {
-            if (targetRect && isHovering) {
-                // Snap to target center
-                const targetX = targetRect.left + targetRect.width / 2;
-                const targetY = targetRect.top + targetRect.height / 2;
+            ringX += (mouseX - ringX) * 0.18;
+            ringY += (mouseY - ringY) * 0.18;
 
-                // Faster interpolation for the magnetic snap
-                ringX += (targetX - ringX) * 0.25;
-                ringY += (targetY - ringY) * 0.25;
+            const scale = isHovering ? 1.6 : 1.0;
+            ring.style.transform = `translate3d(${ringX - 16}px, ${ringY - 16}px, 0) scale(${scale})`;
+            ring.style.borderColor = isHovering ? "#B1F310" : "rgba(255, 255, 255, 0.55)";
+            ring.style.backgroundColor = isHovering ? "rgba(177, 243, 16, 0.12)" : "transparent";
 
-                if (ring) {
-                    const padding = 12; // Extra padding around the button
-                    const w = targetRect.width + padding;
-                    const h = targetRect.height + padding;
-
-                    ring.style.width = `${w}px`;
-                    ring.style.height = `${h}px`;
-                    ring.style.transform = `translate(${ringX - w / 2}px, ${ringY - h / 2}px)`;
-                    ring.style.borderRadius = targetRadius;
-                    ring.style.backgroundColor = "rgba(177, 243, 16, 0.08)"; // subtle brand green filling
-                    ring.style.borderColor = "rgba(177, 243, 16, 0.4)";
-                    ring.style.mixBlendMode = "normal";
-                }
-            } else {
-                // Normal trailing behavior
-                ringX += (mouseX - ringX) * 0.15;
-                ringY += (mouseY - ringY) * 0.15;
-
-                if (ring) {
-                    const size = isHovering ? 50 : 32;
-                    ring.style.width = `${size}px`;
-                    ring.style.height = `${size}px`;
-                    ring.style.transform = `translate(${ringX - size / 2}px, ${ringY - size / 2}px)`;
-                    ring.style.borderRadius = "50%";
-                    ring.style.backgroundColor = isHovering ? "rgba(177, 243, 16, 0.1)" : "transparent";
-                    ring.style.borderColor = isHovering ? "#B1F310" : "rgba(255, 255, 255, 0.6)";
-                    ring.style.mixBlendMode = "difference";
-                }
+            if (!isIdle) {
+                animationId = requestAnimationFrame(animateRing);
             }
-
-            if (!isIdle) animationId = requestAnimationFrame(animateRing);
         };
 
-        document.addEventListener("mousemove", handleMouseMove);
-        document.addEventListener("mouseover", handleMouseOver);
-        document.addEventListener("mouseleave", handleMouseLeave);
+        document.addEventListener("mousemove", handleMouseMove, { passive: true });
+        document.addEventListener("mouseover", handleMouseOver, { passive: true });
+        document.addEventListener("mouseleave", handleMouseLeave, { passive: true });
         animationId = requestAnimationFrame(animateRing);
 
         return () => {
             document.removeEventListener("mousemove", handleMouseMove);
             document.removeEventListener("mouseover", handleMouseOver);
             document.removeEventListener("mouseleave", handleMouseLeave);
+            if (idleTimer) clearTimeout(idleTimer);
             cancelAnimationFrame(animationId);
         };
     }, []);
@@ -140,25 +94,28 @@ export default function CustomCursor() {
             {/* Inner dot */}
             <div
                 ref={dotRef}
-                className="custom-cursor-dot fixed top-0 left-0 z-[9999] pointer-events-none mix-blend-difference"
+                className="custom-cursor-dot fixed top-0 left-0 z-[9999] pointer-events-none mix-blend-difference will-change-transform"
                 style={{
                     width: 8,
                     height: 8,
                     borderRadius: "50%",
                     backgroundColor: "#B1F310",
                     opacity: 0,
-                    transition: "opacity 0.3s ease",
+                    transition: "opacity 0.25s ease",
                     pointerEvents: "none",
                 }}
             />
             {/* Outer ring */}
             <div
                 ref={ringRef}
-                className="custom-cursor-ring fixed top-0 left-0 z-[9998] pointer-events-none"
+                className="custom-cursor-ring fixed top-0 left-0 z-[9998] pointer-events-none will-change-transform mix-blend-difference"
                 style={{
-                    opacity: 0,
-                    transition: "width 0.25s ease-out, height 0.25s ease-out, border-radius 0.25s ease-out, border-color 0.3s ease, background-color 0.3s ease, opacity 0.3s ease",
+                    width: 32,
+                    height: 32,
+                    borderRadius: "50%",
                     border: "2px solid rgba(255,255,255,0.6)",
+                    opacity: 0,
+                    transition: "opacity 0.25s ease, border-color 0.2s ease, background-color 0.2s ease",
                     pointerEvents: "none",
                 }}
             />

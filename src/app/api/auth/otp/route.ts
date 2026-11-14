@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import nodemailer from "nodemailer";
-import { signPayload, verifyPayload } from "@/lib/otp-token";
+import { signPayload, verifyPayload, hashOtp, verifyOtpHash } from "@/lib/otp-token";
 
 const OTP_DEBUG_LOG_PATH = path.join(process.cwd(), "otp-debug.log");
 
@@ -179,10 +179,10 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      // Generate secure signed OTP token
+      // Generate secure signed OTP token (store cryptographic hash, never plain OTP)
       const signedOtpToken = signPayload({
         email: cleanEmail,
-        emailOtp: generatedEmailOtp,
+        otpHash: hashOtp(cleanEmail, generatedEmailOtp),
         expiresAt,
       });
 
@@ -216,8 +216,12 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      // Enforce email OTP check
-      if (!emailOtp || emailOtp.trim() !== payload.emailOtp) {
+      // Enforce email OTP check against cryptographic hash
+      const isOtpValid = payload.otpHash
+        ? verifyOtpHash(payload.email, emailOtp, payload.otpHash)
+        : (payload.emailOtp && emailOtp.trim() === payload.emailOtp);
+
+      if (!emailOtp || !isOtpValid) {
         return NextResponse.json({ error: "Email verification code is incorrect." }, { status: 400 });
       }
 

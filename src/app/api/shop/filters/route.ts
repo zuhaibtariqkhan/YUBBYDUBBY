@@ -90,39 +90,56 @@ const FALLBACK_CATEGORY_IMAGES: Record<string, string> = {
   "accessories-misc": "/cat-accessories.png",
 };
 
+let cachedFilters: any = null;
+let lastCacheTime = 0;
+const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes cache
+
 export async function GET() {
   if (!isWooCommerceConfigured()) {
     return NextResponse.json(MOCK_FILTERS);
   }
 
+  // Return cached metadata if still valid
+  const now = Date.now();
+  if (cachedFilters && now - lastCacheTime < CACHE_TTL_MS) {
+    return NextResponse.json(cachedFilters);
+  }
+
   try {
-    // 1. Fetch Categories & Products from WordPress to map live product photos to categories
-    const [categories, products]: [any, any] = await Promise.all([
-      fetchWooCommerce('products/categories?per_page=100'),
-      fetchWooCommerce('products?per_page=100')
+    // 1. Fetch Categories, Products, Tags, Attributes, and Price Bounds in parallel
+    const [categoriesRes, productsRes, tagsRes, attributesRes, minPriceRes, maxPriceRes]: [any, any, any, any, any, any] = await Promise.all([
+      fetchWooCommerce('products/categories?per_page=100').catch(() => []),
+      fetchWooCommerce('products?per_page=100').catch(() => []),
+      fetchWooCommerce('products/tags?per_page=100').catch(() => []),
+      fetchWooCommerce('products/attributes').catch(() => []),
+      fetchWooCommerce('products?orderby=price&order=asc&per_page=1').catch(() => []),
+      fetchWooCommerce('products?orderby=price&order=desc&per_page=1').catch(() => [])
     ]);
 
-    const catImgMap: Record<number, string> = {};
-    if (Array.isArray(products)) {
-      products.forEach((p: any) => {
-        if (p.images && p.images.length > 0 && p.images[0]?.src) {
-          (p.categories || []).forEach((c: any) => {
-            if (!catImgMap[c.id]) {
-              catImgMap[c.id] = p.images[0].src;
-            }
-          });
-        }
-      });
-    }
+    const categories = Array.isArray(categoriesRes) ? categoriesRes : [];
+    const products = Array.isArray(productsRes) ? productsRes : [];
+    const tags = Array.isArray(tagsRes) ? tagsRes : [];
+    const attributesList = Array.isArray(attributesRes) ? attributesRes : [];
 
-    const filteredCategories = (Array.isArray(categories) ? categories : []).filter((c: any) => {
+    const catImgMap: Record<number, string> = {};
+    products.forEach((p: any) => {
+      if (p.images && p.images.length > 0 && p.images[0]?.src) {
+        (p.categories || []).forEach((c: any) => {
+          if (!catImgMap[c.id]) {
+            catImgMap[c.id] = p.images[0].src;
+          }
+        });
+      }
+    });
+
+    const filteredCategories = categories.filter((c: any) => {
       const slug = c.slug ? c.slug.toLowerCase() : '';
       const name = c.name ? c.name.toLowerCase() : '';
       return !['uncategorized', 'shop'].includes(slug) && 
              !slug.includes('adidas') && 
              !slug.includes('create') && 
-             !slug.includes('collab') &&
-             !slug.includes('featured') &&
+             !slug.includes('collab') && 
+             !slug.includes('featured') && 
              !name.includes('featured');
     }).map((c: any) => {
       const slug = c.slug ? c.slug.toLowerCase() : '';
@@ -145,8 +162,7 @@ export async function GET() {
       };
     });
 
-    // 2. Fetch Tags
-    const tags: any = await fetchWooCommerce('products/tags?per_page=100');
+    // 2. Map Tags safely
     const mappedTags = tags.map((t: any) => ({
       id: t.id,
       name: t.name,
@@ -154,25 +170,28 @@ export async function GET() {
       count: t.count
     }));
 
-    // 3. Fetch Attributes and their terms
-    const attributesList: any = await fetchWooCommerce('products/attributes');
-    
+    // 3. Fetch Attribute terms in parallel (prevents sequential waterfall)
     let colors: string[] = [];
     let sizes: string[] = [];
     let materials: string[] = [];
     let brands: string[] = [];
 
-    for (const attr of attributesList) {
-      const attrName = attr.name.toLowerCase();
-      const terms: any = await fetchWooCommerce(`products/attributes/${attr.id}/terms?per_page=100`);
-      const options = terms.map((t: any) => t.name);
+    const termsResults = await Promise.all(
+      attributesList.map(async (attr: any) => {
+        const terms: any = await fetchWooCommerce(`products/attributes/${attr.id}/terms?per_page=100`).catch(() => []);
+        return {
+          name: attr.name ? attr.name.toLowerCase() : '',
+          options: Array.isArray(terms) ? terms.map((t: any) => t.name) : []
+        };
+      })
+    );
 
-      if (attrName === 'color' || attrName === 'colour') {
-        colors = options;
-      } else if (attrName === 'size') {
-        // Standard sort order for sizes if possible
+    for (const item of termsResults) {
+      if (item.name === 'color' || item.name === 'colour') {
+        colors = item.options;
+      } else if (item.name === 'size') {
         const sizeOrder = ["xs", "s", "m", "l", "xl", "xxl", "2xl", "3xl", "4xl"];
-        sizes = options.sort((a: string, b: string) => {
+        sizes = item.options.sort((a: string, b: string) => {
           const indexA = sizeOrder.indexOf(a.toLowerCase());
           const indexB = sizeOrder.indexOf(b.toLowerCase());
           if (indexA === -1 && indexB === -1) return a.localeCompare(b);
@@ -180,10 +199,10 @@ export async function GET() {
           if (indexB === -1) return -1;
           return indexA - indexB;
         });
-      } else if (attrName === 'material') {
-        materials = options;
-      } else if (attrName === 'brand') {
-        brands = options;
+      } else if (item.name === 'material') {
+        materials = item.options;
+      } else if (item.name === 'brand') {
+        brands = item.options;
       }
     }
 
@@ -193,31 +212,30 @@ export async function GET() {
     if (materials.length === 0) materials = ["Cotton", "Polyester", "Canvas", "Silicone", "Glass"];
     if (brands.length === 0) brands = ["Yubby Dubby", "Adidas"];
 
-    // 4. Determine Price Range dynamically (fetch min and max prices from active products)
+    // 4. Determine Price Range dynamically
     let minPrice = 0;
     let maxPrice = 3000;
 
-    const minPriceProduct: any = await fetchWooCommerce('products?orderby=price&order=asc&per_page=1');
-    const maxPriceProduct: any = await fetchWooCommerce('products?orderby=price&order=desc&per_page=1');
+    const minPriceProduct = Array.isArray(minPriceRes) ? minPriceRes : [];
+    const maxPriceProduct = Array.isArray(maxPriceRes) ? maxPriceRes : [];
 
-    if (minPriceProduct && minPriceProduct.length > 0) {
+    if (minPriceProduct.length > 0) {
       minPrice = Math.floor(parseFloat(minPriceProduct[0].price) || 0);
     }
-    if (maxPriceProduct && maxPriceProduct.length > 0) {
+    if (maxPriceProduct.length > 0) {
       maxPrice = Math.ceil(parseFloat(maxPriceProduct[0].price) || 3000);
     }
 
-    // Safety check for pricing bounds
     if (minPrice > maxPrice) {
       const temp = minPrice;
       minPrice = maxPrice;
       maxPrice = temp;
     }
     if (minPrice === maxPrice) {
-      minPrice = 0; // ensure range is valid
+      minPrice = 0;
     }
 
-    return NextResponse.json({
+    const result = {
       categories: filteredCategories,
       tags: mappedTags,
       attributes: {
@@ -230,8 +248,13 @@ export async function GET() {
         min: minPrice,
         max: maxPrice
       }
-    });
+    };
 
+    // Update in-memory cache
+    cachedFilters = result;
+    lastCacheTime = Date.now();
+
+    return NextResponse.json(result);
   } catch (error) {
     console.error('Failed to fetch filters metadata from WooCommerce, using fallbacks:', error);
     return NextResponse.json(MOCK_FILTERS);

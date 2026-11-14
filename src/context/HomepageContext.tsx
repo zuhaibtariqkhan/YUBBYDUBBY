@@ -27,22 +27,11 @@ export function HomepageProvider({
     children: React.ReactNode;
     initialProducts?: any[];
 }) {
-    const [seed, setSeed] = useState<number>(42);
+    const [seed] = useState<number>(42);
     const [categories, setCategories] = useState<CategoryTreeItem[]>([]);
     const [isClientReady, setIsClientReady] = useState(false);
 
     useEffect(() => {
-        try {
-            let sessionSeed = sessionStorage.getItem("yd_homepage_seed");
-            if (!sessionSeed) {
-                sessionSeed = Math.floor(Math.random() * 1000000).toString();
-                sessionStorage.setItem("yd_homepage_seed", sessionSeed);
-            }
-            setSeed(parseInt(sessionSeed, 10) || 42);
-        } catch {
-            setSeed(Date.now());
-        }
-
         // Fetch dynamic WooCommerce category hierarchy from API
         fetch("/api/shop/categories")
             .then((res) => (res.ok ? res.json() : []))

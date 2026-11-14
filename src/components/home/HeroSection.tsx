@@ -33,6 +33,7 @@ export default function HeroSection() {
                     loop
                     muted
                     playsInline
+                    preload="metadata"
                     className="absolute inset-0 w-full h-full object-cover object-center opacity-20 saturate-100"
                 >
                     <source src="/hero-video.mp4" type="video/mp4" />

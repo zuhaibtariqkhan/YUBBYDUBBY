@@ -47,17 +47,23 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      // Overriding item pricing using subtotal/total fields (e.g. ₹1000 flat price)
-      const itemPrice = item.price || 1000;
-      const lineTotal = (itemPrice * item.quantity).toString();
-
-      return {
+      const lineItem: any = {
         product_id: isNaN(parsedId) ? 0 : parsedId,
-        quantity: item.quantity,
-        subtotal: lineTotal,
-        total: lineTotal,
+        quantity: Math.max(1, parseInt(item.quantity, 10) || 1),
         meta_data,
       };
+
+      // Enforce server-side pricing: for standard catalog products (product_id > 0),
+      // omit subtotal/total so WooCommerce resolves canonical catalog pricing.
+      // For custom print items without a catalog product_id, enforce minimum base price.
+      if (lineItem.product_id === 0) {
+        const itemPrice = Math.max(1000, Number(item.price) || 1000);
+        const lineTotal = (itemPrice * lineItem.quantity).toString();
+        lineItem.subtotal = lineTotal;
+        lineItem.total = lineTotal;
+      }
+
+      return lineItem;
     });
 
     // Construct the WooCommerce order payload
@@ -107,10 +113,11 @@ export async function POST(req: NextRequest) {
     console.log(`Successfully created WooCommerce order ID: ${order.id}`);
 
     // Return the order details, specifically ID and key for Order Pay redirection
+    const baseUrl = process.env.NEXT_PUBLIC_WOOCOMMERCE_URL || "https://shop.yubbydubby.com";
     return NextResponse.json({
       orderId: order.id,
       orderKey: order.order_key,
-      paymentUrl: `https://shop.yubbydubby.com/checkout/order-pay/${order.id}/?pay_for_order=true&key=${order.order_key}`,
+      paymentUrl: `${baseUrl}/checkout/order-pay/${order.id}/?pay_for_order=true&key=${order.order_key}`,
     });
   } catch (error: any) {
     console.error("Error creating WooCommerce order:", error);

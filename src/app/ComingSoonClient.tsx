@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, ShieldCheck, Zap, ShoppingBag, Mail, Check, Clock } from "lucide-react";
+import { Sparkles, ShieldCheck, Zap, ShoppingBag, Mail, Check } from "lucide-react";
 
 // Countdown Target Date: Exactly 22 days from June 9, 2026 20:52:00
 const TARGET_DATE = new Date("2026-07-01T15:22:00Z").getTime();
@@ -13,6 +13,55 @@ interface TimeRemaining {
   hours: number;
   minutes: number;
   seconds: number;
+}
+
+class Particle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  radius: number;
+  alpha: number;
+
+  constructor(w: number, h: number) {
+    this.x = Math.random() * w;
+    this.y = Math.random() * h;
+    this.vx = (Math.random() - 0.5) * 0.3;
+    this.vy = (Math.random() - 0.5) * 0.3;
+    this.radius = Math.random() * 2 + 0.5;
+    this.alpha = Math.random() * 0.5 + 0.2;
+  }
+
+  update(w: number, h: number, mouse: { x: number; y: number; radius: number }) {
+    this.x += this.vx;
+    this.y += this.vy;
+
+    // Bounce borders
+    if (this.x < 0 || this.x > w) this.vx *= -1;
+    if (this.y < 0 || this.y > h) this.vy *= -1;
+
+    // Mouse interaction (repelling effect)
+    const dx = this.x - mouse.x;
+    const dy = this.y - mouse.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    if (distance < mouse.radius) {
+      const force = (mouse.radius - distance) / mouse.radius;
+      const angle = Math.atan2(dy, dx);
+      this.x += Math.cos(angle) * force * 1.5;
+      this.y += Math.sin(angle) * force * 1.5;
+    }
+  }
+
+  draw(context: CanvasRenderingContext2D) {
+    context.save();
+    context.beginPath();
+    context.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    context.fillStyle = `rgba(177, 243, 16, ${this.alpha})`; // Accent Green glow
+    context.shadowBlur = 8;
+    context.shadowColor = "#B1F310";
+    context.fill();
+    context.restore();
+  }
 }
 
 export default function ComingSoonClient() {
@@ -33,55 +82,6 @@ export default function ComingSoonClient() {
     let animationFrameId: number;
     let particles: Particle[] = [];
     const mouse = { x: -1000, y: -1000, radius: 150 };
-
-    class Particle {
-      x: number;
-      y: number;
-      vx: number;
-      vy: number;
-      radius: number;
-      alpha: number;
-
-      constructor(w: number, h: number) {
-        this.x = Math.random() * w;
-        this.y = Math.random() * h;
-        this.vx = (Math.random() - 0.5) * 0.3;
-        this.vy = (Math.random() - 0.5) * 0.3;
-        this.radius = Math.random() * 2 + 0.5;
-        this.alpha = Math.random() * 0.5 + 0.2;
-      }
-
-      update(w: number, h: number) {
-        this.x += this.vx;
-        this.y += this.vy;
-
-        // Bounce borders
-        if (this.x < 0 || this.x > w) this.vx *= -1;
-        if (this.y < 0 || this.y > h) this.vy *= -1;
-
-        // Mouse interaction (repelling effect)
-        const dx = this.x - mouse.x;
-        const dy = this.y - mouse.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance < mouse.radius) {
-          const force = (mouse.radius - distance) / mouse.radius;
-          const angle = Math.atan2(dy, dx);
-          this.x += Math.cos(angle) * force * 1.5;
-          this.y += Math.sin(angle) * force * 1.5;
-        }
-      }
-
-      draw(context: CanvasRenderingContext2D) {
-        context.save();
-        context.beginPath();
-        context.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        context.fillStyle = `rgba(177, 243, 16, ${this.alpha})`; // Accent Green glow
-        context.shadowBlur = 8;
-        context.shadowColor = "#B1F310";
-        context.fill();
-        context.restore();
-      }
-    }
 
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
@@ -151,7 +151,7 @@ export default function ComingSoonClient() {
 
       // Update and draw particles
       particles.forEach((p) => {
-        p.update(canvas.width, canvas.height);
+        p.update(canvas.width, canvas.height, mouse);
         p.draw(ctx);
       });
 

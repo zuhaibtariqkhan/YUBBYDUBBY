@@ -6,8 +6,8 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   User, ShoppingBag, Heart, Award, MapPin, Shield, Bell, 
-  Trash2, Plus, Edit2, Check, RefreshCw, ChevronRight, FileText, 
-  Lock, Smartphone, Key, Star, Clock, AlertTriangle, Eye, EyeOff, Sparkles
+  Trash2, Plus, Edit2, Check, RefreshCw, FileText, 
+  Lock, Key, Clock, AlertTriangle, Eye, EyeOff, Sparkles
 } from "lucide-react";
 import { Footer } from "@/components/home/HomeSections";
 import Navbar from "@/components/layout/Navbar";
@@ -91,7 +91,7 @@ export default function AccountDashboard() {
 
   // Security Toggles
   const [twoFactor, setTwoFactor] = useState(false);
-  const [emailVerified, setEmailVerified] = useState(true);
+  const [emailVerified] = useState(true);
 
   // Auth local inputs
   const [authMode, setAuthMode] = useState<"login" | "register">("login");

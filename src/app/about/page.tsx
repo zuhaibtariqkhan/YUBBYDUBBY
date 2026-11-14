@@ -391,19 +391,30 @@ export default function AboutPage() {
                             name="Zuhaib Tariq Khan"
                             title="Founder"
                             avatarUrl="/ZTKKK.jpeg"
-                            handle="zuhaibtariqkhan"
+                            handle="zuhahahaib"
                             status="Entrepreneur"
                             contactText="Get in Touch"
-                            onContactClick={() => window.open("https://www.instagram.com/zuhaibtariqkhan/", "_blank")}
+                            onContactClick={() => window.open("https://www.instagram.com/zuhahahaib/", "_blank")}
+                            socials={
+                                <a
+                                    href="https://www.instagram.com/zuhahahaib/"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="p-2 rounded-full bg-white/5 hover:bg-[#b1f310]/20 text-[#b1f310] transition-colors"
+                                    aria-label="Instagram"
+                                >
+                                    <Instagram size={20} />
+                                </a>
+                            }
                         />
                         <a
-                            href="https://www.instagram.com/zuhaibtariqkhan/"
+                            href="https://www.instagram.com/zuhahahaib/"
                             target="_blank"
                             rel="noreferrer"
                             className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-neutral-900/90 border border-white/15 text-white hover:border-[#b1f310] hover:text-[#b1f310] hover:shadow-[0_0_25px_rgba(177,243,16,0.3)] transition-all duration-300 font-mono text-xs uppercase tracking-widest cursor-pointer group mt-2"
                         >
                             <Instagram size={18} className="text-[#b1f310] group-hover:scale-110 transition-transform" />
-                            <span>Follow @zuhaibtariqkhan</span>
+                            <span>Follow @zuhahahaib</span>
                         </a>
                     </FadeIn>
                 </div>

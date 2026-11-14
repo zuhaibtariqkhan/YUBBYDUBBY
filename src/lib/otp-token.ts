@@ -15,6 +15,33 @@ const getSecret = (): string => {
 const SECRET = getSecret();
 
 /**
+ * Compute an HMAC hash of the OTP for the given email to store in the token.
+ * This ensures the raw OTP is NEVER sent to the client in the token.
+ */
+export function hashOtp(email: string, otp: string): string {
+  return crypto
+    .createHmac("sha256", SECRET)
+    .update(`${email.toLowerCase().trim()}:${otp.trim()}`)
+    .digest("hex");
+}
+
+/**
+ * Verify submitted OTP against expected hash in constant time (timing-safe).
+ */
+export function verifyOtpHash(email: string, submittedOtp: string, expectedHash: string): boolean {
+  if (!email || !submittedOtp || !expectedHash) return false;
+  const computedHash = hashOtp(email, submittedOtp);
+  try {
+    const a = Buffer.from(computedHash, "hex");
+    const b = Buffer.from(expectedHash, "hex");
+    if (a.length !== b.length) return false;
+    return crypto.timingSafeEqual(a, b);
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Encrypt and sign a payload statelessly.
  */
 export function signPayload(payload: any): string {
@@ -46,7 +73,9 @@ export function verifyPayload(token: string): any | null {
       .update(dataB64)
       .digest("base64");
 
-    if (signature !== expectedSignature) {
+    const sigBuf = Buffer.from(signature);
+    const expBuf = Buffer.from(expectedSignature);
+    if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) {
       console.warn("[OTP Token] Signature verification failed.");
       return null;
     }
