@@ -34,6 +34,8 @@ export default function ProductInteractive({ product }: ProductInteractiveProps)
   const { addToCart } = useCart();
 
   const handleAddToCart = () => {
+    if (addedToCart) return;
+    setAddedToCart(true);
     addToCart({
       id: product.id,
       name: product.name,
@@ -42,8 +44,7 @@ export default function ProductInteractive({ product }: ProductInteractiveProps)
       color: selectedColor,
       image: product.images[0] || "/prod-hoodie.png"
     }, quantity);
-    setAddedToCart(true);
-    setTimeout(() => setAddedToCart(false), 2000);
+    setTimeout(() => setAddedToCart(false), 1600);
   };
 
 
@@ -202,7 +203,7 @@ export default function ProductInteractive({ product }: ProductInteractiveProps)
         <div className="space-y-6 mt-8">
           <motion.button
             onClick={handleAddToCart}
-            disabled={!product.inStock}
+            disabled={!product.inStock || addedToCart}
             animate={addedToCart ? { scale: [1, 1.03, 1] } : {}}
             transition={{ duration: 0.3 }}
             className={`w-full py-4 uppercase tracking-widest font-heading font-black text-sm rounded-[var(--radius-btn)] transition-all duration-300 relative overflow-hidden flex items-center justify-center gap-2 cursor-pointer ${

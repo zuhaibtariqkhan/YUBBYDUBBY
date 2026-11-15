@@ -17,7 +17,7 @@ export default function CartToast({ item, onClose, onOpenDrawer }: CartToastProp
     <AnimatePresence>
       {item && (
         <motion.div
-          key={`${item.id}-${item.size}-${item.color || ""}-${Date.now()}`}
+          key={item.toastId || `${item.id}-${item.size}-${item.color || ""}`}
           initial={{ opacity: 0, y: -30, scale: 0.9, x: 20 }}
           animate={{ opacity: 1, y: 0, scale: 1, x: 0 }}
           exit={{ opacity: 0, y: -20, scale: 0.9 }}

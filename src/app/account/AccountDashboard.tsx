@@ -110,9 +110,20 @@ export default function AccountDashboard() {
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [enteredEmailOtp, setEnteredEmailOtp] = useState("");
   const [isOtpVerifying, setIsOtpVerifying] = useState(false);
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
   const [otpDebugMessage, setOtpDebugMessage] = useState("");
   const [otpToken, setOtpToken] = useState("");
   const [verifiedToken, setVerifiedToken] = useState("");
+
+  // Countdown timer for Resend OTP
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const interval = setInterval(() => {
+      setResendCooldown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [resendCooldown]);
 
   const handleLogout = () => {
     localStorage.removeItem("cocart_token");
@@ -251,6 +262,7 @@ export default function AccountDashboard() {
 
   const triggerSendResetOtp = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    if (isSendingOtp) return;
     setAuthError("");
 
     if (!authEmail.trim()) {
@@ -258,7 +270,12 @@ export default function AccountDashboard() {
       return;
     }
 
-    setIsAuthenticating(true);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(authEmail.trim())) {
+      setAuthError("Please provide a valid email address.");
+      return;
+    }
+
+    setIsSendingOtp(true);
     setOtpDebugMessage("");
 
     try {
@@ -277,6 +294,7 @@ export default function AccountDashboard() {
         throw new Error(data.error || "Failed to send reset code.");
       }
 
+      setResendCooldown(60);
       if (data.otpToken) {
         setOtpToken(data.otpToken);
       }
@@ -287,7 +305,7 @@ export default function AccountDashboard() {
     } catch (err: any) {
       setAuthError(err.message || "Failed to send reset code.");
     } finally {
-      setIsAuthenticating(false);
+      setIsSendingOtp(false);
     }
   };
 
@@ -389,10 +407,16 @@ export default function AccountDashboard() {
 
   const triggerSendOtp = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    if (isSendingOtp) return;
     setAuthError("");
 
     if (!authEmail.trim()) {
       setAuthError("Please provide an email address.");
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(authEmail.trim())) {
+      setAuthError("Please provide a valid email address.");
       return;
     }
 
@@ -401,7 +425,7 @@ export default function AccountDashboard() {
       return;
     }
 
-    setIsAuthenticating(true);
+    setIsSendingOtp(true);
     setOtpDebugMessage("");
 
     try {
@@ -420,6 +444,7 @@ export default function AccountDashboard() {
         throw new Error(data.error || "Failed to dispatch verification code.");
       }
 
+      setResendCooldown(60);
       setIsOtpSent(true);
       if (data.otpToken) {
         setOtpToken(data.otpToken);
@@ -430,7 +455,7 @@ export default function AccountDashboard() {
     } catch (err: any) {
       setAuthError(err.message || "Failed to dispatch verification code.");
     } finally {
-      setIsAuthenticating(false);
+      setIsSendingOtp(false);
     }
   };
 
@@ -781,11 +806,12 @@ export default function AccountDashboard() {
                         <span className="text-gray-400">Didn&apos;t receive the code?</span>
                         <button
                           type="button"
-                          disabled={isAuthenticating}
+                          disabled={resendCooldown > 0 || isSendingOtp}
                           onClick={() => triggerSendResetOtp()}
-                          className="text-brand-green hover:text-white transition-colors cursor-pointer font-bold uppercase tracking-wider disabled:opacity-50"
+                          className="text-brand-green hover:text-white transition-colors cursor-pointer font-bold uppercase tracking-wider disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
                         >
-                          Resend Code
+                          {isSendingOtp && <RefreshCw size={11} className="animate-spin" />}
+                          <span>{resendCooldown > 0 ? `Resend Code (${resendCooldown}s)` : "Resend Code"}</span>
                         </button>
                       </div>
 
@@ -909,11 +935,12 @@ export default function AccountDashboard() {
                         <span className="text-gray-400">Didn&apos;t receive the code?</span>
                         <button
                           type="button"
-                          disabled={isAuthenticating}
+                          disabled={resendCooldown > 0 || isSendingOtp}
                           onClick={() => triggerSendOtp()}
-                          className="text-brand-green hover:text-white transition-colors cursor-pointer font-bold uppercase tracking-wider disabled:opacity-50"
+                          className="text-brand-green hover:text-white transition-colors cursor-pointer font-bold uppercase tracking-wider disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
                         >
-                          Resend Code
+                          {isSendingOtp && <RefreshCw size={11} className="animate-spin" />}
+                          <span>{resendCooldown > 0 ? `Resend Code (${resendCooldown}s)` : "Resend Code"}</span>
                         </button>
                       </div>
 

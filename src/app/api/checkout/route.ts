@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchWooCommerce } from "@/lib/woocommerce";
+import { isValidIndianPinCode, isValidIndianPhone, isValidIndianState } from "@/lib/india-locations";
 
 export async function POST(req: NextRequest) {
   try {
@@ -9,6 +10,56 @@ export async function POST(req: NextRequest) {
     if (!billing || !shipping || !cartItems || cartItems.length === 0) {
       return NextResponse.json(
         { error: "Missing required order parameters." },
+        { status: 400 }
+      );
+    }
+
+    // Server-Side Delivery Validation
+    if (!billing.firstName || billing.firstName.trim().length < 2) {
+      return NextResponse.json(
+        { error: "First name must be at least 2 characters long." },
+        { status: 400 }
+      );
+    }
+
+    if (!billing.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(billing.email.trim())) {
+      return NextResponse.json(
+        { error: "Please provide a valid email address for delivery updates." },
+        { status: 400 }
+      );
+    }
+
+    if (!isValidIndianPhone(billing.phone)) {
+      return NextResponse.json(
+        { error: "Please provide a valid 10-digit Indian mobile number." },
+        { status: 400 }
+      );
+    }
+
+    if (!billing.address1 || billing.address1.trim().length < 5) {
+      return NextResponse.json(
+        { error: "Street address must be at least 5 characters long." },
+        { status: 400 }
+      );
+    }
+
+    if (!isValidIndianState(billing.state)) {
+      return NextResponse.json(
+        { error: "Please select a valid Indian State or Union Territory." },
+        { status: 400 }
+      );
+    }
+
+    if (!billing.city || billing.city.trim().length < 2) {
+      return NextResponse.json(
+        { error: "Please provide a valid City or District." },
+        { status: 400 }
+      );
+    }
+
+    if (!isValidIndianPinCode(billing.postcode)) {
+      return NextResponse.json(
+        { error: "Please provide a valid 6-digit Indian PIN code." },
         { status: 400 }
       );
     }

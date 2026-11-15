@@ -11,6 +11,7 @@ export interface CartItem {
   size: string;
   color?: string;
   image: string;
+  toastId?: string;
 }
 
 interface CartContextType {
@@ -58,9 +59,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [cartItems, isMounted]);
 
   const addToCart = (newItem: Omit<CartItem, "quantity">, quantity: number) => {
-    const fullItem: CartItem = { ...newItem, quantity };
+    const stableToastId = `${newItem.id}-${newItem.size}-${newItem.color || ""}-${Date.now()}`;
+    const fullItem: CartItem = { ...newItem, quantity, toastId: stableToastId };
 
-    // Trigger toast notification
+    // Trigger toast notification with stable identifier
     setToastItem(fullItem);
 
     // Trigger navbar cart icon animation bounce
@@ -76,7 +78,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (existingItemIndex > -1) {
         // Increase quantity of existing item
         const updatedItems = [...prevItems];
-        updatedItems[existingItemIndex].quantity += quantity;
+        updatedItems[existingItemIndex] = {
+          ...updatedItems[existingItemIndex],
+          quantity: updatedItems[existingItemIndex].quantity + quantity,
+        };
         return updatedItems;
       }
 
